@@ -54,14 +54,15 @@ func (s *organizeService) Create(ctx context.Context, req models.CreateOrganizeJ
 		Status:      "pending",
 		CreatedAt:   time.Now(),
 	}
+	s.log.Info("Creating new organize job", logger.Any("job", job))
 
 	// 3. Organize job-ni DB ga saqlash
 	if err := s.stg.Organize().Create(ctx, job); err != nil {
-		s.log.Error("Failed to create organize job", logger.Error(err))
+		s.log.Error("Failed to create organize job in DB", logger.Error(err))
 		return "", err
 	}
 
-	// 4. Sahifa tartibini string shaklga o'tkazish
+	// 4. Sahifa tartibini []int → "3,1,2" ga aylantirish
 	orderList, err := parsePageOrder(req.NewOrder)
 	if err != nil {
 		s.log.Error("Invalid page order format", logger.Error(err))
@@ -73,26 +74,31 @@ func (s *organizeService) Create(ctx context.Context, req models.CreateOrganizeJ
 	}
 	finalOrder := strings.Join(orderStr, ",")
 
-	// 5. Output fayl yaratish
+	// 5. Output fayl uchun path va katalog tayyorlash
 	outputID := uuid.New().String()
-	outputPath := filepath.Join("storage/organize", outputID+".pdf")
-
-	cmd := exec.Command("pdfcpu", "selected", file.FilePath, outputPath, finalOrder)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		s.log.Error("pdfcpu execution failed", logger.Error(err))
+	outputDir := "storage/organize"
+	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
+		s.log.Error("Failed to create output directory", logger.Error(err))
 		return "", err
 	}
+	outputPath := filepath.Join(outputDir, outputID+".pdf")
 
-	// 6. Output faylni diskdan o‘qish
+	// 6. pdfcpu reorder buyrug'ini bajarish
+cmd := exec.Command("pdfcpu", "reorder", "-pages", finalOrder, file.FilePath, outputPath)
+output, err := cmd.CombinedOutput()
+if err != nil {
+	s.log.Error("pdfcpu execution failed", logger.String("stderr", string(output)), logger.Error(err))
+	return "", fmt.Errorf("pdfcpu error: %s", string(output))
+}
+
+	// 7. Output faylni diskdan olish
 	fi, err := os.Stat(outputPath)
 	if err != nil {
 		s.log.Error("Output file stat failed", logger.Error(err))
 		return "", err
 	}
 
-	// 7. Output faylni DB ga saqlash
+	// 8. Output faylni DB ga saqlash
 	newFile := models.File{
 		ID:         outputID,
 		UserID:     userID,
@@ -107,7 +113,7 @@ func (s *organizeService) Create(ctx context.Context, req models.CreateOrganizeJ
 		return "", err
 	}
 
-	// 8. Job-ni yangilash
+	// 9. Job statusni yangilash
 	job.OutputFileID = outputID
 	job.Status = "done"
 	if err := s.stg.Organize().Update(ctx, job); err != nil {

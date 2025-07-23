@@ -47,14 +47,15 @@ func (s *rotateService) Create(ctx context.Context, req models.RotatePDFRequest,
 	outputPath := filepath.Join("storage/rotate", jobID+".pdf")
 
 	job := &models.RotateJob{
-		ID:          jobID,
-		UserID:      userID,
-		InputFileID: req.InputFileID,
-		Angle:       req.Angle,
-		Pages:       req.Pages,
-		OutputPath:  outputPath,
-		Status:      "pending",
-		CreatedAt:   time.Now(),
+		ID:           jobID,
+		UserID:       userID,
+		InputFileID:  req.InputFileID,
+		Angle:        req.Angle,
+		Pages:        req.Pages,
+		OutputPath:   outputPath,
+		Status:       "pending",
+		CreatedAt:    time.Now(),
+		OutputFileID: "", // keyinchalik to‘ldiriladi
 	}
 
 	if err := s.stg.Rotate().Create(ctx, job); err != nil {
@@ -62,8 +63,13 @@ func (s *rotateService) Create(ctx context.Context, req models.RotatePDFRequest,
 		return "", err
 	}
 
-	// 3. CLI orqali aylantirish
-	// Masalan: pdfcpu rotate input.pdf output.pdf 90 1-3
+	// 3. Chiqarish papkasi
+	if err := os.MkdirAll(filepath.Dir(outputPath), os.ModePerm); err != nil {
+		s.log.Error("failed to create rotate dir", logger.Error(err))
+		return "", err
+	}
+
+	// 4. CLI orqali aylantirish
 	cmd := exec.Command("pdfcpu", "rotate", file.FilePath, outputPath, fmt.Sprintf("%d", req.Angle), req.Pages)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -73,8 +79,33 @@ func (s *rotateService) Create(ctx context.Context, req models.RotatePDFRequest,
 		return "", err
 	}
 
-	// 4. Holatni yangilash
+	// 5. Output faylni saqlash
+	info, err := os.Stat(outputPath)
+	if err != nil {
+		s.log.Error("cannot stat output file", logger.Error(err))
+		return "", err
+	}
+
+	outputFileID := uuid.NewString()
+	outputFile := models.File{
+		ID:         outputFileID,
+		UserID:     userID,
+		FileName:   filepath.Base(outputPath),
+		FilePath:   outputPath,
+		FileType:   "application/pdf",
+		FileSize:   info.Size(),
+		UploadedAt: time.Now(),
+	}
+
+	if _, err := s.stg.File().Save(ctx, outputFile); err != nil {
+		s.log.Error("failed to save rotated file", logger.Error(err))
+		return "", err
+	}
+
+	// 6. Holatni yangilash
 	job.Status = "done"
+	job.OutputFileID = outputFileID
+
 	if err := s.stg.Rotate().Update(ctx, job); err != nil {
 		s.log.Error("failed to update rotate job", logger.Error(err))
 		return "", err

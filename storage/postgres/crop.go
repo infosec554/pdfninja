@@ -24,10 +24,10 @@ func NewCropRepo(db *pgxpool.Pool, log logger.ILogger) storage.ICropPDFStorage {
 // Create – yangi crop job qo‘shadi
 func (r *cropRepo) Create(ctx context.Context, job *models.CropPDFJob) error {
 	query := `
-        INSERT INTO crop_pdf_jobs
-        (id, user_id, input_file_id, top, bottom, left, right, status, created_at)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-    `
+    INSERT INTO crop_pdf_jobs
+    (id, user_id, input_file_id, top, bottom, "left", "right", status, created_at)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+`
 	_, err := r.db.Exec(ctx, query,
 		job.ID, job.UserID, job.InputFileID,
 		job.Top, job.Bottom, job.Left, job.Right,
@@ -42,11 +42,12 @@ func (r *cropRepo) Create(ctx context.Context, job *models.CropPDFJob) error {
 // GetByID – ID bo‘yicha crop job ma’lumotini qaytaradi
 func (r *cropRepo) GetByID(ctx context.Context, id string) (*models.CropPDFJob, error) {
 	query := `
-        SELECT id, user_id, input_file_id, top, bottom, left, right,
-               output_file_id, status, created_at
-        FROM crop_pdf_jobs
-        WHERE id = $1
-    `
+    SELECT id, user_id, input_file_id, top, bottom, "left", "right",
+           output_file_id, status, created_at
+    FROM crop_pdf_jobs
+    WHERE id = $1
+`
+
 	row := r.db.QueryRow(ctx, query, id)
 
 	var job models.CropPDFJob

@@ -32,14 +32,12 @@ func NewCropPDFService(stg storage.IStorage, log logger.ILogger) CropPDFService 
 func (s *cropPDFService) Create(ctx context.Context, req models.CropPDFRequest, userID string) (string, error) {
 	s.log.Info("CropPDFService.Create called")
 
-	// 1. Kirish faylini olish
 	file, err := s.stg.File().GetByID(ctx, req.InputFileID)
 	if err != nil {
 		s.log.Error("input file not found", logger.Error(err))
 		return "", fmt.Errorf("file not found")
 	}
 
-	// 2. Job yaratish
 	jobID := uuid.New().String()
 	outputFileID := uuid.New().String()
 	outputPath := filepath.Join("storage/crop_pdf", outputFileID+".pdf")
@@ -53,9 +51,12 @@ func (s *cropPDFService) Create(ctx context.Context, req models.CropPDFRequest, 
 		ID:           jobID,
 		UserID:       userID,
 		InputFileID:  req.InputFileID,
-		OutputFileID: outputFileID,
-		Box:          req.Box,
+		Top:          req.Top,
+		Bottom:       req.Bottom,
+		Left:         req.Left,
+		Right:        req.Right,
 		Pages:        req.Pages,
+		OutputFileID: outputFileID,
 		Status:       "pending",
 		CreatedAt:    time.Now(),
 	}
@@ -65,12 +66,15 @@ func (s *cropPDFService) Create(ctx context.Context, req models.CropPDFRequest, 
 		return "", err
 	}
 
-	// 3. PDFCPU orqali crop qilish
+	llx := req.Left
+	lly := req.Bottom
+	urx := 595 - req.Right
+	ury := 842 - req.Top
+
 	args := []string{
-		"pages",
 		"trim",
 		"-pages", req.Pages,
-		"-mediabox", req.Box,
+		"-m", fmt.Sprintf("mediabox:%d %d %d %d", llx, lly, urx, ury),
 		file.FilePath,
 		outputPath,
 	}
@@ -82,7 +86,6 @@ func (s *cropPDFService) Create(ctx context.Context, req models.CropPDFRequest, 
 		return "", err
 	}
 
-	// 4. Yangi faylni saqlash
 	fi, err := os.Stat(outputPath)
 	if err != nil {
 		s.log.Error("cannot stat output file", logger.Error(err))
@@ -104,7 +107,6 @@ func (s *cropPDFService) Create(ctx context.Context, req models.CropPDFRequest, 
 		return "", err
 	}
 
-	// 5. Holatni yangilash
 	job.Status = "done"
 	if err := s.stg.Crop().Update(ctx, job); err != nil {
 		s.log.Error("failed to update job", logger.Error(err))

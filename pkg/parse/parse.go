@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"errors"
+	"fmt"
 	"os"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -32,4 +33,13 @@ func ParseToken(tokenString string) (map[string]interface{}, error) {
 	}
 
 	return nil, errors.New("invalid token or claims")
+}
+
+func ParsePageOrder(order []int) ([]int, error) {
+	for _, page := range order {
+		if page <= 0 {
+			return nil, fmt.Errorf("invalid page number: %d", page)
+		}
+	}
+	return order, nil
 }

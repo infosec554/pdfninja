@@ -138,3 +138,27 @@ func (h Handler) ListUserFiles(c *gin.Context) {
 
 	handleResponse(c, h.log, "user files", http.StatusOK, files)
 }
+
+// CleanupOldFiles godoc
+// @Summary      Cleanup old files
+// @Description  Admin-only endpoint to delete files older than N days
+// @Tags         file
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Success      200 {object} models.Response
+// @Failure      500 {object} models.Response
+// @Router       /api/files/cleanup [get]
+func (h *Handler) CleanupOldFiles(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	const olderThanDays = 7
+
+	count, err := h.services.File().CleanupOldFiles(ctx, olderThanDays)
+	if err != nil {
+		handleResponse(c, h.log, "failed to cleanup old files", http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	handleResponse(c, h.log, "old files cleaned up", http.StatusOK, gin.H{"deleted_files": count})
+}

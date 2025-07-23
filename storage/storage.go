@@ -29,11 +29,14 @@ type IStorage interface {
 	Crop() ICropPDFStorage
 	Unlock() IUnlockPDFStorage
 	Protect() IProtectStorage
+	Stat() IStatStorage
+	Log() ILogService
 }
 
 type IUserStorage interface {
 	Create(ctx context.Context, req models.CreateUser) (string, error)
 	GetForLoginByEmail(ctx context.Context, email string) (models.LoginUser, error)
+	GetByID(ctx context.Context, id string) (*models.User, error)
 }
 
 type IOTPStorage interface {
@@ -66,6 +69,9 @@ type IFileStorage interface {
 	GetByID(ctx context.Context, id string) (models.File, error)
 	Delete(ctx context.Context, id string) error
 	ListByUser(ctx context.Context, userID string) ([]models.File, error)
+
+	GetOldFiles(ctx context.Context, olderThanDays int) ([]models.OldFile, error)
+	DeleteByID(ctx context.Context, id string) error
 }
 type IMergeStorage interface {
 	Create(ctx context.Context, job *models.MergeJob) error
@@ -150,4 +156,12 @@ type IProtectStorage interface {
 	Create(ctx context.Context, job *models.ProtectPDFJob) error
 	GetByID(ctx context.Context, id string) (*models.ProtectPDFJob, error)
 	Update(ctx context.Context, job *models.ProtectPDFJob) error
+}
+
+type IStatStorage interface {
+	GetUserStats(ctx context.Context, userID string) (models.UserStats, error)
+}
+
+type ILogService interface {
+	GetLogsByJobID(ctx context.Context, jobID string) ([]models.Log, error)
 }

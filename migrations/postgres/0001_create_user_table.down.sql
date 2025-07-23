@@ -19,3 +19,4 @@ DROP TABLE IF EXISTS add_page_number_jobs;
 DROP TABLE IF EXISTS watermark_jobs;
 DROP TABLE IF EXISTS crop_jobs;
 DROP TABLE IF EXISTS protect_jobs;
+DROP TABLE IF EXISTS logs

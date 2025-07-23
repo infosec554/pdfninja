@@ -52,3 +52,18 @@ func (h Handler) AuthorizerMiddleware(c *gin.Context) {
 	// 7. Davom ettiramiz
 	c.Next()
 }
+func (h Handler) AdminMiddleware(c *gin.Context) {
+	roleVal, exists := c.Get("user_role")
+	if !exists {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "user_role missing"})
+		return
+	}
+
+	role, ok := roleVal.(string)
+	if !ok || role != "admin" {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "only admin access"})
+		return
+	}
+
+	c.Next()
+}

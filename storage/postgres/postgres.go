@@ -147,3 +147,10 @@ func (s *Store) Unlock() storage.IUnlockPDFStorage {
 func (s *Store) Protect() storage.IProtectStorage {
 	return NewProtectRepo(s.pool, s.log)
 }
+
+func (s *Store) Stat() storage.IStatStorage {
+	return NewStatsRepo(s.pool, s.log)
+}
+func (s *Store) Log() storage.ILogService {
+	return NewLogRepo(s.pool, s.log)
+}

@@ -11,7 +11,7 @@ import (
 )
 
 // CreateExtractJob godoc
-// @Router       /pdf/extract [POST]
+// @Router       /api/pdf/extract [POST]
 // @Security     ApiKeyAuth
 // @Summary      Create extract job
 // @Tags         pdf-extract
@@ -48,7 +48,7 @@ func (h *Handler) CreateExtractJob(c *gin.Context) {
 }
 
 // GetExtractJob godoc
-// @Router       /pdf/extract/{id} [GET]
+// @Router       /api/pdf/extract/{id} [GET]
 // @Security     ApiKeyAuth
 // @Summary      Get extract job by ID
 // @Tags         pdf-extract

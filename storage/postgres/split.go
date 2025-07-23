@@ -16,7 +16,7 @@ type splitRepo struct {
 	log logger.ILogger
 }
 
-func  NewSplitRepo(db *pgxpool.Pool, log logger.ILogger) storage.ISplitStorage {
+func NewSplitRepo(db *pgxpool.Pool, log logger.ILogger) storage.ISplitStorage {
 	return &splitRepo{
 		db:  db,
 		log: log,
@@ -24,18 +24,17 @@ func  NewSplitRepo(db *pgxpool.Pool, log logger.ILogger) storage.ISplitStorage {
 }
 
 func (r *splitRepo) Create(ctx context.Context, job *models.SplitJob) error {
-	outputIDs, _ := json.Marshal(job.OutputFileIDs)
-
 	query := `
         INSERT INTO split_jobs (id, user_id, input_file_id, split_ranges, output_file_ids, status, created_at)
         VALUES ($1, $2, $3, $4, $5, $6, $7)
     `
+
 	_, err := r.db.Exec(ctx, query,
 		job.ID,
 		job.UserID,
 		job.InputFileID,
 		job.SplitRanges,
-		outputIDs,
+		job.OutputFileIDs, // ✅
 		job.Status,
 		job.CreatedAt,
 	)
@@ -43,21 +42,23 @@ func (r *splitRepo) Create(ctx context.Context, job *models.SplitJob) error {
 	return err
 }
 
+// TO‘G‘RI variant:
 func (r *splitRepo) GetByID(ctx context.Context, id string) (*models.SplitJob, error) {
 	var job models.SplitJob
 	var outputIDs []byte
 
 	query := `
-        SELECT id, user_id, input_file_id, split_ranges, output_file_ids, status, created_at
-        FROM split_jobs
-        WHERE id = $1
-    `
+	SELECT id, user_id, input_file_id, split_ranges, output_file_ids, status, created_at
+	FROM split_jobs
+	WHERE id = $1
+`
+
 	err := r.db.QueryRow(ctx, query, id).Scan(
 		&job.ID,
 		&job.UserID,
 		&job.InputFileID,
 		&job.SplitRanges,
-		&outputIDs,
+		&outputIDs, // 👈 jsonb sifatida o‘qiyapmiz
 		&job.Status,
 		&job.CreatedAt,
 	)
@@ -65,9 +66,13 @@ func (r *splitRepo) GetByID(ctx context.Context, id string) (*models.SplitJob, e
 		return nil, err
 	}
 
+	// ✅ JSON ni []string ga unmarshal qilamiz
 	_ = json.Unmarshal(outputIDs, &job.OutputFileIDs)
+
 	return &job, nil
+
 }
+
 func (r *splitRepo) UpdateOutputFiles(ctx context.Context, jobID string, outputIDs []string) error {
 	query := `
 		UPDATE split_jobs

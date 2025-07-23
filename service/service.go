@@ -28,6 +28,8 @@ type IServiceManager interface {
 	Crop() CropPDFService
 	Unlock() UnlockService
 	Protect() ProtectPDFService
+	Stat() StatsService
+	Log() LogService
 }
 
 type service struct {
@@ -51,6 +53,8 @@ type service struct {
 	cropPDFService       CropPDFService
 	unlockService        UnlockService
 	protectPDFService    ProtectPDFService
+	statsService         StatsService
+	logService           LogService
 }
 
 func New(storage storage.IStorage, log logger.ILogger, mailerCore *mailer.Mailer, redis storage.IRedisStorage) IServiceManager {
@@ -75,6 +79,8 @@ func New(storage storage.IStorage, log logger.ILogger, mailerCore *mailer.Mailer
 		cropPDFService:       NewCropPDFService(storage, log),
 		unlockService:        NewUnlockService(storage, log),
 		protectPDFService:    NewProtectPDFService(storage, log),
+		statsService:         NewStatsService(storage, log),
+		logService:           NewLogService(storage, log),
 	}
 }
 
@@ -155,4 +161,12 @@ func (s *service) Unlock() UnlockService {
 
 func (s *service) Protect() ProtectPDFService {
 	return s.protectPDFService
+}
+
+func (s *service) Stat() StatsService {
+	return s.statsService
+}
+
+func (s *service) Log() LogService {
+	return s.logService
 }

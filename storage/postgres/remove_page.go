@@ -24,7 +24,7 @@ func NewRemovePageRepo(db *pgxpool.Pool, log logger.ILogger) storage.IRemovePage
 
 func (r *removeRepo) Create(ctx context.Context, job *models.RemoveJob) error {
 	query := `
-		INSERT INTO remove_jobs (id, user_id, input_file_id, pages_to_remove, status, created_at)
+		INSERT INTO remove_pages_jobs (id, user_id, input_file_id, pages_to_remove, status, created_at)
 		VALUES ($1, $2, $3, $4, $5, $6)
 	`
 	_, err := r.db.Exec(ctx, query,
@@ -34,7 +34,7 @@ func (r *removeRepo) Create(ctx context.Context, job *models.RemoveJob) error {
 
 func (r *removeRepo) Update(ctx context.Context, job *models.RemoveJob) error {
 	query := `
-		UPDATE remove_jobs
+		UPDATE remove_pages_jobs
 		SET output_file_id = $1, status = $2
 		WHERE id = $3
 	`
@@ -45,25 +45,28 @@ func (r *removeRepo) Update(ctx context.Context, job *models.RemoveJob) error {
 func (r *removeRepo) GetByID(ctx context.Context, id string) (*models.RemoveJob, error) {
 	query := `
 		SELECT id, user_id, input_file_id, pages_to_remove, output_file_id, status, created_at
-		FROM remove_jobs
+		FROM remove_pages_jobs
 		WHERE id = $1
 	`
 
-	row := r.db.QueryRow(ctx, query, id)
-
 	var job models.RemoveJob
-	err := row.Scan(
+	var outputFileID *string // <- ✳️ NULL uchun
+
+	err := r.db.QueryRow(ctx, query, id).Scan(
 		&job.ID,
 		&job.UserID,
 		&job.InputFileID,
 		&job.PagesToRemove,
-		&job.OutputFileID,
+		&outputFileID, // <- ✳️
 		&job.Status,
 		&job.CreatedAt,
 	)
-
 	if err != nil {
 		return nil, err
+	}
+
+	if outputFileID != nil {
+		job.OutputFileID = *outputFileID
 	}
 
 	return &job, nil
