@@ -46,7 +46,7 @@ func Load() Config {
 	cfg.PostgresPassword = cast.ToString(getOrReturnDefault("POSTGRES_PASSWORD", "1234"))
 	cfg.PostgresDB = cast.ToString(getOrReturnDefault("POSTGRES_DB", "authservice"))
 
-	cfg.ServiceName = cast.ToString(getOrReturnDefault("SERVICE_NAME", "auth"))
+	cfg.ServiceName = cast.ToString(getOrReturnDefault("SERVICE_NAME", "pdfninja"))
 	cfg.LoggerLevel = cast.ToString(getOrReturnDefault("LOGGER_LEVEL", "debug"))
 
 	cfg.JWTSecretKey = cast.ToString(getOrReturnDefault("JWT_SECRET_KEY", "default_secret_key"))
@@ -59,9 +59,9 @@ func Load() Config {
 	// 🔧 SMTP configlar qo‘shildi:
 	cfg.SMTPHost = cast.ToString(getOrReturnDefault("SMTP_HOST", "smtp.gmail.com"))
 	cfg.SMTPPort = cast.ToString(getOrReturnDefault("SMTP_PORT", "587"))
-	cfg.SMTPUser = cast.ToString(getOrReturnDefault("SMTP_USER", "example@gmail.com"))
-	cfg.SMTPPass = cast.ToString(getOrReturnDefault("SMTP_PASS", "vzqv jexe tmoo gqcz"))
-	cfg.SMTPSenderName = cast.ToString(getOrReturnDefault("SMTP_SENDER_NAME", "Auth Service"))
+	cfg.SMTPUser = cast.ToString(getOrReturnDefault("SMTP_USER", "infosec557@gmail.com"))
+	cfg.SMTPPass = cast.ToString(getOrReturnDefault("SMTP_PASS", "wwvn ehzs qsvs ojcf"))
+	cfg.SMTPSenderName = cast.ToString(getOrReturnDefault("SMTP_SENDER_NAME", "pdfninja"))
 
 	return cfg
 }

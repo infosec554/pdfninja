@@ -62,6 +62,17 @@ CREATE TABLE files (
 
 -- ORGANIZE PDF
 
+CREATE TABLE organize_jobs (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id),
+    input_file_id UUID NOT NULL REFERENCES files(id),
+    new_order INTEGER[] NOT NULL, -- Sahifalar yangi tartibi
+    output_file_id UUID REFERENCES files(id),
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+
 CREATE TABLE merge_jobs (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id),
@@ -152,6 +163,18 @@ CREATE TABLE rotate_jobs (
     status VARCHAR(20) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
 );
+CREATE TABLE rotate_jobs (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id),
+    input_file_id UUID NOT NULL REFERENCES files(id),
+    rotation_angle INTEGER NOT NULL,
+    pages VARCHAR NOT NULL DEFAULT 'all',
+    output_file_id UUID REFERENCES files(id),
+    output_path VARCHAR,
+    status VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
 
 CREATE TABLE add_page_number_jobs (
     id UUID PRIMARY KEY,
@@ -175,11 +198,15 @@ CREATE TABLE watermark_jobs (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE crop_jobs (
+
+CREATE TABLE crop_pdf_jobs (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id),
     input_file_id UUID NOT NULL REFERENCES files(id),
-    crop_dimensions TEXT NOT NULL,
+    top INTEGER NOT NULL,
+    bottom INTEGER NOT NULL,
+    "left" INTEGER NOT NULL,
+    "right" INTEGER NOT NULL,
     output_file_id UUID REFERENCES files(id),
     status VARCHAR(20) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
@@ -203,5 +230,13 @@ CREATE TABLE protect_jobs (
     password TEXT NOT NULL,
     output_file_id UUID REFERENCES files(id),
     status VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+CREATE TABLE logs (
+    id UUID PRIMARY KEY,
+    job_id UUID,  -- merge_jobs.id, split_jobs.id va h.k.
+    job_type VARCHAR(30), -- masalan: 'merge', 'split', 'compress'
+    message TEXT,
+    level VARCHAR(10), -- 'info', 'error', 'debug'
     created_at TIMESTAMP DEFAULT NOW()
 );

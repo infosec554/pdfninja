@@ -15,6 +15,95 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/files/cleanup": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Admin-only endpoint to delete files older than N days",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "file"
+                ],
+                "summary": "Cleanup old files",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/logs/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get logs by job ID (for debugging or audit)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "logs"
+                ],
+                "summary": "Get logs for a specific job",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Log"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/pdf/add-page-numbers": {
             "post": {
                 "security": [
@@ -295,6 +384,107 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/extract": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-extract"
+                ],
+                "summary": "Create extract job",
+                "parameters": [
+                    {
+                        "description": "extract request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ExtractPagesRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/extract/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-extract"
+                ],
+                "summary": "Get extract job by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "extract job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ExtractJob"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/models.Response"
                         }
@@ -940,6 +1130,113 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/pdf/removepage": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-remove"
+                ],
+                "summary": "Create remove pages job",
+                "parameters": [
+                    {
+                        "description": "remove pages job",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RemovePagesRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/removepage/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-remove"
+                ],
+                "summary": "Get remove pages job by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "remove job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.RemoveJob"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/pdf/rotate": {
             "post": {
                 "security": [
@@ -1087,6 +1384,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/pdf/split/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-split"
+                ],
+                "summary": "Get split job by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "split job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SplitJob"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/pdf/unlock": {
             "post": {
                 "security": [
@@ -1174,6 +1519,46 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/stats/user": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Foydalanuvchining PDF bo‘yicha statistikasi (birlashtirish, bo‘lish va h.k.)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stats"
+                ],
+                "summary": "Foydalanuvchi statistikasi",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserStats"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/models.Response"
                         }
@@ -1404,6 +1789,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/me": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Foydalanuvchining o‘z profilini olish (JWT token orqali)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get my profile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/otp/confirm": {
             "post": {
                 "security": [
@@ -1503,262 +1928,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/pdf/extract": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-extract"
-                ],
-                "summary": "Create extract job",
-                "parameters": [
-                    {
-                        "description": "extract request body",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.ExtractPagesRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/pdf/extract/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-extract"
-                ],
-                "summary": "Get extract job by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "extract job ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.ExtractJob"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/pdf/remove-pages": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-remove"
-                ],
-                "summary": "Create remove pages job",
-                "parameters": [
-                    {
-                        "description": "remove pages job",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.RemovePagesRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/pdf/remove-pages/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-remove"
-                ],
-                "summary": "Get remove pages job by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "remove job ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.RemoveJob"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/pdf/split/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-split"
-                ],
-                "summary": "Get split job by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "split job ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.SplitJob"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/models.Response"
                         }
@@ -2107,7 +2276,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "compression": {
-                    "description": "\"low\", \"medium\", \"high\"",
                     "type": "string"
                 },
                 "created_at": {
@@ -2123,7 +2291,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "description": "\"pending\", \"done\", \"failed\"",
                     "type": "string"
                 },
                 "user_id": {
@@ -2188,25 +2355,7 @@ const docTemplate = `{
             }
         },
         "models.CreateOrganizeJobRequest": {
-            "type": "object",
-            "properties": {
-                "input_file_id": {
-                    "type": "string",
-                    "example": "abc-123"
-                },
-                "new_order": {
-                    "description": "JSON orqali keladi, keyin []int ga aylantiriladi",
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    },
-                    "example": [
-                        3,
-                        1,
-                        2
-                    ]
-                }
-            }
+            "type": "object"
         },
         "models.CreateRole": {
             "type": "object",
@@ -2370,19 +2519,13 @@ const docTemplate = `{
                 "input_file_id": {
                     "type": "string"
                 },
-                "output_file_ids": {
-                    "description": "Ajratilgan fayllarning ID’lari",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "output_file_id": {
+                    "type": "string"
                 },
-                "page_ranges": {
-                    "description": "Masalan: \"1-2,5,7\"",
+                "pages_to_extract": {
                     "type": "string"
                 },
                 "status": {
-                    "description": "pending, done, failed",
                     "type": "string"
                 },
                 "user_id": {
@@ -2459,6 +2602,29 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Log": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_id": {
+                    "type": "string"
+                },
+                "job_type": {
+                    "type": "string"
+                },
+                "level": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "models.LoginRequest": {
             "type": "object",
             "required": [
@@ -2520,6 +2686,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "created_at": {
+                    "description": "Yaratilgan vaqt",
                     "type": "string"
                 },
                 "id": {
@@ -2529,16 +2696,18 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "new_order": {
-                    "description": "sahifa tartibi masalan: [3,1,2]",
+                    "description": "Sahifalarning yangi tartibi, masalan: [3,1,2]",
                     "type": "array",
                     "items": {
                         "type": "integer"
                     }
                 },
                 "output_file_id": {
+                    "description": "Natija fayl ID",
                     "type": "string"
                 },
                 "status": {
+                    "description": "pending, processing, done, failed",
                     "type": "string"
                 },
                 "user_id": {
@@ -2748,6 +2917,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "angle": {
+                    "description": "🔧",
                     "type": "integer"
                 },
                 "created_at": {
@@ -2763,11 +2933,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "output_path": {
-                    "description": "✅ YANGI QO‘SHILGAN FIELD",
                     "type": "string"
                 },
                 "pages": {
-                    "description": "Aylantiriladigan sahifalar",
+                    "description": "agar mavjud bo‘lsa",
                     "type": "string"
                 },
                 "status": {
@@ -2893,6 +3062,102 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UserStats": {
+            "type": "object",
+            "properties": {
+                "added_page_numbers": {
+                    "description": "Sahifalarga raqam qo‘shish",
+                    "type": "integer"
+                },
+                "compressed": {
+                    "description": "Siqilgan fayllar soni",
+                    "type": "integer"
+                },
+                "cropped": {
+                    "description": "PDFni kesish ishlari",
+                    "type": "integer"
+                },
+                "extracted": {
+                    "description": "Sahifalar ajratilgan ishlar",
+                    "type": "integer"
+                },
+                "jpg_to_pdf": {
+                    "description": "JPG → PDF aylantirishlar",
+                    "type": "integer"
+                },
+                "merged": {
+                    "description": "Birlashtirish ishlar soni",
+                    "type": "integer"
+                },
+                "organized": {
+                    "description": "Sahifa tartibi o‘zgartirilgan",
+                    "type": "integer"
+                },
+                "pdf_to_jpg": {
+                    "description": "PDF → JPG aylantirishlar",
+                    "type": "integer"
+                },
+                "pdf_to_word": {
+                    "description": "PDF → Word aylantirishlar",
+                    "type": "integer"
+                },
+                "protected": {
+                    "description": "Parol bilan himoyalanganlar",
+                    "type": "integer"
+                },
+                "removed_pages": {
+                    "description": "Sahifa o‘chirish ishlar soni",
+                    "type": "integer"
+                },
+                "rotated": {
+                    "description": "Sahifa aylantirishlar",
+                    "type": "integer"
+                },
+                "splitted": {
+                    "description": "Bo‘lib olish ishlar soni",
+                    "type": "integer"
+                },
+                "total_files": {
+                    "description": "Umumiy yuklangan fayllar",
+                    "type": "integer"
+                },
+                "unlocked": {
+                    "description": "PDF qulflar yechilgan soni",
+                    "type": "integer"
+                },
+                "used_storage_mb": {
+                    "description": "MB’da ishlatilgan xotira (hisoblash kerak)",
+                    "type": "integer"
+                },
+                "watermarked": {
+                    "description": "Suv belgisi qo‘shilganlar",
+                    "type": "integer"
                 }
             }
         }

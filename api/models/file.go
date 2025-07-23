@@ -17,3 +17,7 @@ type FileUploadRequest struct {
 	FileName string
 	FileData []byte
 }
+type OldFile struct {
+	ID       string `json:"id"`
+	FilePath string `json:"file_path"`
+}

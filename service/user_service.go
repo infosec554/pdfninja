@@ -11,6 +11,7 @@ import (
 type UserService interface {
 	Create(ctx context.Context, req models.CreateUser) (string, error)
 	GetForLoginByEmail(context.Context, string) (models.LoginUser, error) // ✅ yangi nom
+	GetByID(ctx context.Context, id string) (*models.User, error) 
 }
 
 type userService struct {
@@ -49,4 +50,10 @@ func (s *userService) GetForLoginByEmail(ctx context.Context, email string) (mod
 
 	s.log.Info("user fetched for login", logger.String("userID", user.ID))
 	return user, nil
+}
+
+
+func (s *userService) GetByID(ctx context.Context, id string) (*models.User, error) {
+	s.log.Info("userService.GetByID called")
+	return s.stg.GetByID(ctx, id)
 }

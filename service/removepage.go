@@ -51,7 +51,7 @@ func (s *removePageService) Create(ctx context.Context, req models.RemovePagesRe
 		ID:            uuid.New().String(),
 		UserID:        userID,
 		InputFileID:   req.InputFileID,
-		PagesToRemove: req.PagesToRemove, // "2,4-6"
+		PagesToRemove: req.PagesToRemove, // e.g. "2,4-6"
 		Status:        "pending",
 		CreatedAt:     time.Now(),
 	}
@@ -62,21 +62,27 @@ func (s *removePageService) Create(ctx context.Context, req models.RemovePagesRe
 		return "", err
 	}
 
-	// 4. PDF dan sahifalarni olib tashlash
+	// 4. Output fayl uchun papkani yaratish
+	outputDir := "storage/remove"
+	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
+		s.log.Error("failed to create output dir", logger.Error(err))
+		return "", err
+	}
+
 	inputPath := file.FilePath
 	outputID := uuid.New().String()
-	outputPath := filepath.Join("storage/remove", outputID+".pdf")
+	outputPath := filepath.Join(outputDir, outputID+".pdf")
 
-	// Sahifalar ro‘yxatini []string dan []int ga aylantirish
-
+	// 5. Sahifalar ro‘yxatini parse qilish (e.g. "2,4-6" -> []int -> []string)
 	pageList, err := parsePageList(req.PagesToRemove)
 	if err != nil {
 		s.log.Error("invalid page list", logger.Error(err))
 		return "", err
 	}
 
-	pageStrs := pkg.IntSliceToStringSlice(pageList)
+	pageStrs := pkg.IntSliceToStringSlice(pageList) // []int → []string
 
+	// 6. PDF sahifalarni olib tashlash
 	config := model.NewDefaultConfiguration()
 	err = api.RemovePagesFile(inputPath, outputPath, pageStrs, config)
 	if err != nil {
@@ -84,7 +90,7 @@ func (s *removePageService) Create(ctx context.Context, req models.RemovePagesRe
 		return "", err
 	}
 
-	// 5. Yaratilgan output faylni bazaga yozish
+	// 7. Yaratilgan output faylni bazaga yozish
 	info, err := os.Stat(outputPath)
 	if err != nil {
 		s.log.Error("cannot stat output file", logger.Error(err))
@@ -107,7 +113,7 @@ func (s *removePageService) Create(ctx context.Context, req models.RemovePagesRe
 		return "", err
 	}
 
-	// 6. Job ni yangilash (output_file_id, status)
+	// 8. Job ni yangilash (output_file_id, status)
 	job.OutputFileID = outputID
 	job.Status = "done"
 
@@ -116,7 +122,7 @@ func (s *removePageService) Create(ctx context.Context, req models.RemovePagesRe
 		return "", err
 	}
 
-	s.log.Info("remove pages completed", logger.String("jobID", job.ID))
+	s.log.Info("✅ remove pages completed", logger.String("jobID", job.ID))
 	return job.ID, nil
 }
 

@@ -11,7 +11,7 @@ import (
 )
 
 // CreateRemovePagesJob godoc
-// @Router       /pdf/remove-pages [POST]
+// @Router       /api/pdf/removepage [post]
 // @Security     ApiKeyAuth
 // @Summary      Create remove pages job
 // @Tags         pdf-remove
@@ -48,7 +48,7 @@ func (h Handler) CreateRemovePagesJob(c *gin.Context) {
 }
 
 // GetRemovePagesJob godoc
-// @Router       /pdf/remove-pages/{id} [GET]
+// @Router       /api/pdf/removepage/{id} [GET]
 // @Security     ApiKeyAuth
 // @Summary      Get remove pages job by ID
 // @Tags         pdf-remove

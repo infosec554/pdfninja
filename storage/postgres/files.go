@@ -15,7 +15,7 @@ type fileRepo struct {
 	log logger.ILogger
 }
 
-func  NewFileRepo(db *pgxpool.Pool, log logger.ILogger) storage.IFileStorage {
+func NewFileRepo(db *pgxpool.Pool, log logger.ILogger) storage.IFileStorage {
 	return &fileRepo{
 		db:  db,
 		log: log,
@@ -42,10 +42,16 @@ func (f *fileRepo) Save(ctx context.Context, file models.File) (string, error) {
 func (f *fileRepo) GetByID(ctx context.Context, id string) (models.File, error) {
 	var file models.File
 	query := `
-		SELECT id, user_id, file_name, file_path, file_type, file_size, uploaded_at
+		SELECT id, 
+		user_id, 
+		file_name, 
+		file_path,
+		 file_type,
+		  file_size,
+		   uploaded_at
 		FROM files WHERE id = $1
 	`
-	err := f.db.QueryRow(ctx, query).Scan(
+	err := f.db.QueryRow(ctx, query, id).Scan(
 		&file.ID, &file.UserID, &file.FileName, &file.FilePath, &file.FileType, &file.FileSize, &file.UploadedAt)
 	if err != nil {
 		f.log.Error("failed to fetch file", logger.Error(err))
@@ -88,4 +94,36 @@ func (f *fileRepo) ListByUser(ctx context.Context, userID string) ([]models.File
 		files = append(files, file)
 	}
 	return files, nil
+}
+
+
+func (r *fileRepo) GetOldFiles(ctx context.Context, olderThanDays int) ([]models.OldFile, error) {
+	query := `
+		SELECT id, file_path
+		FROM files
+		WHERE uploaded_at < NOW() - ($1 || ' days')::INTERVAL
+	`
+
+	rows, err := r.db.Query(ctx, query, olderThanDays)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var oldFiles []models.OldFile
+	for rows.Next() {
+		var f models.OldFile
+		if err := rows.Scan(&f.ID, &f.FilePath); err != nil {
+			continue
+		}
+		oldFiles = append(oldFiles, f)
+	}
+
+	return oldFiles, nil
+}
+
+func (r *fileRepo) DeleteByID(ctx context.Context, id string) error {
+	query := `DELETE FROM files WHERE id = $1`
+	_, err := r.db.Exec(ctx, query, id)
+	return err
 }

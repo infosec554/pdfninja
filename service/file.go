@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,6 +17,7 @@ type FileService interface {
 	Get(ctx context.Context, id string) (models.File, error)
 	Delete(ctx context.Context, id string) error
 	List(ctx context.Context, userID string) ([]models.File, error)
+	CleanupOldFiles(ctx context.Context, olderThanDays int) (int, error)
 }
 
 type fileService struct {
@@ -58,4 +60,28 @@ func (s *fileService) Delete(ctx context.Context, id string) error {
 // List - user fayllari ro‘yxati
 func (s *fileService) List(ctx context.Context, userID string) ([]models.File, error) {
 	return s.stg.ListByUser(ctx, userID)
+}
+func (s *fileService) CleanupOldFiles(ctx context.Context, olderThanDays int) (int, error) {
+	s.log.Info("Cleaning up old files...")
+
+	oldFiles, err := s.stg.GetOldFiles(ctx, olderThanDays)
+	if err != nil {
+		s.log.Error("failed to get old files", logger.Error(err))
+		return 0, err
+	}
+
+	count := 0
+	for _, file := range oldFiles {
+		if err := os.Remove(file.FilePath); err != nil {
+			s.log.Error("failed to delete file from disk", logger.Error(err), logger.String("path", file.FilePath))
+			continue
+		}
+		if err := s.stg.DeleteByID(ctx, file.ID); err != nil {
+			s.log.Error("failed to delete file from db", logger.Error(err), logger.String("id", file.ID))
+			continue
+		}
+		count++
+	}
+
+	return count, nil
 }

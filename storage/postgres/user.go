@@ -57,3 +57,26 @@ func (r *userRepo) GetForLoginByEmail(ctx context.Context, email string) (models
 
 	return user, nil
 }
+
+func (r *userRepo) GetByID(ctx context.Context, id string) (*models.User, error) {
+	query := `
+		SELECT id, name, email, status, created_at
+		FROM users
+		WHERE id = $1 AND status = 'active'
+	`
+
+	var user models.User
+	err := r.db.QueryRow(ctx, query, id).Scan(
+		&user.ID,
+		&user.Name,
+		&user.Email,
+		&user.Status,
+		&user.CreatedAt,
+	)
+	if err != nil {
+		r.log.Error("failed to get user by ID", logger.Error(err))
+		return nil, err
+	}
+
+	return &user, nil
+}

@@ -126,3 +126,29 @@ func (h Handler) Login(c *gin.Context) {
 
 	handleResponse(c, h.log, "login successful", http.StatusOK, resp)
 }
+// GetMyProfile godoc
+// @Summary      Get my profile
+// @Description  Foydalanuvchining o‘z profilini olish (JWT token orqali)
+// @Tags         user
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} models.User
+// @Failure      401 {object} models.Response
+// @Failure      500 {object} models.Response
+// @Router       /me [get]
+// @Security     ApiKeyAuth
+func (h *Handler) GetMyProfile(c *gin.Context) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		handleResponse(c, h.log, "unauthorized", http.StatusUnauthorized, nil)
+		return
+	}
+
+	user, err := h.services.User().GetByID(c.Request.Context(), userID.(string))
+	if err != nil {
+		handleResponse(c, h.log, "failed to get user", http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	handleResponse(c, h.log, "user profile", http.StatusOK, user)
+}

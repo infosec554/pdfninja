@@ -3,11 +3,12 @@ package service
 import (
 	"context"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 
 	"test/api/models"
 	"test/pkg/logger"
@@ -46,6 +47,7 @@ func (s *compressService) Create(ctx context.Context, req models.CompressRequest
 		ID:          uuid.NewString(),
 		UserID:      userID,
 		InputFileID: req.InputFileID,
+		Compression: req.Compression,
 		Status:      "pending",
 		CreatedAt:   time.Now(),
 	}
@@ -55,20 +57,26 @@ func (s *compressService) Create(ctx context.Context, req models.CompressRequest
 		return "", err
 	}
 
-	// 3. PDF ni siqish (CLI orqali pdfcpu)
-	outputID := uuid.New().String()
-	outputPath := filepath.Join("storage/compress", outputID+".pdf")
+	// 3. Output fayl yo‘lini tayyorlash
+	outputID := uuid.NewString()
+	outputDir := "storage/compress"
+	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
+		s.log.Error("failed to create output dir", logger.Error(err))
+		return "", err
+	}
+	outputPath := filepath.Join(outputDir, outputID+".pdf")
 
-	cmd := exec.Command("pdfcpu", "optimize", file.FilePath, outputPath)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	// 4. Pdfcpu konfiguratsiyasi
+	conf := model.NewDefaultConfiguration()
+	conf.Cmd = model.OPTIMIZE
 
-	if err := cmd.Run(); err != nil {
+	// 5. Faylni siqish (strukturaviy optimallashtirish)
+	if err := api.OptimizeFile(file.FilePath, outputPath, conf); err != nil {
 		s.log.Error("pdfcpu optimize failed", logger.Error(err))
 		return "", err
 	}
 
-	// 4. Output faylni metadata bilan DB ga yozish
+	// 6. Natijaviy faylni sistemaga saqlash
 	info, err := os.Stat(outputPath)
 	if err != nil {
 		s.log.Error("cannot stat output file", logger.Error(err))
@@ -90,7 +98,7 @@ func (s *compressService) Create(ctx context.Context, req models.CompressRequest
 		return "", err
 	}
 
-	// 5. Job yangilash
+	// 7. Jobni update qilish
 	job.OutputFileID = outputID
 	job.Status = "done"
 

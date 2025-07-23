@@ -9,6 +9,7 @@ import (
 	"test/api/handler"
 	"test/pkg/logger"
 	"test/service"
+	"test/pkg/middleware"
 )
 
 // @title           Auth API
@@ -23,6 +24,7 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 
 	// === Swagger ===
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	r.Use(middleware.RateLimiterMiddleware())
 
 	// === OTP ===
 	r.POST("/otp/send", h.SendOTP)
@@ -31,23 +33,38 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 	// === Auth ===
 	r.POST("/signup", h.SignUp)
 	r.POST("/login", h.Login)
+	r.GET("/me", h.AuthorizerMiddleware, h.GetMyProfile)
+
+	// === Logs (faqat adminlar uchun yoki auth foydalanuvchilar) ===
+	admin := r.Group("/admin")
+	admin.Use(h.AuthorizerMiddleware, h.AdminMiddleware)
+	{
+		admin.GET("/logs/:id", h.GetLogsByJobID)
+	}
 
 	// === Role (faqat adminlar uchun) ===
 	role := r.Group("/role")
-	role.Use(h.AuthorizerMiddleware) // JWT tokenni tekshiradi
+	role.Use(h.AuthorizerMiddleware, h.AdminMiddleware)
 	{
 		role.POST("/", h.CreateRole)
 		role.PUT("/:id", h.UpdateRole)
 		role.GET("/", h.ListRoles)
 	}
 
+	stats := r.Group("/stats")
+	stats.Use(h.AuthorizerMiddleware)
+	{
+		stats.GET("/user", h.GetUserStats)
+	}
+
 	// === SysUser (admin uchun) ===
 	sysuser := r.Group("/sysuser")
-	sysuser.Use(h.AuthorizerMiddleware)
+	sysuser.Use(h.AuthorizerMiddleware, h.AdminMiddleware)
 	{
 		sysuser.POST("/", h.CreateSysUser)
 	}
 
+	// === Fayllar (user_id ni token orqali oladi) ===
 	// === Fayllar (user_id ni token orqali oladi) ===
 	file := r.Group("/file")
 	file.Use(h.AuthorizerMiddleware)
@@ -56,6 +73,9 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 		file.GET("/:id", h.GetFile)
 		file.DELETE("/:id", h.DeleteFile)
 		file.GET("/list", h.ListUserFiles)
+
+		// cleanup faqat adminlar uchun
+		file.GET("/cleanup", h.AdminMiddleware, h.CleanupOldFiles)
 	}
 
 	// === PDF xizmatlari ===
@@ -69,8 +89,8 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 		pdf.POST("/split", h.CreateSplitJob)
 		pdf.GET("/split/:id", h.GetSplitJob)
 
-		pdf.POST("/remove-pages", h.CreateRemovePagesJob)
-		pdf.GET("/remove-pages/:id", h.GetRemovePagesJob)
+		pdf.POST("/removepage", h.CreateRemovePagesJob)
+		pdf.GET("/removepage/:id", h.GetRemovePagesJob)
 
 		pdf.POST("/extract", h.CreateExtractJob)
 		pdf.GET("/extract/:id", h.GetExtractJob)
@@ -101,6 +121,9 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 
 		pdf.POST("/protect", h.CreateProtectJob)
 		pdf.GET("/protect/:id", h.GetProtectJob)
+
+		pdf.POST("/add-page-numbers", h.CreateAddPageNumbersJob)
+		pdf.GET("/add-page-numbers/:id", h.GetAddPageNumbersJob)
 	}
 
 	return r

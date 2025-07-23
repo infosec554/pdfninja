@@ -47,7 +47,7 @@ func (h Handler) CreateSplitJob(c *gin.Context) {
 }
 
 // GetSplitJob godoc
-// @Router       /pdf/split/{id} [GET]
+// @Router /api/pdf/split/{id} [get] ✅
 // @Security     ApiKeyAuth
 // @Summary      Get split job by ID
 // @Tags         pdf-split
