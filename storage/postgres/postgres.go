@@ -118,16 +118,8 @@ func (s *Store) Compress() storage.ICompressStorage {
 	return NewCompressRepo(s.pool, s.log)
 }
 
-func (s *Store) JpgToPdf() storage.IJpgToPdfStorage {
-	return NewJpgToPdfRepo(s.pool, s.log)
-}
-
 func (s *Store) PDFToJPG() storage.IPDFToJPGStorage {
 	return NewPDFToJPGRepo(s.pool, s.log)
-}
-
-func (s *Store) PDFToWord() storage.IPDFToWordStorage {
-	return NewPDFToWordRepo(s.pool, s.log)
 }
 
 func (s *Store) Rotate() storage.IRotateStorage {
@@ -153,4 +145,38 @@ func (s *Store) Stat() storage.IStatStorage {
 }
 func (s *Store) Log() storage.ILogService {
 	return NewLogRepo(s.pool, s.log)
+}
+func (s *Store) JPGToPDF() storage.IJPGToPDFStorage {
+	return NewJPGToPDFRepo(s.pool, s.log)
+}
+func (s *Store) Inspect() storage.IInspectStorage {
+	return NewInspectRepo(s.pool, s.log)
+}
+
+func (s *Store) TranslatePDF() storage.ITranslatePDFStorage {
+	return NewTranslatePDFRepo(s.pool, s.log)
+}
+
+func (s *Store) SharedLink() storage.ISharedLinkStorage {
+	return NewSharedLinkRepo(s.pool, s.log)
+}
+
+func (s *Store) AddHeaderFooter() storage.AddHeaderFooterStorage {
+	return NewAddHeaderFooterRepo(s.pool, s.log)
+}
+
+func (s *Store) AddBackground() storage.IAddBackgroundStorage {
+	return NewAddBackgroundRepo(s.pool, s.log)
+}
+
+func (s *Store) DetectBlankPages() storage.IDetectBlankPagesStorage {
+	return NewDetectBlankPagesRepo(s.pool, s.log)
+}
+
+func (s *Store) QRCode() storage.IQRCodeStorage {
+	return NewQRCodeRepo(s.pool, s.log)
+}
+
+func (s *Store) PDFTextSearch() storage.IPDFTextSearchStorage {
+	return NewPDFTextSearchRepo(s.pool, s.log)
 }

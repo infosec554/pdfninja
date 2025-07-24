@@ -15,55 +15,64 @@ import (
 	"test/storage"
 )
 
-type JpgToPdfService interface {
-	Create(ctx context.Context, req models.CreateJpgToPdfRequest, userID string) (string, error)
-	GetByID(ctx context.Context, id string) (*models.JpgToPdfJob, error)
+type JPGToPDFService interface {
+	CreateJob(ctx context.Context, userID string, inputFileIDs []string) (string, error)
+	GetJobByID(ctx context.Context, id string) (*models.JPGToPDFJob, error)
 }
 
-type jpgToPdfService struct {
+type jpgToPDFService struct {
 	stg storage.IStorage
 	log logger.ILogger
 }
 
-func NewJpgToPdfService(stg storage.IStorage, log logger.ILogger) JpgToPdfService {
-	return &jpgToPdfService{stg: stg, log: log}
+func NewJPGToPDFService(stg storage.IStorage, log logger.ILogger) JPGToPDFService {
+	return &jpgToPDFService{stg: stg, log: log}
 }
+func (s *jpgToPDFService) CreateJob(ctx context.Context, userID string, inputFileIDs []string) (string, error) {
+	s.log.Info("JPGToPDFService.CreateJob called")
 
-func (s *jpgToPdfService) Create(ctx context.Context, req models.CreateJpgToPdfRequest, userID string) (string, error) {
-	s.log.Info("JpgToPdfService.Create called")
+	if len(inputFileIDs) == 0 {
+		return "", fmt.Errorf("no input files provided")
+	}
 
 	var inputPaths []string
-	for _, imageID := range req.ImageFileIDs {
-		file, err := s.stg.File().GetByID(ctx, imageID)
+	for _, fileID := range inputFileIDs {
+		file, err := s.stg.File().GetByID(ctx, fileID)
 		if err != nil {
-			s.log.Error("image file not found", logger.String("fileID", imageID), logger.Error(err))
-			return "", fmt.Errorf("file not found: %s", imageID)
+			s.log.Error("file not found", logger.String("fileID", fileID), logger.Error(err))
+			return "", fmt.Errorf("file not found: %s", fileID)
 		}
 		inputPaths = append(inputPaths, file.FilePath)
 	}
 
 	jobID := uuid.New().String()
-	job := &models.JpgToPdfJob{
+	job := &models.JPGToPDFJob{
 		ID:           jobID,
 		UserID:       userID,
-		ImageFileIDs: req.ImageFileIDs,
+		InputFileIDs: inputFileIDs,
 		Status:       "pending",
 		CreatedAt:    time.Now(),
 	}
 
-	if err := s.stg.JpgToPdf().Create(ctx, job); err != nil {
+	if err := s.stg.JPGToPDF().Create(ctx, job); err != nil {
 		s.log.Error("failed to create job", logger.Error(err))
 		return "", err
 	}
 
+	// 🔧 Ensure output directory exists
 	outputID := uuid.New().String()
-	outputPath := filepath.Join("storage/jpg_to_pdf", outputID+".pdf")
+	outputDir := filepath.Join("storage", "jpg_to_pdf")
+	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
+		s.log.Error("failed to create output directory", logger.Error(err))
+		return "", err
+	}
 
-	// === GoPDF bilan PDF yaratish ===
+	outputPath := filepath.Join(outputDir, outputID+".pdf")
+
+	// 🖼️ Generate PDF
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	for _, imgPath := range inputPaths {
 		pdf.AddPage()
-		// A4 o‘lchamdagi rasmni joylashtirish
 		pdf.ImageOptions(imgPath, 10, 10, 190, 0, false, gofpdf.ImageOptions{ImageType: "JPG", ReadDpi: true}, 0, "")
 	}
 
@@ -73,6 +82,7 @@ func (s *jpgToPdfService) Create(ctx context.Context, req models.CreateJpgToPdfR
 		return "", err
 	}
 
+	// 📁 Save output file metadata
 	fi, err := os.Stat(outputPath)
 	if err != nil {
 		s.log.Error("cannot stat output PDF", logger.Error(err))
@@ -90,25 +100,27 @@ func (s *jpgToPdfService) Create(ctx context.Context, req models.CreateJpgToPdfR
 	}
 
 	if _, err := s.stg.File().Save(ctx, newFile); err != nil {
-		s.log.Error("failed to save file", logger.Error(err))
+		s.log.Error("failed to save output file", logger.Error(err))
 		return "", err
 	}
 
+	// 🔁 Update job status and output file
 	job.OutputFileID = outputID
 	job.Status = "done"
-	if err := s.stg.JpgToPdf().Update(ctx, job); err != nil {
+
+	if err := s.stg.JPGToPDF().UpdateStatusAndOutput(ctx, job.ID, job.Status, job.OutputFileID); err != nil {
 		s.log.Error("failed to update job", logger.Error(err))
 		return "", err
 	}
 
-	s.log.Info("jpg to pdf job completed", logger.String("jobID", jobID))
+	s.log.Info("JPGToPDF job completed", logger.String("jobID", jobID))
 	return jobID, nil
 }
 
-func (s *jpgToPdfService) GetByID(ctx context.Context, id string) (*models.JpgToPdfJob, error) {
-	job, err := s.stg.JpgToPdf().GetByID(ctx, id)
+func (s *jpgToPDFService) GetJobByID(ctx context.Context, id string) (*models.JPGToPDFJob, error) {
+	job, err := s.stg.JPGToPDF().GetByID(ctx, id)
 	if err != nil {
-		s.log.Error("failed to get jpg to pdf job", logger.Error(err))
+		s.log.Error("failed to get JPGToPDFJob", logger.Error(err))
 		return nil, err
 	}
 	return job, nil

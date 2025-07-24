@@ -20,9 +20,7 @@ type IServiceManager interface {
 	ExtractPage() ExtractPageService
 	Organize() OrganizeService
 	Compress() CompressService
-	JpgToPdf() JpgToPdfService
 	PDFToJPG() PDFToJPGService
-	PdfToWord() PdfToWordService
 	Rotate() RoatateService
 	AddPageNumber() AddPageNumberService
 	Crop() CropPDFService
@@ -30,57 +28,80 @@ type IServiceManager interface {
 	Protect() ProtectPDFService
 	Stat() StatsService
 	Log() LogService
+	JPGToPDF() JPGToPDFService
+	Inspect() InspectService
+	TranslatePDF() TranslatePDFService
+	SharedLink() SharedLinkService
+	AddHeaderFooter() AddHeaderFooterService
+	AddBackground() AddBackgroundService
+	DetectBlank() DetectBlankService
+	QRCode() QRCodeService
+	PDFTextSearch() PDFTextSearchService
 }
 
 type service struct {
-	userService          UserService
-	otpService           OtpService
-	roleService          RoleService
-	sysUserService       SysUserService
-	mailer               MailerService
-	mergeService         MergeService
-	fileService          FileService
-	splitService         SplitService
-	removepageService    RemovePageService
-	extractPageService   ExtractPageService
-	organizeService      OrganizeService
-	compressService      CompressService
-	jpgToPdfService      JpgToPdfService
-	pdfToJPGService      PDFToJPGService
-	pdfToWordService     PdfToWordService
-	rotateSrvice         RoatateService
-	addPageNumberService AddPageNumberService
-	cropPDFService       CropPDFService
-	unlockService        UnlockService
-	protectPDFService    ProtectPDFService
-	statsService         StatsService
-	logService           LogService
+	userService            UserService
+	otpService             OtpService
+	roleService            RoleService
+	sysUserService         SysUserService
+	mailer                 MailerService
+	mergeService           MergeService
+	fileService            FileService
+	splitService           SplitService
+	removepageService      RemovePageService
+	extractPageService     ExtractPageService
+	organizeService        OrganizeService
+	compressService        CompressService
+	pdfToJPGService        PDFToJPGService
+	rotateSrvice           RoatateService
+	addPageNumberService   AddPageNumberService
+	cropPDFService         CropPDFService
+	unlockService          UnlockService
+	protectPDFService      ProtectPDFService
+	statsService           StatsService
+	logService             LogService
+	jPGToPDF               JPGToPDFService
+	inspect                InspectService
+	translatePDF           TranslatePDFService
+	sharedLinkService      SharedLinkService
+	addHeaderFooterService AddHeaderFooterService
+	addBackgroundService   AddBackgroundService
+	detectBlankService     DetectBlankService
+	qRCodeService          QRCodeService
+	pDFTextSearchService   PDFTextSearchService
 }
 
 func New(storage storage.IStorage, log logger.ILogger, mailerCore *mailer.Mailer, redis storage.IRedisStorage) IServiceManager {
 	return &service{
-		userService:          NewUserService(storage, log),
-		otpService:           NewOtpService(storage, log, mailerCore, redis),
-		roleService:          NewRoleService(storage, log),
-		sysUserService:       NewSysUserService(storage, log),
-		mailer:               NewMailerService(mailerCore),
-		mergeService:         NewMergeService(storage, log),
-		fileService:          NewFileService(storage, log),
-		splitService:         NewSplitService(storage, log),
-		removepageService:    NewRemoveService(storage, log),
-		extractPageService:   NewExtractService(storage, log),
-		organizeService:      NewOrganizeService(storage, log),
-		compressService:      NewCompressService(storage, log),
-		jpgToPdfService:      NewJpgToPdfService(storage, log),
-		pdfToJPGService:      NewPDFToJPGService(storage, log),
-		pdfToWordService:     NewPdfToWordService(storage, log),
-		rotateSrvice:         NewRotateService(storage, log),
-		addPageNumberService: NewAddPageNumberService(storage, log),
-		cropPDFService:       NewCropPDFService(storage, log),
-		unlockService:        NewUnlockService(storage, log),
-		protectPDFService:    NewProtectPDFService(storage, log),
-		statsService:         NewStatsService(storage, log),
-		logService:           NewLogService(storage, log),
+		userService:            NewUserService(storage, log),
+		otpService:             NewOtpService(storage, log, mailerCore, redis),
+		roleService:            NewRoleService(storage, log),
+		sysUserService:         NewSysUserService(storage, log),
+		mailer:                 NewMailerService(mailerCore),
+		mergeService:           NewMergeService(storage, log),
+		fileService:            NewFileService(storage, log),
+		splitService:           NewSplitService(storage, log),
+		removepageService:      NewRemoveService(storage, log),
+		extractPageService:     NewExtractService(storage, log),
+		organizeService:        NewOrganizeService(storage, log),
+		compressService:        NewCompressService(storage, log),
+		pdfToJPGService:        NewPDFToJPGService(storage, log),
+		rotateSrvice:           NewRotateService(storage, log),
+		addPageNumberService:   NewAddPageNumberService(storage, log),
+		cropPDFService:         NewCropPDFService(storage, log),
+		unlockService:          NewUnlockService(storage, log),
+		protectPDFService:      NewProtectPDFService(storage, log),
+		statsService:           NewStatsService(storage, log),
+		logService:             NewLogService(storage, log),
+		jPGToPDF:               NewJPGToPDFService(storage, log),
+		inspect:                NewInspectService(storage, log),
+		translatePDF:           NewTranslatePDFService(storage, log),
+		sharedLinkService:      NewSharedLinkService(storage, log),
+		addHeaderFooterService: NewAddHeaderFooterService(storage, log),
+		addBackgroundService:   NewAddBackgroundService(storage, log),
+		detectBlankService:     NewDetectBlankService(storage, log),
+		qRCodeService:          NewQRCodeService(storage, log),
+		pDFTextSearchService:   NewPDFTextSearchService(storage, log),
 	}
 }
 
@@ -131,16 +152,8 @@ func (s *service) Compress() CompressService {
 	return s.compressService
 }
 
-func (s *service) JpgToPdf() JpgToPdfService {
-	return s.jpgToPdfService
-}
-
 func (s *service) PDFToJPG() PDFToJPGService {
 	return s.pdfToJPGService
-}
-
-func (s *service) PdfToWord() PdfToWordService {
-	return s.pdfToWordService
 }
 
 func (s *service) Rotate() RoatateService {
@@ -169,4 +182,39 @@ func (s *service) Stat() StatsService {
 
 func (s *service) Log() LogService {
 	return s.logService
+}
+
+func (s *service) JPGToPDF() JPGToPDFService {
+	return s.jPGToPDF
+}
+
+func (s *service) Inspect() InspectService {
+	return s.inspect
+}
+
+func (s *service) TranslatePDF() TranslatePDFService {
+	return s.translatePDF
+}
+
+func (s *service) SharedLink() SharedLinkService {
+	return s.sharedLinkService
+}
+func (s *service) AddHeaderFooter() AddHeaderFooterService {
+	return s.addHeaderFooterService
+}
+
+func (s *service) AddBackground() AddBackgroundService {
+	return s.addBackgroundService
+}
+
+func (s *service) DetectBlank() DetectBlankService {
+	return s.detectBlankService
+}
+
+func (s *service) QRCode() QRCodeService {
+	return s.qRCodeService
+}
+
+func (s *service) PDFTextSearch() PDFTextSearchService {
+	return s.pDFTextSearchService
 }

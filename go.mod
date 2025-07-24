@@ -6,6 +6,7 @@ toolchain go1.23.11
 
 require (
 	github.com/gin-gonic/gin v1.10.1
+	github.com/go-resty/resty/v2 v2.16.5
 	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/google/uuid v1.6.0
@@ -14,14 +15,15 @@ require (
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/pdfcpu/pdfcpu v0.11.0
 	github.com/redis/go-redis/v9 v9.11.0
+	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/cast v1.9.2
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.5
-	github.com/ulule/limiter/v3 v3.11.2
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.40.0
-	golang.org/x/time v0.5.0
+	golang.org/x/time v0.6.0
+	rsc.io/pdf v0.1.1
 )
 
 require (
