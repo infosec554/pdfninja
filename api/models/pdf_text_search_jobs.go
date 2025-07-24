@@ -11,5 +11,5 @@ type PDFTextSearchJob struct {
 	CreatedAt     time.Time `json:"created_at"`
 }
 type CreatePDFTextSearchRequest struct {
-	InputFileID string `json:"input_file_id" binding:"required"` // PDF fayl ID'si
+	InputFileID string `json:"input_file_id" binding:"required"` 
 }
