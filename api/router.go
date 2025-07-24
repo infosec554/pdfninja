@@ -8,8 +8,8 @@ import (
 	_ "test/api/docs"
 	"test/api/handler"
 	"test/pkg/logger"
-	"test/service"
 	"test/pkg/middleware"
+	"test/service"
 )
 
 // @title           Auth API
@@ -101,14 +101,11 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 		pdf.POST("/compress", h.CreateCompressJob)
 		pdf.GET("/compress/:id", h.GetCompressJob)
 
-		pdf.POST("/jpg-to-pdf", h.CreateJpgToPdf)
-		pdf.GET("/jpg-to-pdf/:id", h.GetJpgToPdfJob)
+		pdf.POST("/jpg-to-pdf", h.CreateJPGToPDF)
+		pdf.GET("/jpg-to-pdf/:id", h.GetJPGToPDFJob)
 
 		pdf.POST("/pdf-to-jpg", h.CreatePDFToJPG)
 		pdf.GET("/pdf-to-jpg/:id", h.GetPDFToJPG)
-
-		pdf.POST("/pdf-to-word", h.CreatePdfToWordJob)
-		pdf.GET("/pdf-to-word/:id", h.GetPdfToWordJob)
 
 		pdf.POST("/rotate", h.CreateRotateJob)
 		pdf.GET("/rotate/:id", h.GetRotateJob)
@@ -124,6 +121,30 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 
 		pdf.POST("/add-page-numbers", h.CreateAddPageNumbersJob)
 		pdf.GET("/add-page-numbers/:id", h.GetAddPageNumbersJob)
+
+		pdf.POST("/inspect", h.CreateInspectJob)
+		pdf.GET("/inspect/:id", h.GetInspectJob)
+
+		pdf.POST("/translate", h.TranslatePDF)
+		pdf.GET("/translate/:id", h.GetTranslatePDFJob)
+
+		pdf.POST("/translate", h.TranslatePDF)
+		pdf.GET("/translate/:id", h.GetTranslatePDFJob)
+
+		pdf.POST("/header-footer", h.AddHeaderFooter)
+		pdf.GET("/header-footer/:id", h.GetHeaderFooterJob)
+
+		pdf.POST("/add-background", h.CreateAddBackground)
+		pdf.GET("/add-background/:id", h.GetAddBackgroundJob)
+
+		pdf.POST("/detect-blank", h.CreateDetectBlankPagesJob)
+		pdf.GET("/detect-blank/:id", h.GetDetectBlankPagesJob)
+
+		pdf.POST("/qr-code", h.CreateQRCodeJob)
+		pdf.GET("/qr-code/:id", h.GetQRCodeJob)
+
+		pdf.POST("/text-search", h.CreatePDFTextSearchJob)
+		pdf.GET("/text-search/:id", h.GetPDFTextSearchJob)
 	}
 
 	return r

@@ -21,9 +21,7 @@ type IStorage interface {
 	ExtractPage() IExtractPageStorage
 	Organize() IOrganizeStorage
 	Compress() ICompressStorage
-	JpgToPdf() IJpgToPdfStorage
 	PDFToJPG() IPDFToJPGStorage
-	PDFToWord() IPDFToWordStorage
 	Rotate() IRotateStorage
 	AddPageNumber() IAddPageNumberStorage
 	Crop() ICropPDFStorage
@@ -31,6 +29,15 @@ type IStorage interface {
 	Protect() IProtectStorage
 	Stat() IStatStorage
 	Log() ILogService
+	JPGToPDF() IJPGToPDFStorage
+	Inspect() IInspectStorage
+	TranslatePDF() ITranslatePDFStorage
+	SharedLink() ISharedLinkStorage
+	AddHeaderFooter() AddHeaderFooterStorage
+	AddBackground() IAddBackgroundStorage
+	DetectBlankPages() IDetectBlankPagesStorage
+	QRCode() IQRCodeStorage
+	PDFTextSearch() IPDFTextSearchStorage
 }
 
 type IUserStorage interface {
@@ -111,22 +118,11 @@ type ICompressStorage interface {
 	Update(ctx context.Context, job *models.CompressJob) error
 	GetByID(ctx context.Context, id string) (*models.CompressJob, error)
 }
-type IJpgToPdfStorage interface {
-	Create(ctx context.Context, job *models.JpgToPdfJob) error
-	Update(ctx context.Context, job *models.JpgToPdfJob) error
-	GetByID(ctx context.Context, id string) (*models.JpgToPdfJob, error)
-}
 
 type IPDFToJPGStorage interface {
 	Create(ctx context.Context, job *models.PDFToJPGJob) error
 	Update(ctx context.Context, job *models.PDFToJPGJob) error
 	GetByID(ctx context.Context, id string) (*models.PDFToJPGJob, error)
-}
-
-type IPDFToWordStorage interface {
-	Create(ctx context.Context, job *models.PDFToWordJob) error
-	GetByID(ctx context.Context, id string) (*models.PDFToWordJob, error)
-	Update(ctx context.Context, job *models.PDFToWordJob) error
 }
 
 type IRotateStorage interface {
@@ -164,4 +160,55 @@ type IStatStorage interface {
 
 type ILogService interface {
 	GetLogsByJobID(ctx context.Context, jobID string) ([]models.Log, error)
+}
+type IJPGToPDFStorage interface {
+	Create(ctx context.Context, job *models.JPGToPDFJob) error
+	GetByID(ctx context.Context, id string) (*models.JPGToPDFJob, error)
+	UpdateStatusAndOutput(ctx context.Context, id, status, outputFileID string) error
+}
+
+type IInspectStorage interface {
+	Create(ctx context.Context, job *models.InspectJob) error
+	GetByID(ctx context.Context, id string) (*models.InspectJob, error)
+}
+
+type ITranslatePDFStorage interface {
+	Create(ctx context.Context, job *models.TranslatePDFJob) error
+	Update(ctx context.Context, job *models.TranslatePDFJob) error
+	GetByID(ctx context.Context, id string) (*models.TranslatePDFJob, error)
+}
+
+type ISharedLinkStorage interface {
+	Create(ctx context.Context, req *models.SharedLink) error
+	GetByToken(ctx context.Context, token string) (*models.SharedLink, error)
+}
+
+type AddHeaderFooterStorage interface {
+	Create(ctx context.Context, job *models.AddHeaderFooterJob) error
+	Update(ctx context.Context, job *models.AddHeaderFooterJob) error
+	GetByID(ctx context.Context, id string) (*models.AddHeaderFooterJob, error)
+}
+
+type IAddBackgroundStorage interface {
+	Create(ctx context.Context, job *models.AddBackgroundJob) error
+	Update(ctx context.Context, job *models.AddBackgroundJob) error
+	GetByID(ctx context.Context, id string) (*models.AddBackgroundJob, error)
+}
+
+type IDetectBlankPagesStorage interface {
+	Create(ctx context.Context, job *models.DetectBlankPagesJob) error
+	Update(ctx context.Context, job *models.DetectBlankPagesJob) error
+	GetByID(ctx context.Context, id string) (*models.DetectBlankPagesJob, error)
+}
+
+type IQRCodeStorage interface {
+	Create(ctx context.Context, job *models.QRCodeJob) error
+	Update(ctx context.Context, job *models.QRCodeJob) error
+	GetByID(ctx context.Context, id string) (*models.QRCodeJob, error)
+}
+
+type IPDFTextSearchStorage interface {
+    Create(ctx context.Context, job *models.PDFTextSearchJob) error
+    Update(ctx context.Context, job *models.PDFTextSearchJob) error
+    GetByID(ctx context.Context, id string) (*models.PDFTextSearchJob, error)
 }

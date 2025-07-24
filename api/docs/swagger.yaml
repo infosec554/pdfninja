@@ -84,15 +84,15 @@ definitions:
       otp_id:
         type: string
     type: object
-  models.CreateJpgToPdfRequest:
+  models.CreateJPGToPDFRequest:
     properties:
-      image_file_ids:
-        description: JPG fayllarning ID’lari
+      input_file_ids:
+        description: JPG fayllar bir nechta bo‘ladi
         items:
           type: string
         type: array
     required:
-    - image_file_ids
+    - input_file_ids
     type: object
   models.CreateMergeJobRequest:
     properties:
@@ -252,20 +252,19 @@ definitions:
       user_id:
         type: string
     type: object
-  models.JpgToPdfJob:
+  models.JPGToPDFJob:
     properties:
       created_at:
         type: string
       id:
         type: string
-      image_file_ids:
+      input_file_ids:
         items:
           type: string
         type: array
       output_file_id:
         type: string
       status:
-        description: pending, done, failed
         type: string
       user_id:
         type: string
@@ -961,14 +960,14 @@ paths:
     post:
       consumes:
       - application/json
-      description: Bitta PDF faylga bir nechta JPG rasmlarni birlashtiradi
+      description: Bir nechta JPG fayllarni bitta PDF faylga aylantirish
       parameters:
-      - description: List of image file IDs
+      - description: JPG to PDF request
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.CreateJpgToPdfRequest'
+          $ref: '#/definitions/models.CreateJPGToPDFRequest'
       produces:
       - application/json
       responses:
@@ -988,12 +987,12 @@ paths:
             $ref: '#/definitions/models.Response'
       security:
       - ApiKeyAuth: []
-      summary: Convert multiple JPG files to single PDF
+      summary: Convert JPG to PDF
       tags:
-      - pdf-jpg-to-pdf
+      - jpg-to-pdf
   /api/pdf/jpg-to-pdf/{id}:
     get:
-      description: Yaratilgan JPG to PDF job holatini olish
+      description: JPG to PDF konversiya ishining holatini olish
       parameters:
       - description: Job ID
         in: path
@@ -1006,7 +1005,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.JpgToPdfJob'
+            $ref: '#/definitions/models.JPGToPDFJob'
         "404":
           description: Not Found
           schema:
@@ -1017,9 +1016,9 @@ paths:
             $ref: '#/definitions/models.Response'
       security:
       - ApiKeyAuth: []
-      summary: Get JPG to PDF job status
+      summary: Get JPG to PDF job
       tags:
-      - pdf-jpg-to-pdf
+      - jpg-to-pdf
   /api/pdf/merge:
     post:
       consumes:

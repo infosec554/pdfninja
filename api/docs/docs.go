@@ -499,7 +499,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Bitta PDF faylga bir nechta JPG rasmlarni birlashtiradi",
+                "description": "Bir nechta JPG fayllarni bitta PDF faylga aylantirish",
                 "consumes": [
                     "application/json"
                 ],
@@ -507,17 +507,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "pdf-jpg-to-pdf"
+                    "jpg-to-pdf"
                 ],
-                "summary": "Convert multiple JPG files to single PDF",
+                "summary": "Convert JPG to PDF",
                 "parameters": [
                     {
-                        "description": "List of image file IDs",
+                        "description": "JPG to PDF request",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateJpgToPdfRequest"
+                            "$ref": "#/definitions/models.CreateJPGToPDFRequest"
                         }
                     }
                 ],
@@ -553,14 +553,14 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Yaratilgan JPG to PDF job holatini olish",
+                "description": "JPG to PDF konversiya ishining holatini olish",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "pdf-jpg-to-pdf"
+                    "jpg-to-pdf"
                 ],
-                "summary": "Get JPG to PDF job status",
+                "summary": "Get JPG to PDF job",
                 "parameters": [
                     {
                         "type": "string",
@@ -574,7 +574,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.JpgToPdfJob"
+                            "$ref": "#/definitions/models.JPGToPDFJob"
                         }
                     },
                     "404": {
@@ -2325,14 +2325,14 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CreateJpgToPdfRequest": {
+        "models.CreateJPGToPDFRequest": {
             "type": "object",
             "required": [
-                "image_file_ids"
+                "input_file_ids"
             ],
             "properties": {
-                "image_file_ids": {
-                    "description": "JPG fayllarning ID’lari",
+                "input_file_ids": {
+                    "description": "JPG fayllar bir nechta bo‘ladi",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -2575,7 +2575,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.JpgToPdfJob": {
+        "models.JPGToPDFJob": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -2584,7 +2584,7 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "image_file_ids": {
+                "input_file_ids": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -2594,7 +2594,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "description": "pending, done, failed",
                     "type": "string"
                 },
                 "user_id": {

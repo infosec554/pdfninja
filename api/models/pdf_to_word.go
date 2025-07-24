@@ -7,10 +7,10 @@ type PDFToWordRequest struct {
 }
 
 type PDFToWordJob struct {
-	ID          string    `json:"id"`
-	UserID      string    `json:"user_id"`
-	InputFileID string    `json:"input_file_id"`
-	OutputPath  string    `json:"output_path"`
-	Status      string    `json:"status"` // pending, done, failed
-	CreatedAt   time.Time `json:"created_at"`
+	ID           string    `json:"id"`
+	UserID       string    `json:"user_id"`
+	InputFileID  string    `json:"input_file_id"`
+	OutputFileID string    `json:"output_file_id"` // to‘g‘rilangan
+	Status       string    `json:"status"`
+	CreatedAt    time.Time `json:"created_at"`
 }

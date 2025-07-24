@@ -131,26 +131,36 @@ CREATE TABLE compress_jobs (
 
 -- CONVERT TO PDF
 
-CREATE TABLE convert_to_pdf_jobs (
+CREATE TABLE jpg_to_pdf_jobs (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id),
-    input_file_id UUID NOT NULL REFERENCES files(id),
-    conversion_type VARCHAR(30) NOT NULL,
+    input_file_ids UUID[] NOT NULL, -- Bir nechta rasm fayllari
     output_file_id UUID REFERENCES files(id),
-    status VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'processing', 'done', 'failed')),
     created_at TIMESTAMP DEFAULT NOW()
 );
 
--- CONVERT FROM PDF
+CREATE TABLE word_to_pdf_jobs (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id),
+    input_file_id UUID NOT NULL REFERENCES files(id), -- Bitta Word fayl
+    output_file_id UUID REFERENCES files(id),
+    status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'processing', 'done', 'failed')),
+    created_at TIMESTAMP DEFAULT NOW()
+);
 
-CREATE TABLE convert_from_pdf_jobs (
+
+CREATE TABLE pdf_to_jpg_jobs (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id),
     input_file_id UUID NOT NULL REFERENCES files(id),
     output_file_ids UUID[] DEFAULT ARRAY[]::UUID[],
-    status VARCHAR(20) NOT NULL,
+    zip_file_id UUID REFERENCES files(id),
+    status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'processing', 'done', 'failed')),
     created_at TIMESTAMP DEFAULT NOW()
 );
+
+
 
 -- EDIT PDF
 
@@ -238,5 +248,89 @@ CREATE TABLE logs (
     job_type VARCHAR(30), -- masalan: 'merge', 'split', 'compress'
     message TEXT,
     level VARCHAR(10), -- 'info', 'error', 'debug'
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE pdf_inspect_jobs (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id),
+    file_id UUID NOT NULL REFERENCES files(id),
+    page_count INT,
+    title TEXT,
+    author TEXT,
+    subject TEXT,
+    keywords TEXT,
+    status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'done', 'failed')),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+CREATE TABLE translate_jobs (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id),
+    input_file_id UUID NOT NULL REFERENCES files(id),
+    source_lang VARCHAR(10) NOT NULL,         -- masalan: 'en'
+    target_lang VARCHAR(10) NOT NULL,         -- masalan: 'uz'
+    output_file_id UUID REFERENCES files(id), -- tarjima qilingan PDF fayl
+    status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'processing', 'done', 'failed')),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+CREATE TABLE shared_links (
+    id UUID PRIMARY KEY,
+    file_id UUID NOT NULL REFERENCES files(id) ON DELETE CASCADE,
+    shared_token VARCHAR(255) UNIQUE NOT NULL,
+    expires_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+CREATE TABLE add_header_footer_jobs (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id),
+    input_file_id UUID NOT NULL REFERENCES files(id),
+    
+    header_text TEXT,
+    footer_text TEXT,
+    font_size INTEGER DEFAULT 12,
+    font_color VARCHAR(20) DEFAULT 'black',
+    position VARCHAR(20) DEFAULT 'center', -- left, center, right
+
+    output_file_id UUID REFERENCES files(id),
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE add_background_jobs (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id),
+    input_file_id UUID NOT NULL REFERENCES files(id),
+    background_image_file_id UUID NOT NULL REFERENCES files(id),
+    opacity FLOAT DEFAULT 1.0,  -- 0.0 dan 1.0 gacha
+    position VARCHAR(50) DEFAULT 'center', -- masalan: 'center', 'top-left', 'bottom-right'
+    output_file_id UUID REFERENCES files(id),
+    status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'processing', 'done', 'failed')),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+CREATE TABLE detect_blank_pages_jobs (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id),
+    input_file_id UUID NOT NULL REFERENCES files(id),
+    blank_pages INTEGER[] DEFAULT ARRAY[]::INTEGER[], -- bo‘sh sahifa raqamlari saqlanadi
+    status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'processing', 'done', 'failed')),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+CREATE TABLE qr_code_jobs (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id),
+    input_file_id UUID NOT NULL REFERENCES files(id),
+    qr_content TEXT NOT NULL, -- QR kod uchun matn
+    position VARCHAR(20) NOT NULL, -- qr kod joylashuvi (masalan: "top-left", "center")
+    size INTEGER NOT NULL, -- QR kod o'lchami pikselda
+    output_file_id UUID REFERENCES files(id),
+    status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'processing', 'done', 'failed')),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+CREATE TABLE pdf_text_search_jobs (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id),
+    input_file_id UUID NOT NULL REFERENCES files(id),
+    extracted_text TEXT, -- Fayldan chiqarilgan matn
+    status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'processing', 'done', 'failed')),
     created_at TIMESTAMP DEFAULT NOW()
 );

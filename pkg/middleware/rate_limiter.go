@@ -16,22 +16,31 @@ var (
 	burst     = 3
 )
 
-func getVisitor(ip string) *rate.Limiter {
+func getVisitor(key string) *rate.Limiter {
 	mu.Lock()
 	defer mu.Unlock()
 
-	limiter, exists := visitors[ip]
+	limiter, exists := visitors[key]
 	if !exists {
 		limiter = rate.NewLimiter(rateLimit, burst)
-		visitors[ip] = limiter
+		visitors[key] = limiter
 	}
 	return limiter
 }
 
 func RateLimiterMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ip := c.ClientIP()
-		limiter := getVisitor(ip)
+		// Avval user_id borligini tekshiramiz
+		var key string
+		if userID, exists := c.Get("user_id"); exists {
+			key = "user:" + userID.(string)
+		} else {
+			// Agar login qilmagan bo‘lsa: IP + User-Agent orqali soft ajratish
+			ua := c.GetHeader("User-Agent")
+			key = "ip:" + c.ClientIP() + "_" + ua
+		}
+
+		limiter := getVisitor(key)
 
 		if !limiter.Allow() {
 			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{"error": "Too many requests"})
