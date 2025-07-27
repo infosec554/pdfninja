@@ -104,13 +104,98 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/pdf/add-page-numbers": {
+        "/api/pdf/add-background": {
             "post": {
-                "security": [
+                "description": "PDF faylga orqa fon rasmi qo‘shadi",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-add-background"
+                ],
+                "summary": "Add background image to PDF",
+                "parameters": [
                     {
-                        "ApiKeyAuth": []
+                        "description": "Add background image request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateAddBackgroundRequest"
+                        }
                     }
                 ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/add-background/{id}": {
+            "get": {
+                "description": "Qo‘shilgan orqa fon rasmi job holatini olish",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-add-background"
+                ],
+                "summary": "Get Add Background job status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.AddBackgroundJob"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/add-page-numbers": {
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
@@ -159,11 +244,6 @@ const docTemplate = `{
         },
         "/api/pdf/add-page-numbers/{id}": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -299,11 +379,6 @@ const docTemplate = `{
         },
         "/api/pdf/crop": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "PDF sahifalarini belgilangan tomonlardan qirqadi (top, bottom, left, right)",
                 "consumes": [
                     "application/json"
@@ -353,11 +428,6 @@ const docTemplate = `{
         },
         "/api/pdf/crop/{id}": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Crop PDF jarayonining natijasini olish",
                 "produces": [
                     "application/json"
@@ -391,13 +461,108 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/pdf/extract": {
+        "/api/pdf/detect-blank": {
             "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "PDF fayldagi bo‘sh sahifalarni aniqlaydi",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-detect-blank"
+                ],
+                "summary": "Detect blank pages in PDF",
+                "parameters": [
+                    {
+                        "description": "Input PDF file ID",
+                        "name": "inputFileID",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DetectBlankPagesRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/detect-blank/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Detect blank pages job holatini oladi",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-detect-blank"
+                ],
+                "summary": "Get Detect Blank Pages Job Status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DetectBlankPagesJob"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/extract": {
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
@@ -446,11 +611,6 @@ const docTemplate = `{
         },
         "/api/pdf/extract/{id}": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -492,6 +652,218 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/pdf/header-footer": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "PDF faylga yuqori yoki quyi matn qo‘shish",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-header-footer"
+                ],
+                "summary": "Add header and/or footer to PDF",
+                "parameters": [
+                    {
+                        "description": "Header/Footer parametrlari",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateAddHeaderFooterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/header-footer/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "PDF faylga header/footer qo‘shish jarayonining holatini olish",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-header-footer"
+                ],
+                "summary": "Get header/footer job status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.AddHeaderFooterJob"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/inspect": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "PDF faylning strukturasi, sahifa soni, sarlavha, muallif va boshqa metadata’larni olish",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inspect"
+                ],
+                "summary": "Inspect PDF metadata",
+                "parameters": [
+                    {
+                        "description": "Inspect request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.InspectRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/inspect/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Inspect ishining natijasini ko‘rish",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "inspect"
+                ],
+                "summary": "Get Inspect Job",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Inspect Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.InspectJob"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/pdf/jpg-to-pdf": {
             "post": {
                 "security": [
@@ -499,7 +871,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Bir nechta JPG fayllarni bitta PDF faylga aylantirish",
+                "description": "Convert a JPG to PDF",
                 "consumes": [
                     "application/json"
                 ],
@@ -594,11 +966,6 @@ const docTemplate = `{
         },
         "/api/pdf/merge": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -735,115 +1102,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/pdf/organize": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-organize"
-                ],
-                "summary": "Organize PDF pages (change page order)",
-                "parameters": [
-                    {
-                        "description": "Organize PDF request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.CreateOrganizeJobRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/pdf/organize/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-organize"
-                ],
-                "summary": "Get organize job by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Organize job ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.OrganizeJob"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/api/pdf/pdf-to-jpg": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Bir PDF faylni sahifalarini JPG formatga o‘girish",
+                "description": "Convert a PDF file's pages into JPG format",
                 "consumes": [
                     "application/json"
                 ],
@@ -892,12 +1153,7 @@ const docTemplate = `{
         },
         "/api/pdf/pdf-to-jpg/{id}": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Job ID bo‘yicha JPG sahifalar holatini olish",
+                "description": "Retrieve the status of the conversion job by Job ID",
                 "produces": [
                     "application/json"
                 ],
@@ -936,113 +1192,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/pdf/pdf-to-word": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Yuklangan PDF faylni DOCX formatga o‘zgartiradi",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "PDF"
-                ],
-                "summary": "Convert PDF to Word",
-                "parameters": [
-                    {
-                        "description": "PDF to Word conversion data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.PDFToWordRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/pdf/pdf-to-word/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Konvertatsiya jarayonining natijasini olish",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "PDF"
-                ],
-                "summary": "Get PDF to Word job by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Job ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.PDFToWordJob"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/api/pdf/protect": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "PDF fayliga parol qo‘shadi (foydalanuvchi tomonidan berilgan parol asosida)",
                 "consumes": [
                     "application/json"
@@ -1092,11 +1243,6 @@ const docTemplate = `{
         },
         "/api/pdf/protect/{id}": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Parollangan PDF faylga oid ish holatini qaytaradi",
                 "produces": [
                     "application/json"
@@ -1130,13 +1276,108 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/pdf/removepage": {
+        "/api/pdf/qr-code": {
             "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "PDF faylga QR kod joylashtirish",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-qr-code"
+                ],
+                "summary": "Add QR code to PDF",
+                "parameters": [
+                    {
+                        "description": "QR Code request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateQRCodeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/qr-code/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "QR kod joylashtirish ishining holatini olish",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-qr-code"
+                ],
+                "summary": "Get QR code job status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.QRCodeJob"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/removepage": {
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
@@ -1191,11 +1432,6 @@ const docTemplate = `{
         },
         "/api/pdf/removepage/{id}": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1239,11 +1475,6 @@ const docTemplate = `{
         },
         "/api/pdf/rotate": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "PDF fayl sahifalarini aylantiradi (90, 180 yoki 270 gradus)",
                 "consumes": [
                     "application/json"
@@ -1293,11 +1524,6 @@ const docTemplate = `{
         },
         "/api/pdf/rotate/{id}": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Rotate PDF jarayonining natijasini olish",
                 "produces": [
                     "application/json"
@@ -1331,13 +1557,98 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/pdf/split": {
+        "/api/pdf/share": {
             "post": {
-                "security": [
+                "description": "PDF faylni boshqalar bilan ulashish uchun link yaratish",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "share"
+                ],
+                "summary": "Faylga ulashish havolasi yaratish",
+                "parameters": [
                     {
-                        "ApiKeyAuth": []
+                        "description": "File ID and expiration date",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateSharedLinkRequest"
+                        }
                     }
                 ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/share/{token}": {
+            "get": {
+                "description": "Token orqali faylga kirish",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "share"
+                ],
+                "summary": "Ulashilgan faylni olish",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Shared link token",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SharedLink"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/split": {
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
@@ -1386,11 +1697,6 @@ const docTemplate = `{
         },
         "/api/pdf/split/{id}": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1432,13 +1738,220 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/pdf/unlock": {
+        "/api/pdf/text-search": {
             "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "Foydalanuvchi yuklagan PDF fayldan matnni chiqarib, bazaga saqlaydi",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-text-search"
+                ],
+                "summary": "PDF fayldan matn chiqarib, qidirish uchun tayyorlaydi",
+                "parameters": [
+                    {
+                        "description": "InputFileID",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreatePDFTextSearchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/text-search/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Avval yaratilgan PDF matn qidirish ishining holati va chiqarilgan matnni olish",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-text-search"
+                ],
+                "summary": "PDF matn qidirish ishining holatini ko‘rish",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.PDFTextSearchJob"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/translate": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Tarjima qilish: PDF fayldagi matnni boshqa tilga o‘girish va yangi PDFga saqlash",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-translate"
+                ],
+                "summary": "Translate PDF file to another language",
+                "parameters": [
+                    {
+                        "description": "Translation parameters",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.TranslatePDFRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/translate/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "PDF tarjima qilish jarayonining holatini olish",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-translate"
+                ],
+                "summary": "Get translation job status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.TranslatePDFJob"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/unlock": {
+            "post": {
                 "description": "Qulflangan PDF faylni ochish (parolsiz qilish)",
                 "consumes": [
                     "application/json"
@@ -1488,11 +2001,6 @@ const docTemplate = `{
         },
         "/api/pdf/unlock/{id}": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Unlock PDF ish holatini ko‘rish",
                 "produces": [
                     "application/json"
@@ -2200,20 +2708,55 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.AddPageNumberJob": {
+        "models.AddBackgroundJob": {
+            "type": "object",
+            "properties": {
+                "background_image_file_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "input_file_id": {
+                    "type": "string"
+                },
+                "opacity": {
+                    "type": "number"
+                },
+                "output_file_id": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.AddHeaderFooterJob": {
             "type": "object",
             "properties": {
                 "created_at": {
                     "type": "string"
                 },
-                "first_number": {
-                    "type": "integer"
-                },
-                "font": {
+                "font_color": {
                     "type": "string"
                 },
                 "font_size": {
                     "type": "integer"
+                },
+                "footer_text": {
+                    "type": "string"
+                },
+                "header_text": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "string"
@@ -2225,7 +2768,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "position": {
-                    "description": "bottom-right, top-left, etc.",
                     "type": "string"
                 },
                 "status": {
@@ -2237,37 +2779,75 @@ const docTemplate = `{
                 }
             }
         },
-        "models.AddPageNumbersRequest": {
+        "models.AddPageNumberJob": {
             "type": "object",
-            "required": [
-                "input_file_id"
-            ],
             "properties": {
                 "color": {
-                    "description": "#000000",
+                    "type": "string"
+                },
+                "created_at": {
                     "type": "string"
                 },
                 "first_number": {
-                    "description": "Boshlang‘ich raqam",
                     "type": "integer"
-                },
-                "font": {
-                    "description": "Arial, Helvetica, va hokazo",
-                    "type": "string"
                 },
                 "font_size": {
-                    "description": "12, 14, ...",
                     "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "input_file_id": {
+                    "type": "string"
+                },
+                "output_file_id": {
+                    "type": "string"
+                },
+                "page_range": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.AddPageNumbersRequest": {
+            "type": "object",
+            "required": [
+                "color",
+                "first_number",
+                "font_size",
+                "input_file_id",
+                "page_range",
+                "position"
+            ],
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "first_number": {
+                    "description": "\u003c-- bu yer o‘zgardi",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "font_size": {
+                    "description": "\u003c-- bu yer o‘zgardi",
+                    "type": "integer",
+                    "minimum": 1
                 },
                 "input_file_id": {
                     "type": "string"
                 },
                 "page_range": {
-                    "description": "1-5,7",
                     "type": "string"
                 },
                 "position": {
-                    "description": "bottom-center, top-right, ...",
                     "type": "string"
                 }
             }
@@ -2276,7 +2856,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "compression": {
-                    "type": "string"
+                    "description": "\"low\", \"medium\", \"high\"",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.CompressionLevel"
+                        }
+                    ]
                 },
                 "created_at": {
                     "type": "string"
@@ -2288,12 +2873,19 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "output_file_id": {
+                    "description": "Output file, can be nil",
                     "type": "string"
                 },
                 "status": {
-                    "type": "string"
+                    "description": "\"pending\", \"processing\", \"done\", \"failed\"",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.JobStatus"
+                        }
+                    ]
                 },
                 "user_id": {
+                    "description": "Can be nil for guest users",
                     "type": "string"
                 }
             }
@@ -2307,12 +2899,29 @@ const docTemplate = `{
             "properties": {
                 "compression": {
                     "description": "\"low\", \"medium\", \"high\"",
-                    "type": "string"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.CompressionLevel"
+                        }
+                    ]
                 },
                 "input_file_id": {
                     "type": "string"
                 }
             }
+        },
+        "models.CompressionLevel": {
+            "type": "string",
+            "enum": [
+                "low",
+                "medium",
+                "high"
+            ],
+            "x-enum-varnames": [
+                "Low",
+                "Medium",
+                "High"
+            ]
         },
         "models.ConfirmOtpRequest": {
             "type": "object",
@@ -2321,6 +2930,58 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "otp_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreateAddBackgroundRequest": {
+            "type": "object",
+            "required": [
+                "background_image_file_id",
+                "input_file_id"
+            ],
+            "properties": {
+                "background_image_file_id": {
+                    "type": "string"
+                },
+                "input_file_id": {
+                    "type": "string"
+                },
+                "opacity": {
+                    "description": "0.0 - 1.0",
+                    "type": "number"
+                },
+                "position": {
+                    "description": "center, top-left, bottom-right",
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreateAddHeaderFooterRequest": {
+            "type": "object",
+            "required": [
+                "input_file_id"
+            ],
+            "properties": {
+                "font_color": {
+                    "description": "Agar bo‘lmasa, \"black\" deb olinadi",
+                    "type": "string"
+                },
+                "font_size": {
+                    "description": "Agar 0 bo‘lsa, default 12 deb qaraladi",
+                    "type": "integer"
+                },
+                "footer_text": {
+                    "type": "string"
+                },
+                "header_text": {
+                    "type": "string"
+                },
+                "input_file_id": {
+                    "type": "string"
+                },
+                "position": {
+                    "description": "\"left\", \"center\", \"right\" (default \"center\")",
                     "type": "string"
                 }
             }
@@ -2344,18 +3005,53 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "input_file_ids": {
+                    "description": "birlashtirish uchun kerakli fayl IDlar",
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
                 "user_id": {
+                    "description": "optional (guest user uchun nil bo'lishi mumkin)",
                     "type": "string"
                 }
             }
         },
-        "models.CreateOrganizeJobRequest": {
-            "type": "object"
+        "models.CreatePDFTextSearchRequest": {
+            "type": "object",
+            "required": [
+                "input_file_id"
+            ],
+            "properties": {
+                "input_file_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreateQRCodeRequest": {
+            "type": "object",
+            "required": [
+                "input_file_id",
+                "position",
+                "qr_content",
+                "size"
+            ],
+            "properties": {
+                "input_file_id": {
+                    "type": "string"
+                },
+                "position": {
+                    "description": "Masalan: \"top-left\"",
+                    "type": "string"
+                },
+                "qr_content": {
+                    "type": "string"
+                },
+                "size": {
+                    "description": "pikselda o'lcham",
+                    "type": "integer"
+                }
+            }
         },
         "models.CreateRole": {
             "type": "object",
@@ -2364,6 +3060,22 @@ const docTemplate = `{
             ],
             "properties": {
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreateSharedLinkRequest": {
+            "type": "object",
+            "required": [
+                "file_id"
+            ],
+            "properties": {
+                "expires_at": {
+                    "description": "*pointer bo‘lishi kerak!",
+                    "type": "string",
+                    "example": "2025-07-27T00:00:00Z"
+                },
+                "file_id": {
                     "type": "string"
                 }
             }
@@ -2437,41 +3149,58 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "bottom": {
+                    "description": "Pastki chegara",
                     "type": "integer"
                 },
                 "box": {
-                    "description": "✅ Qo‘shiladi",
+                    "description": "Box turi",
                     "type": "string"
                 },
                 "created_at": {
+                    "description": "Yaratilgan vaqt",
                     "type": "string"
                 },
                 "id": {
+                    "description": "Ish IDsi",
                     "type": "string"
                 },
                 "input_file_id": {
+                    "description": "Kirish fayl IDsi",
                     "type": "string"
                 },
+                "input_file_ids": {
+                    "description": "Fayl IDlari ro'yxati (bir nechta fayl uchun)",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "left": {
+                    "description": "Chap chegara",
                     "type": "integer"
                 },
                 "output_file_id": {
+                    "description": "Chiqish fayli IDsi",
                     "type": "string"
                 },
                 "pages": {
-                    "description": "✅ Qo‘shiladi",
+                    "description": "Sahifalar",
                     "type": "string"
                 },
                 "right": {
+                    "description": "O'ng chegara",
                     "type": "integer"
                 },
                 "status": {
+                    "description": "Ish holati (masalan, \"pending\", \"done\")",
                     "type": "string"
                 },
                 "top": {
+                    "description": "Yuqori chegara",
                     "type": "integer"
                 },
                 "user_id": {
+                    "description": "Foydalanuvchi IDsi (guest uchun nil bo'lishi mumkin)",
                     "type": "string"
                 }
             }
@@ -2504,6 +3233,44 @@ const docTemplate = `{
                 },
                 "top": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.DetectBlankPagesJob": {
+            "type": "object",
+            "properties": {
+                "blank_pages": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "input_file_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "pending, processing, done, failed",
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.DetectBlankPagesRequest": {
+            "type": "object",
+            "required": [
+                "input_file_id"
+            ],
+            "properties": {
+                "input_file_id": {
+                    "type": "string"
                 }
             }
         },
@@ -2544,7 +3311,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "page_ranges": {
-                    "description": "Masalan: \"2-4,6\"",
                     "type": "string"
                 }
             }
@@ -2552,26 +3318,81 @@ const docTemplate = `{
         "models.File": {
             "type": "object",
             "properties": {
-                "file_name": {
+                "fileName": {
                     "type": "string"
                 },
-                "file_path": {
+                "filePath": {
                     "type": "string"
                 },
-                "file_size": {
+                "fileSize": {
                     "type": "integer"
                 },
-                "file_type": {
+                "fileType": {
                     "type": "string"
                 },
                 "id": {
                     "type": "string"
                 },
-                "uploaded_at": {
+                "uploadedAt": {
                     "type": "string"
+                },
+                "userID": {
+                    "description": "NULL bo‘lishi mumkin",
+                    "type": "string"
+                }
+            }
+        },
+        "models.InspectJob": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "file_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "d4f56987-e123-4567-abcd-7890abcdef12"
+                },
+                "keywords": {
+                    "type": "string",
+                    "example": "report,2025"
+                },
+                "page_count": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "status": {
+                    "type": "string",
+                    "example": "done"
+                },
+                "subject": {
+                    "type": "string",
+                    "example": "Report"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "My PDF Document"
                 },
                 "user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "models.InspectRequest": {
+            "type": "object",
+            "required": [
+                "file_id"
+            ],
+            "properties": {
+                "file_id": {
+                    "type": "string",
+                    "example": "1e2b3c4d-5f6a-7b89-cd01-23456789abcd"
                 }
             }
         },
@@ -2600,6 +3421,21 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "models.JobStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "processing",
+                "done",
+                "failed"
+            ],
+            "x-enum-varnames": [
+                "Pending",
+                "Processing",
+                "Done",
+                "Failed"
+            ]
         },
         "models.Log": {
             "type": "object",
@@ -2663,13 +3499,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "inputFileIDs": {
-                    "description": "populated manually via join from merge_job_input_files",
+                    "description": "input fayllar (JOIN orqali olinadi, db da yo‘q)",
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
                 "outputFileID": {
+                    "description": "NULL bo'lishi mumkin (hozircha natija yo'q)",
                     "type": "string"
                 },
                 "status": {
@@ -2677,15 +3514,18 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "userID": {
+                    "description": "NULL bo'lishi mumkin (guest)",
                     "type": "string"
                 }
             }
         },
-        "models.OrganizeJob": {
+        "models.PDFTextSearchJob": {
             "type": "object",
             "properties": {
                 "created_at": {
-                    "description": "Yaratilgan vaqt",
+                    "type": "string"
+                },
+                "extracted_text": {
                     "type": "string"
                 },
                 "id": {
@@ -2694,19 +3534,7 @@ const docTemplate = `{
                 "input_file_id": {
                     "type": "string"
                 },
-                "new_order": {
-                    "description": "Sahifalarning yangi tartibi, masalan: [3,1,2]",
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "output_file_id": {
-                    "description": "Natija fayl ID",
-                    "type": "string"
-                },
                 "status": {
-                    "description": "pending, processing, done, failed",
                     "type": "string"
                 },
                 "user_id": {
@@ -2718,25 +3546,34 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "created_at": {
+                    "description": "Job creation timestamp",
                     "type": "string"
                 },
                 "id": {
+                    "description": "Job ID",
                     "type": "string"
                 },
                 "input_file_id": {
+                    "description": "Input file ID",
                     "type": "string"
                 },
-                "output_paths": {
-                    "description": "chiqarilgan JPG fayllar",
+                "output_file_ids": {
+                    "description": "List of generated JPG file IDs",
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
                 "status": {
+                    "description": "Status of the job (pending, processing, done, failed)",
                     "type": "string"
                 },
                 "user_id": {
+                    "description": "User ID (nullable)",
+                    "type": "string"
+                },
+                "zip_file_id": {
+                    "description": "ZIP file ID (nullable, can be nil)",
                     "type": "string"
                 }
             }
@@ -2748,41 +3585,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "input_file_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.PDFToWordJob": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "input_file_id": {
-                    "type": "string"
-                },
-                "output_path": {
-                    "type": "string"
-                },
-                "status": {
-                    "description": "pending, done, failed",
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.PDFToWordRequest": {
-            "type": "object",
-            "required": [
-                "input_file_id"
-            ],
-            "properties": {
-                "input_file_id": {
+                    "description": "Required input file ID",
                     "type": "string"
                 }
             }
@@ -2791,31 +3594,25 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "created_at": {
-                    "description": "Yaralgan vaqti",
                     "type": "string"
                 },
                 "id": {
-                    "description": "Job ID",
                     "type": "string"
                 },
                 "input_file_id": {
-                    "description": "Kiruvchi fayl",
                     "type": "string"
                 },
                 "output_file_id": {
-                    "description": "Himoyalangan fayl IDsi",
+                    "description": "← *pointer (✔ to‘g‘ri)",
                     "type": "string"
                 },
                 "password": {
-                    "description": "Qo‘yilgan parol",
                     "type": "string"
                 },
                 "status": {
-                    "description": "pending, done, failed",
                     "type": "string"
                 },
                 "user_id": {
-                    "description": "Foydalanuvchi IDsi",
                     "type": "string"
                 }
             }
@@ -2837,7 +3634,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.RemoveJob": {
+        "models.QRCodeJob": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -2852,6 +3649,40 @@ const docTemplate = `{
                 "output_file_id": {
                     "type": "string"
                 },
+                "position": {
+                    "type": "string"
+                },
+                "qr_content": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "pending, processing, done, failed",
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.RemoveJob": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "input_file_id": {
+                    "type": "string"
+                },
+                "output_file_id": {
+                    "description": "NULL bo‘lishi mumkin",
+                    "type": "string"
+                },
                 "pages_to_remove": {
                     "type": "string"
                 },
@@ -2859,6 +3690,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_id": {
+                    "description": "NULL bo‘lishi mumkin",
                     "type": "string"
                 }
             }
@@ -2916,7 +3748,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "angle": {
-                    "description": "🔧",
+                    "description": "Burilish burchagi",
                     "type": "integer"
                 },
                 "created_at": {
@@ -2935,7 +3767,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "pages": {
-                    "description": "agar mavjud bo‘lsa",
+                    "description": "Tanlangan sahifalar",
                     "type": "string"
                 },
                 "status": {
@@ -2978,6 +3810,26 @@ const docTemplate = `{
                 }
             }
         },
+        "models.SharedLink": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "file_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "shared_token": {
+                    "type": "string"
+                }
+            }
+        },
         "models.SplitJob": {
             "type": "object",
             "properties": {
@@ -3003,6 +3855,56 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_id": {
+                    "description": "❗️ string emas, *string bo‘lishi kerak",
+                    "type": "string"
+                }
+            }
+        },
+        "models.TranslatePDFJob": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "input_file_id": {
+                    "type": "string"
+                },
+                "output_file_id": {
+                    "type": "string"
+                },
+                "source_lang": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "pending, processing, done, failed",
+                    "type": "string"
+                },
+                "target_lang": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.TranslatePDFRequest": {
+            "type": "object",
+            "required": [
+                "input_file_id",
+                "source_lang",
+                "target_lang"
+            ],
+            "properties": {
+                "input_file_id": {
+                    "type": "string"
+                },
+                "source_lang": {
+                    "type": "string"
+                },
+                "target_lang": {
                     "type": "string"
                 }
             }

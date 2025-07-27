@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -16,30 +17,40 @@ type cropRepo struct {
 	log logger.ILogger
 }
 
-// NewCropRepo konstruktori
+// NewCropRepo konstruktor
 func NewCropRepo(db *pgxpool.Pool, log logger.ILogger) storage.ICropPDFStorage {
 	return &cropRepo{db: db, log: log}
 }
 
-// Create – yangi crop job qo‘shadi
 func (r *cropRepo) Create(ctx context.Context, job *models.CropPDFJob) error {
 	query := `
     INSERT INTO crop_pdf_jobs
     (id, user_id, input_file_id, top, bottom, "left", "right", status, created_at)
     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
 `
+
+	var userID interface{}
+	if job.UserID != nil && *job.UserID != "" {
+		userID = *job.UserID
+	} else {
+		userID = nil
+	}
+
 	_, err := r.db.Exec(ctx, query,
-		job.ID, job.UserID, job.InputFileID,
+		job.ID, userID, job.InputFileID,
 		job.Top, job.Bottom, job.Left, job.Right,
 		job.Status, job.CreatedAt,
 	)
+
 	if err != nil {
 		r.log.Error("cropRepo.Create failed", logger.Error(err))
+		return fmt.Errorf("failed to create crop job: %w", err)
 	}
-	return err
+
+	r.log.Info("Crop job successfully created", logger.String("jobID", job.ID))
+	return nil
 }
 
-// GetByID – ID bo‘yicha crop job ma’lumotini qaytaradi
 func (r *cropRepo) GetByID(ctx context.Context, id string) (*models.CropPDFJob, error) {
 	query := `
     SELECT id, user_id, input_file_id, top, bottom, "left", "right",
@@ -58,12 +69,15 @@ func (r *cropRepo) GetByID(ctx context.Context, id string) (*models.CropPDFJob, 
 	)
 	if err != nil {
 		r.log.Error("cropRepo.GetByID failed", logger.Error(err))
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch crop job: %w", err)
 	}
+
+	// kerak bo‘lsa input fayl IDlarini qo‘shish (bu yerda bitta fayl)
+	job.InputFileIDs = []string{job.InputFileID}
+
 	return &job, nil
 }
 
-// Update – crop job natijasi va statusini yangilaydi
 func (r *cropRepo) Update(ctx context.Context, job *models.CropPDFJob) error {
 	query := `
         UPDATE crop_pdf_jobs
@@ -73,8 +87,35 @@ func (r *cropRepo) Update(ctx context.Context, job *models.CropPDFJob) error {
 	_, err := r.db.Exec(ctx, query,
 		job.OutputFileID, job.Status, job.ID,
 	)
+
 	if err != nil {
 		r.log.Error("cropRepo.Update failed", logger.Error(err))
+		return fmt.Errorf("failed to update crop job: %w", err)
 	}
-	return err
+
+	r.log.Info("Crop job status updated successfully", logger.String("jobID", job.ID))
+	return nil
+}
+
+// GetInputFiles – job uchun input fayllarni olish
+func (r *cropRepo) GetInputFiles(ctx context.Context, jobID string) ([]string, error) {
+	query := `SELECT file_id FROM crop_pdf_jobs WHERE job_id = $1`
+	rows, err := r.db.Query(ctx, query, jobID)
+	if err != nil {
+		r.log.Error("failed to fetch input files", logger.Error(err))
+		return nil, fmt.Errorf("failed to get input files for job %s: %w", jobID, err)
+	}
+	defer rows.Close()
+
+	var fileIDs []string
+	for rows.Next() {
+		var fileID string
+		if err := rows.Scan(&fileID); err != nil {
+			r.log.Error("failed to scan file ID", logger.Error(err))
+			return nil, err
+		}
+		fileIDs = append(fileIDs, fileID)
+	}
+
+	return fileIDs, nil
 }

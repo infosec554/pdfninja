@@ -22,7 +22,7 @@ require (
 	github.com/swaggo/swag v1.16.5
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.40.0
-	golang.org/x/time v0.6.0
+	golang.org/x/time v0.12.0
 	rsc.io/pdf v0.1.1
 )
 

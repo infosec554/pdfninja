@@ -35,14 +35,14 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 	r.POST("/login", h.Login)
 	r.GET("/me", h.AuthorizerMiddleware, h.GetMyProfile)
 
-	// === Logs (faqat adminlar uchun yoki auth foydalanuvchilar) ===
+	// === Logs (adminlar uchun) ===
 	admin := r.Group("/admin")
 	admin.Use(h.AuthorizerMiddleware, h.AdminMiddleware)
 	{
 		admin.GET("/logs/:id", h.GetLogsByJobID)
 	}
 
-	// === Role (faqat adminlar uchun) ===
+	// === Role (adminlar uchun) ===
 	role := r.Group("/role")
 	role.Use(h.AuthorizerMiddleware, h.AdminMiddleware)
 	{
@@ -64,23 +64,23 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 		sysuser.POST("/", h.CreateSysUser)
 	}
 
-	// === Fayllar (user_id ni token orqali oladi) ===
-	// === Fayllar (user_id ni token orqali oladi) ===
+	// === Fayllar (token kerak, chunki user_id kerak) ===
+	r.POST("/file/upload", h.UploadFile)
+
 	file := r.Group("/file")
+
 	file.Use(h.AuthorizerMiddleware)
+
 	{
-		file.POST("/upload", h.UploadFile)
 		file.GET("/:id", h.GetFile)
 		file.DELETE("/:id", h.DeleteFile)
 		file.GET("/list", h.ListUserFiles)
-
-		// cleanup faqat adminlar uchun
 		file.GET("/cleanup", h.AdminMiddleware, h.CleanupOldFiles)
 	}
 
-	// === PDF xizmatlari ===
+	// === PDF xizmatlari (token shart emas — optional auth) ===
 	pdf := r.Group("/api/pdf")
-	pdf.Use(h.AuthorizerMiddleware)
+
 	{
 		pdf.POST("/merge", h.CreateMergeJob)
 		pdf.GET("/merge/:id", h.GetMergeJob)
@@ -94,9 +94,6 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 
 		pdf.POST("/extract", h.CreateExtractJob)
 		pdf.GET("/extract/:id", h.GetExtractJob)
-
-		pdf.POST("/organize", h.CreateOrganizeJob)
-		pdf.GET("/organize/:id", h.GetOrganizeJob)
 
 		pdf.POST("/compress", h.CreateCompressJob)
 		pdf.GET("/compress/:id", h.GetCompressJob)
@@ -128,14 +125,8 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 		pdf.POST("/translate", h.TranslatePDF)
 		pdf.GET("/translate/:id", h.GetTranslatePDFJob)
 
-		pdf.POST("/translate", h.TranslatePDF)
-		pdf.GET("/translate/:id", h.GetTranslatePDFJob)
-
 		pdf.POST("/header-footer", h.AddHeaderFooter)
 		pdf.GET("/header-footer/:id", h.GetHeaderFooterJob)
-
-		pdf.POST("/add-background", h.CreateAddBackground)
-		pdf.GET("/add-background/:id", h.GetAddBackgroundJob)
 
 		pdf.POST("/detect-blank", h.CreateDetectBlankPagesJob)
 		pdf.GET("/detect-blank/:id", h.GetDetectBlankPagesJob)
@@ -145,6 +136,9 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 
 		pdf.POST("/text-search", h.CreatePDFTextSearchJob)
 		pdf.GET("/text-search/:id", h.GetPDFTextSearchJob)
+
+		pdf.POST("/share", h.CreateSharedLink)
+		pdf.GET("/share/:token", h.GetSharedLink)
 	}
 
 	return r

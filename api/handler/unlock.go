@@ -21,7 +21,6 @@ import (
 // @Failure      400 {object} models.Response
 // @Failure      500 {object} models.Response
 // @Router       /api/pdf/unlock [post]
-// @Security     ApiKeyAuth
 func (h *Handler) CreateUnlockJob(c *gin.Context) {
 	var req models.UnlockPDFRequest
 
@@ -31,13 +30,19 @@ func (h *Handler) CreateUnlockJob(c *gin.Context) {
 		return
 	}
 
-	// Auth orqali user_id olish
-	userID := c.GetString("user_id")
-	if userID == "" {
-		handleResponse(c, h.log, "user_id is required", http.StatusBadRequest, "auth required")
+	// Check if inputFileIDs are provided
+	if len(req.InputFileID) == 0 {
+		handleResponse(c, h.log, "no input files", http.StatusBadRequest, "input_file_ids required")
 		return
 	}
-
+	// Handle guest user (if user_id is empty)
+	var userID *string
+	if uid := c.GetString("user_id"); uid != "" {
+		userID = &uid
+	} else {
+		// For guest user, we pass nil
+		userID = nil
+	}
 	// Kontekst yaratish
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -61,7 +66,6 @@ func (h *Handler) CreateUnlockJob(c *gin.Context) {
 // @Failure      404 {object} models.Response
 // @Failure      500 {object} models.Response
 // @Router       /api/pdf/unlock/{id} [get]
-// @Security     ApiKeyAuth
 func (h *Handler) GetUnlockJob(c *gin.Context) {
 	jobID := c.Param("id")
 

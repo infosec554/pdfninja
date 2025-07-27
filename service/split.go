@@ -18,7 +18,7 @@ import (
 )
 
 type SplitService interface {
-	Create(ctx context.Context, req models.CreateSplitJobRequest, userID string) (string, error)
+	Create(ctx context.Context, req models.CreateSplitJobRequest, userID *string) (string, error)
 	GetByID(ctx context.Context, id string) (*models.SplitJob, error)
 }
 
@@ -34,11 +34,15 @@ func NewSplitService(stg storage.IStorage, log logger.ILogger) SplitService {
 	}
 }
 
-func (s *splitService) Create(ctx context.Context, req models.CreateSplitJobRequest, userID string) (string, error) {
+func (s *splitService) Create(ctx context.Context, req models.CreateSplitJobRequest, userID *string) (string, error) {
 	s.log.Info("SplitService.Create called")
 	s.log.Info("Received InputFileID", logger.String("input_file_id", req.InputFileID))
 	s.log.Info("Received SplitRanges", logger.String("split_ranges", req.SplitRanges))
-	s.log.Info("UserID", logger.String("user_id", userID))
+	if userID != nil {
+		s.log.Info("UserID", logger.String("user_id", *userID))
+	} else {
+		s.log.Info("UserID", logger.String("user_id", "guest"))
+	}
 
 	// 1. Faylni bazadan olish
 	file, err := s.stg.File().GetByID(ctx, req.InputFileID)
@@ -77,10 +81,8 @@ func (s *splitService) Create(ctx context.Context, req models.CreateSplitJobRequ
 	}
 	s.log.Info("✅ Output directory created", logger.String("output_dir", outputDir))
 
-	// 5. Split PDF into separate files (every page)
+	// 5. Split PDF into separate files
 	config := model.NewDefaultConfiguration()
-
-	// span — necha sahifada bo‘linadi, agar SplitRanges bo‘sh emas bo‘lsa, uni span ga o‘tkazamiz
 	span := 1
 	if strings.TrimSpace(req.SplitRanges) != "" {
 		if n, err := fmt.Sscanf(req.SplitRanges, "%d", &span); err != nil || n != 1 || span < 1 {

@@ -12,7 +12,6 @@ import (
 
 // CreateSplitJob godoc
 // @Router       /api/pdf/split [post]
-// @Security     ApiKeyAuth
 // @Summary      Create split job
 // @Tags         pdf-split
 // @Accept       json
@@ -28,10 +27,12 @@ func (h Handler) CreateSplitJob(c *gin.Context) {
 		return
 	}
 
-	userID := c.GetString("user_id")
-	if userID == "" {
-		handleResponse(c, h.log, "unauthorized", http.StatusUnauthorized, "user_id required")
-		return
+	// Foydalanuvchi ID sini olish (registratsiyasiz foydalanuvchilar uchun ham ishlaydi)
+	var userID *string
+	if val, ok := c.Get("user_id"); ok {
+		if strID, ok := val.(string); ok && strID != "" {
+			userID = &strID
+		}
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -48,7 +49,6 @@ func (h Handler) CreateSplitJob(c *gin.Context) {
 
 // GetSplitJob godoc
 // @Router /api/pdf/split/{id} [get] ✅
-// @Security     ApiKeyAuth
 // @Summary      Get split job by ID
 // @Tags         pdf-split
 // @Accept       json
@@ -60,7 +60,7 @@ func (h Handler) CreateSplitJob(c *gin.Context) {
 func (h Handler) GetSplitJob(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		handleResponse(c, h.log, "missing id", http.StatusBadRequest, "id required")
+		handleResponse(c, h.log, "missing id", http.StatusBadRequest, "id is required")
 		return
 	}
 

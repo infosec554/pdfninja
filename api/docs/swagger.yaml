@@ -1,14 +1,37 @@
 definitions:
-  models.AddPageNumberJob:
+  models.AddBackgroundJob:
+    properties:
+      background_image_file_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      input_file_id:
+        type: string
+      opacity:
+        type: number
+      output_file_id:
+        type: string
+      position:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.AddHeaderFooterJob:
     properties:
       created_at:
         type: string
-      first_number:
-        type: integer
-      font:
+      font_color:
         type: string
       font_size:
         type: integer
+      footer_text:
+        type: string
+      header_text:
+        type: string
       id:
         type: string
       input_file_id:
@@ -16,7 +39,6 @@ definitions:
       output_file_id:
         type: string
       position:
-        description: bottom-right, top-left, etc.
         type: string
       status:
         description: pending, done, failed
@@ -24,35 +46,63 @@ definitions:
       user_id:
         type: string
     type: object
+  models.AddPageNumberJob:
+    properties:
+      color:
+        type: string
+      created_at:
+        type: string
+      first_number:
+        type: integer
+      font_size:
+        type: integer
+      id:
+        type: string
+      input_file_id:
+        type: string
+      output_file_id:
+        type: string
+      page_range:
+        type: string
+      position:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: string
+    type: object
   models.AddPageNumbersRequest:
     properties:
       color:
-        description: '#000000'
         type: string
       first_number:
-        description: Boshlang‘ich raqam
+        description: <-- bu yer o‘zgardi
+        minimum: 1
         type: integer
-      font:
-        description: Arial, Helvetica, va hokazo
-        type: string
       font_size:
-        description: 12, 14, ...
+        description: <-- bu yer o‘zgardi
+        minimum: 1
         type: integer
       input_file_id:
         type: string
       page_range:
-        description: 1-5,7
         type: string
       position:
-        description: bottom-center, top-right, ...
         type: string
     required:
+    - color
+    - first_number
+    - font_size
     - input_file_id
+    - page_range
+    - position
     type: object
   models.CompressJob:
     properties:
       compression:
-        type: string
+        allOf:
+        - $ref: '#/definitions/models.CompressionLevel'
+        description: '"low", "medium", "high"'
       created_at:
         type: string
       id:
@@ -60,29 +110,80 @@ definitions:
       input_file_id:
         type: string
       output_file_id:
+        description: Output file, can be nil
         type: string
       status:
-        type: string
+        allOf:
+        - $ref: '#/definitions/models.JobStatus'
+        description: '"pending", "processing", "done", "failed"'
       user_id:
+        description: Can be nil for guest users
         type: string
     type: object
   models.CompressRequest:
     properties:
       compression:
+        allOf:
+        - $ref: '#/definitions/models.CompressionLevel'
         description: '"low", "medium", "high"'
-        type: string
       input_file_id:
         type: string
     required:
     - compression
     - input_file_id
     type: object
+  models.CompressionLevel:
+    enum:
+    - low
+    - medium
+    - high
+    type: string
+    x-enum-varnames:
+    - Low
+    - Medium
+    - High
   models.ConfirmOtpRequest:
     properties:
       code:
         type: string
       otp_id:
         type: string
+    type: object
+  models.CreateAddBackgroundRequest:
+    properties:
+      background_image_file_id:
+        type: string
+      input_file_id:
+        type: string
+      opacity:
+        description: 0.0 - 1.0
+        type: number
+      position:
+        description: center, top-left, bottom-right
+        type: string
+    required:
+    - background_image_file_id
+    - input_file_id
+    type: object
+  models.CreateAddHeaderFooterRequest:
+    properties:
+      font_color:
+        description: Agar bo‘lmasa, "black" deb olinadi
+        type: string
+      font_size:
+        description: Agar 0 bo‘lsa, default 12 deb qaraladi
+        type: integer
+      footer_text:
+        type: string
+      header_text:
+        type: string
+      input_file_id:
+        type: string
+      position:
+        description: '"left", "center", "right" (default "center")'
+        type: string
+    required:
+    - input_file_id
     type: object
   models.CreateJPGToPDFRequest:
     properties:
@@ -97,13 +198,38 @@ definitions:
   models.CreateMergeJobRequest:
     properties:
       input_file_ids:
+        description: birlashtirish uchun kerakli fayl IDlar
         items:
           type: string
         type: array
       user_id:
+        description: optional (guest user uchun nil bo'lishi mumkin)
         type: string
     type: object
-  models.CreateOrganizeJobRequest:
+  models.CreatePDFTextSearchRequest:
+    properties:
+      input_file_id:
+        type: string
+    required:
+    - input_file_id
+    type: object
+  models.CreateQRCodeRequest:
+    properties:
+      input_file_id:
+        type: string
+      position:
+        description: 'Masalan: "top-left"'
+        type: string
+      qr_content:
+        type: string
+      size:
+        description: pikselda o'lcham
+        type: integer
+    required:
+    - input_file_id
+    - position
+    - qr_content
+    - size
     type: object
   models.CreateRole:
     properties:
@@ -111,6 +237,17 @@ definitions:
         type: string
     required:
     - name
+    type: object
+  models.CreateSharedLinkRequest:
+    properties:
+      expires_at:
+        description: '*pointer bo‘lishi kerak!'
+        example: "2025-07-27T00:00:00Z"
+        type: string
+      file_id:
+        type: string
+    required:
+    - file_id
     type: object
   models.CreateSplitJobRequest:
     properties:
@@ -160,30 +297,45 @@ definitions:
   models.CropPDFJob:
     properties:
       bottom:
+        description: Pastki chegara
         type: integer
       box:
-        description: ✅ Qo‘shiladi
+        description: Box turi
         type: string
       created_at:
+        description: Yaratilgan vaqt
         type: string
       id:
+        description: Ish IDsi
         type: string
       input_file_id:
+        description: Kirish fayl IDsi
         type: string
+      input_file_ids:
+        description: Fayl IDlari ro'yxati (bir nechta fayl uchun)
+        items:
+          type: string
+        type: array
       left:
+        description: Chap chegara
         type: integer
       output_file_id:
+        description: Chiqish fayli IDsi
         type: string
       pages:
-        description: ✅ Qo‘shiladi
+        description: Sahifalar
         type: string
       right:
+        description: O'ng chegara
         type: integer
       status:
+        description: Ish holati (masalan, "pending", "done")
         type: string
       top:
+        description: Yuqori chegara
         type: integer
       user_id:
+        description: Foydalanuvchi IDsi (guest uchun nil bo'lishi mumkin)
         type: string
     type: object
   models.CropPDFRequest:
@@ -204,6 +356,31 @@ definitions:
         type: integer
       top:
         type: integer
+    required:
+    - input_file_id
+    type: object
+  models.DetectBlankPagesJob:
+    properties:
+      blank_pages:
+        items:
+          type: integer
+        type: array
+      created_at:
+        type: string
+      id:
+        type: string
+      input_file_id:
+        type: string
+      status:
+        description: pending, processing, done, failed
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.DetectBlankPagesRequest:
+    properties:
+      input_file_id:
+        type: string
     required:
     - input_file_id
     type: object
@@ -229,7 +406,6 @@ definitions:
       input_file_id:
         type: string
       page_ranges:
-        description: 'Masalan: "2-4,6"'
         type: string
     required:
     - input_file_id
@@ -237,20 +413,59 @@ definitions:
     type: object
   models.File:
     properties:
-      file_name:
+      fileName:
         type: string
-      file_path:
+      filePath:
         type: string
-      file_size:
+      fileSize:
         type: integer
-      file_type:
+      fileType:
         type: string
       id:
         type: string
-      uploaded_at:
+      uploadedAt:
+        type: string
+      userID:
+        description: NULL bo‘lishi mumkin
+        type: string
+    type: object
+  models.InspectJob:
+    properties:
+      author:
+        example: John Doe
+        type: string
+      created_at:
+        type: string
+      file_id:
+        type: string
+      id:
+        example: d4f56987-e123-4567-abcd-7890abcdef12
+        type: string
+      keywords:
+        example: report,2025
+        type: string
+      page_count:
+        example: 5
+        type: integer
+      status:
+        example: done
+        type: string
+      subject:
+        example: Report
+        type: string
+      title:
+        example: My PDF Document
         type: string
       user_id:
         type: string
+    type: object
+  models.InspectRequest:
+    properties:
+      file_id:
+        example: 1e2b3c4d-5f6a-7b89-cd01-23456789abcd
+        type: string
+    required:
+    - file_id
     type: object
   models.JPGToPDFJob:
     properties:
@@ -269,6 +484,18 @@ definitions:
       user_id:
         type: string
     type: object
+  models.JobStatus:
+    enum:
+    - pending
+    - processing
+    - done
+    - failed
+    type: string
+    x-enum-varnames:
+    - Pending
+    - Processing
+    - Done
+    - Failed
   models.Log:
     properties:
       created_at:
@@ -310,37 +537,31 @@ definitions:
       id:
         type: string
       inputFileIDs:
-        description: populated manually via join from merge_job_input_files
+        description: input fayllar (JOIN orqali olinadi, db da yo‘q)
         items:
           type: string
         type: array
       outputFileID:
+        description: NULL bo'lishi mumkin (hozircha natija yo'q)
         type: string
       status:
         description: pending, done, failed
         type: string
       userID:
+        description: NULL bo'lishi mumkin (guest)
         type: string
     type: object
-  models.OrganizeJob:
+  models.PDFTextSearchJob:
     properties:
       created_at:
-        description: Yaratilgan vaqt
+        type: string
+      extracted_text:
         type: string
       id:
         type: string
       input_file_id:
         type: string
-      new_order:
-        description: 'Sahifalarning yangi tartibi, masalan: [3,1,2]'
-        items:
-          type: integer
-        type: array
-      output_file_id:
-        description: Natija fayl ID
-        type: string
       status:
-        description: pending, processing, done, failed
         type: string
       user_id:
         type: string
@@ -348,47 +569,33 @@ definitions:
   models.PDFToJPGJob:
     properties:
       created_at:
+        description: Job creation timestamp
         type: string
       id:
+        description: Job ID
         type: string
       input_file_id:
+        description: Input file ID
         type: string
-      output_paths:
-        description: chiqarilgan JPG fayllar
+      output_file_ids:
+        description: List of generated JPG file IDs
         items:
           type: string
         type: array
       status:
+        description: Status of the job (pending, processing, done, failed)
         type: string
       user_id:
+        description: User ID (nullable)
+        type: string
+      zip_file_id:
+        description: ZIP file ID (nullable, can be nil)
         type: string
     type: object
   models.PDFToJPGRequest:
     properties:
       input_file_id:
-        type: string
-    required:
-    - input_file_id
-    type: object
-  models.PDFToWordJob:
-    properties:
-      created_at:
-        type: string
-      id:
-        type: string
-      input_file_id:
-        type: string
-      output_path:
-        type: string
-      status:
-        description: pending, done, failed
-        type: string
-      user_id:
-        type: string
-    type: object
-  models.PDFToWordRequest:
-    properties:
-      input_file_id:
+        description: Required input file ID
         type: string
     required:
     - input_file_id
@@ -396,25 +603,19 @@ definitions:
   models.ProtectPDFJob:
     properties:
       created_at:
-        description: Yaralgan vaqti
         type: string
       id:
-        description: Job ID
         type: string
       input_file_id:
-        description: Kiruvchi fayl
         type: string
       output_file_id:
-        description: Himoyalangan fayl IDsi
+        description: ← *pointer (✔ to‘g‘ri)
         type: string
       password:
-        description: Qo‘yilgan parol
         type: string
       status:
-        description: pending, done, failed
         type: string
       user_id:
-        description: Foydalanuvchi IDsi
         type: string
     type: object
   models.ProtectPDFRequest:
@@ -429,7 +630,7 @@ definitions:
     - input_file_id
     - password
     type: object
-  models.RemoveJob:
+  models.QRCodeJob:
     properties:
       created_at:
         type: string
@@ -439,11 +640,35 @@ definitions:
         type: string
       output_file_id:
         type: string
+      position:
+        type: string
+      qr_content:
+        type: string
+      size:
+        type: integer
+      status:
+        description: pending, processing, done, failed
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.RemoveJob:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      input_file_id:
+        type: string
+      output_file_id:
+        description: NULL bo‘lishi mumkin
+        type: string
       pages_to_remove:
         type: string
       status:
         type: string
       user_id:
+        description: NULL bo‘lishi mumkin
         type: string
     type: object
   models.RemovePagesRequest:
@@ -481,7 +706,7 @@ definitions:
   models.RotateJob:
     properties:
       angle:
-        description: "\U0001F527"
+        description: Burilish burchagi
         type: integer
       created_at:
         type: string
@@ -494,7 +719,7 @@ definitions:
       output_path:
         type: string
       pages:
-        description: agar mavjud bo‘lsa
+        description: Tanlangan sahifalar
         type: string
       status:
         type: string
@@ -523,6 +748,19 @@ definitions:
     required:
     - email
     type: object
+  models.SharedLink:
+    properties:
+      created_at:
+        type: string
+      expires_at:
+        type: string
+      file_id:
+        type: string
+      id:
+        type: string
+      shared_token:
+        type: string
+    type: object
   models.SplitJob:
     properties:
       created_at:
@@ -540,7 +778,41 @@ definitions:
       status:
         type: string
       user_id:
+        description: ❗️ string emas, *string bo‘lishi kerak
         type: string
+    type: object
+  models.TranslatePDFJob:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      input_file_id:
+        type: string
+      output_file_id:
+        type: string
+      source_lang:
+        type: string
+      status:
+        description: pending, processing, done, failed
+        type: string
+      target_lang:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.TranslatePDFRequest:
+    properties:
+      input_file_id:
+        type: string
+      source_lang:
+        type: string
+      target_lang:
+        type: string
+    required:
+    - input_file_id
+    - source_lang
+    - target_lang
     type: object
   models.UnlockPDFJob:
     properties:
@@ -713,6 +985,65 @@ paths:
       summary: Get logs for a specific job
       tags:
       - logs
+  /api/pdf/add-background:
+    post:
+      consumes:
+      - application/json
+      description: PDF faylga orqa fon rasmi qo‘shadi
+      parameters:
+      - description: Add background image request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateAddBackgroundRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Add background image to PDF
+      tags:
+      - pdf-add-background
+  /api/pdf/add-background/{id}:
+    get:
+      description: Qo‘shilgan orqa fon rasmi job holatini olish
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AddBackgroundJob'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Get Add Background job status
+      tags:
+      - pdf-add-background
   /api/pdf/add-page-numbers:
     post:
       consumes:
@@ -741,8 +1072,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Add page numbers to PDF
       tags:
       - PDF
@@ -765,8 +1094,6 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Get add page numbers job by ID
       tags:
       - PDF
@@ -863,8 +1190,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Crop PDF pages
       tags:
       - PDF Edit
@@ -888,11 +1213,72 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Get Crop Job info
       tags:
       - PDF Edit
+  /api/pdf/detect-blank:
+    post:
+      consumes:
+      - application/json
+      description: PDF fayldagi bo‘sh sahifalarni aniqlaydi
+      parameters:
+      - description: Input PDF file ID
+        in: body
+        name: inputFileID
+        required: true
+        schema:
+          $ref: '#/definitions/models.DetectBlankPagesRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Detect blank pages in PDF
+      tags:
+      - pdf-detect-blank
+  /api/pdf/detect-blank/{id}:
+    get:
+      description: Detect blank pages job holatini oladi
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DetectBlankPagesJob'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Detect Blank Pages Job Status
+      tags:
+      - pdf-detect-blank
   /api/pdf/extract:
     post:
       consumes:
@@ -921,8 +1307,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Create extract job
       tags:
       - pdf-extract
@@ -951,16 +1335,149 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Get extract job by ID
       tags:
       - pdf-extract
+  /api/pdf/header-footer:
+    post:
+      consumes:
+      - application/json
+      description: PDF faylga yuqori yoki quyi matn qo‘shish
+      parameters:
+      - description: Header/Footer parametrlari
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateAddHeaderFooterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Add header and/or footer to PDF
+      tags:
+      - pdf-header-footer
+  /api/pdf/header-footer/{id}:
+    get:
+      description: PDF faylga header/footer qo‘shish jarayonining holatini olish
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AddHeaderFooterJob'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get header/footer job status
+      tags:
+      - pdf-header-footer
+  /api/pdf/inspect:
+    post:
+      consumes:
+      - application/json
+      description: PDF faylning strukturasi, sahifa soni, sarlavha, muallif va boshqa
+        metadata’larni olish
+      parameters:
+      - description: Inspect request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.InspectRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Inspect PDF metadata
+      tags:
+      - inspect
+  /api/pdf/inspect/{id}:
+    get:
+      description: Inspect ishining natijasini ko‘rish
+      parameters:
+      - description: Inspect Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.InspectJob'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Inspect Job
+      tags:
+      - inspect
   /api/pdf/jpg-to-pdf:
     post:
       consumes:
       - application/json
-      description: Bir nechta JPG fayllarni bitta PDF faylga aylantirish
+      description: Convert a JPG to PDF
       parameters:
       - description: JPG to PDF request
         in: body
@@ -1047,8 +1564,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Create merge job
       tags:
       - pdf-merge
@@ -1108,74 +1623,11 @@ paths:
       summary: Process merge job
       tags:
       - pdf-merge
-  /api/pdf/organize:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Organize PDF request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.CreateOrganizeJobRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Organize PDF pages (change page order)
-      tags:
-      - pdf-organize
-  /api/pdf/organize/{id}:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: Organize job ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.OrganizeJob'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Get organize job by ID
-      tags:
-      - pdf-organize
   /api/pdf/pdf-to-jpg:
     post:
       consumes:
       - application/json
-      description: Bir PDF faylni sahifalarini JPG formatga o‘girish
+      description: Convert a PDF file's pages into JPG format
       parameters:
       - description: PDF file ID
         in: body
@@ -1200,14 +1652,12 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Convert PDF to JPG
       tags:
       - pdf-to-jpg
   /api/pdf/pdf-to-jpg/{id}:
     get:
-      description: Job ID bo‘yicha JPG sahifalar holatini olish
+      description: Retrieve the status of the conversion job by Job ID
       parameters:
       - description: Job ID
         in: path
@@ -1229,74 +1679,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Get PDF to JPG conversion job
       tags:
       - pdf-to-jpg
-  /api/pdf/pdf-to-word:
-    post:
-      consumes:
-      - application/json
-      description: Yuklangan PDF faylni DOCX formatga o‘zgartiradi
-      parameters:
-      - description: PDF to Word conversion data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.PDFToWordRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Convert PDF to Word
-      tags:
-      - PDF
-  /api/pdf/pdf-to-word/{id}:
-    get:
-      description: Konvertatsiya jarayonining natijasini olish
-      parameters:
-      - description: Job ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.PDFToWordJob'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Get PDF to Word job by ID
-      tags:
-      - PDF
   /api/pdf/protect:
     post:
       consumes:
@@ -1327,8 +1712,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Protect PDF with password
       tags:
       - PDF Security
@@ -1352,11 +1735,72 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Get protected PDF job by ID
       tags:
       - PDF Security
+  /api/pdf/qr-code:
+    post:
+      consumes:
+      - application/json
+      description: PDF faylga QR kod joylashtirish
+      parameters:
+      - description: QR Code request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateQRCodeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Add QR code to PDF
+      tags:
+      - pdf-qr-code
+  /api/pdf/qr-code/{id}:
+    get:
+      description: QR kod joylashtirish ishining holatini olish
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.QRCodeJob'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get QR code job status
+      tags:
+      - pdf-qr-code
   /api/pdf/removepage:
     post:
       consumes:
@@ -1389,8 +1833,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Create remove pages job
       tags:
       - pdf-remove
@@ -1419,8 +1861,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Get remove pages job by ID
       tags:
       - pdf-remove
@@ -1453,8 +1893,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Rotate PDF pages
       tags:
       - PDF Edit
@@ -1478,11 +1916,68 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Get Rotate Job info
       tags:
       - PDF Edit
+  /api/pdf/share:
+    post:
+      consumes:
+      - application/json
+      description: PDF faylni boshqalar bilan ulashish uchun link yaratish
+      parameters:
+      - description: File ID and expiration date
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateSharedLinkRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Faylga ulashish havolasi yaratish
+      tags:
+      - share
+  /api/pdf/share/{token}:
+    get:
+      description: Token orqali faylga kirish
+      parameters:
+      - description: Shared link token
+        in: path
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SharedLink'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Ulashilgan faylni olish
+      tags:
+      - share
   /api/pdf/split:
     post:
       consumes:
@@ -1511,8 +2006,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Create split job
       tags:
       - pdf-split
@@ -1541,11 +2034,145 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Get split job by ID
       tags:
       - pdf-split
+  /api/pdf/text-search:
+    post:
+      consumes:
+      - application/json
+      description: Foydalanuvchi yuklagan PDF fayldan matnni chiqarib, bazaga saqlaydi
+      parameters:
+      - description: InputFileID
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreatePDFTextSearchRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: PDF fayldan matn chiqarib, qidirish uchun tayyorlaydi
+      tags:
+      - pdf-text-search
+  /api/pdf/text-search/{id}:
+    get:
+      description: Avval yaratilgan PDF matn qidirish ishining holati va chiqarilgan
+        matnni olish
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PDFTextSearchJob'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: PDF matn qidirish ishining holatini ko‘rish
+      tags:
+      - pdf-text-search
+  /api/pdf/translate:
+    post:
+      consumes:
+      - application/json
+      description: 'Tarjima qilish: PDF fayldagi matnni boshqa tilga o‘girish va yangi
+        PDFga saqlash'
+      parameters:
+      - description: Translation parameters
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.TranslatePDFRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - BearerAuth: []
+      summary: Translate PDF file to another language
+      tags:
+      - pdf-translate
+  /api/pdf/translate/{id}:
+    get:
+      description: PDF tarjima qilish jarayonining holatini olish
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TranslatePDFJob'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - BearerAuth: []
+      summary: Get translation job status
+      tags:
+      - pdf-translate
   /api/pdf/unlock:
     post:
       consumes:
@@ -1575,8 +2202,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Unlock PDF file
       tags:
       - PDF Unlock
@@ -1604,8 +2229,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Get Unlock Job status
       tags:
       - PDF Unlock

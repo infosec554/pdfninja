@@ -110,10 +110,6 @@ func (s *Store) ExtractPage() storage.IExtractPageStorage {
 	return NewExtractPageRepo(s.pool, s.log)
 }
 
-func (s *Store) Organize() storage.IOrganizeStorage {
-	return NewOrganizeRepo(s.pool, s.log)
-}
-
 func (s *Store) Compress() storage.ICompressStorage {
 	return NewCompressRepo(s.pool, s.log)
 }
@@ -165,9 +161,7 @@ func (s *Store) AddHeaderFooter() storage.AddHeaderFooterStorage {
 	return NewAddHeaderFooterRepo(s.pool, s.log)
 }
 
-func (s *Store) AddBackground() storage.IAddBackgroundStorage {
-	return NewAddBackgroundRepo(s.pool, s.log)
-}
+
 
 func (s *Store) DetectBlankPages() storage.IDetectBlankPagesStorage {
 	return NewDetectBlankPagesRepo(s.pool, s.log)

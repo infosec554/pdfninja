@@ -21,22 +21,26 @@ import (
 // @Failure      400 {object} models.Response
 // @Failure      500 {object} models.Response
 // @Router       /api/pdf/protect [post]
-// @Security     ApiKeyAuth
 func (h *Handler) CreateProtectJob(c *gin.Context) {
 	var req models.ProtectPDFRequest
 
-	// So‘rovni o‘qish va tekshirish
 	if err := c.ShouldBindJSON(&req); err != nil {
 		handleResponse(c, h.log, "invalid request", http.StatusBadRequest, err.Error())
 		return
 	}
-
-	userID := c.GetString("user_id")
-	if userID == "" {
-		handleResponse(c, h.log, "missing user_id", http.StatusBadRequest, "auth required")
+	// Check if inputFileIDs are provided
+	if len(req.InputFileID) == 0 {
+		handleResponse(c, h.log, "no input files", http.StatusBadRequest, "input_file_ids required")
 		return
 	}
-
+	// Handle guest user (if user_id is empty)
+	var userID *string
+	if uid := c.GetString("user_id"); uid != "" {
+		userID = &uid
+	} else {
+		// For guest user, we pass nil
+		userID = nil
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -58,7 +62,6 @@ func (h *Handler) CreateProtectJob(c *gin.Context) {
 // @Success      200 {object} models.ProtectPDFJob
 // @Failure      404 {object} models.Response
 // @Router       /api/pdf/protect/{id} [get]
-// @Security     ApiKeyAuth
 func (h *Handler) GetProtectJob(c *gin.Context) {
 	jobID := c.Param("id")
 

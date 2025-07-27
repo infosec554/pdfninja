@@ -23,13 +23,27 @@ func NewUnlockRepo(db *pgxpool.Pool, log logger.ILogger) storage.IUnlockPDFStora
 
 func (r *unlockRepo) Create(ctx context.Context, job *models.UnlockPDFJob) error {
 	query := `
-		INSERT INTO unlock_pdf_jobs (
+		INSERT INTO unlock_jobs (
 			id, user_id, input_file_id, output_file_id, status, created_at
 		) VALUES ($1, $2, $3, $4, $5, $6);`
 
+	var userID interface{}
+	if job.UserID != nil && *job.UserID != "" {
+		userID = *job.UserID
+	} else {
+		userID = nil // NULL for guest users
+	}
+
+	// Check for nil OutputFileID and use sql.NullString accordingly
+	var outputFileID sql.NullString
+	if job.OutputFileID != nil {
+		outputFileID = sql.NullString{String: *job.OutputFileID, Valid: true}
+	} else {
+		outputFileID = sql.NullString{Valid: false} // NULL value in DB
+	}
 	_, err := r.db.Exec(ctx, query,
-		job.ID, job.UserID, job.InputFileID,
-		job.OutputFileID, job.Status, job.CreatedAt)
+		job.ID, userID, job.InputFileID,
+		outputFileID, job.Status, job.CreatedAt)
 
 	if err != nil {
 		return fmt.Errorf("unlockRepo.Create: %w", err)
@@ -41,7 +55,7 @@ func (r *unlockRepo) Create(ctx context.Context, job *models.UnlockPDFJob) error
 func (r *unlockRepo) GetByID(ctx context.Context, id string) (*models.UnlockPDFJob, error) {
 	query := `
 		SELECT id, user_id, input_file_id, output_file_id, status, created_at
-		FROM unlock_pdf_jobs
+		FROM unlock_jobs
 		WHERE id = $1;
 	`
 
@@ -65,7 +79,7 @@ func (r *unlockRepo) GetByID(ctx context.Context, id string) (*models.UnlockPDFJ
 
 func (r *unlockRepo) Update(ctx context.Context, job *models.UnlockPDFJob) error {
 	query := `
-		UPDATE unlock_pdf_jobs
+		UPDATE unlock_jobs
 		SET output_file_id = $1,
 			status = $2
 		WHERE id = $3;

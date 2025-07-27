@@ -16,7 +16,7 @@ import (
 )
 
 type CropPDFService interface {
-	Create(ctx context.Context, req models.CropPDFRequest, userID string) (string, error)
+	Create(ctx context.Context, req models.CropPDFRequest, userID *string) (string, error)
 	GetByID(ctx context.Context, id string) (*models.CropPDFJob, error)
 }
 
@@ -29,58 +29,56 @@ func NewCropPDFService(stg storage.IStorage, log logger.ILogger) CropPDFService 
 	return &cropPDFService{stg: stg, log: log}
 }
 
-func (s *cropPDFService) Create(ctx context.Context, req models.CropPDFRequest, userID string) (string, error) {
+func (s *cropPDFService) Create(ctx context.Context, req models.CropPDFRequest, userID *string) (string, error) {
 	s.log.Info("CropPDFService.Create called")
 
 	file, err := s.stg.File().GetByID(ctx, req.InputFileID)
 	if err != nil {
-		s.log.Error("input file not found", logger.Error(err))
-		return "", fmt.Errorf("file not found")
+		s.log.Error("Input file not found", logger.Error(err))
+		return "", fmt.Errorf("input file not found: %v", err)
 	}
 
-	jobID := uuid.New().String()
-	outputFileID := uuid.New().String()
-	outputPath := filepath.Join("storage/crop_pdf", outputFileID+".pdf")
+	jobID := uuid.NewString()
+	outputFileID := uuid.NewString()
+	outputPath := filepath.Join("storage/crop_pdfs", outputFileID+".pdf")
 
 	if err := os.MkdirAll(filepath.Dir(outputPath), os.ModePerm); err != nil {
-		s.log.Error("failed to create output directory", logger.Error(err))
 		return "", err
 	}
 
 	job := &models.CropPDFJob{
-		ID:           jobID,
-		UserID:       userID,
-		InputFileID:  req.InputFileID,
-		Top:          req.Top,
-		Bottom:       req.Bottom,
-		Left:         req.Left,
-		Right:        req.Right,
-		Pages:        req.Pages,
-		OutputFileID: outputFileID,
-		Status:       "pending",
-		CreatedAt:    time.Now(),
+		ID:          jobID,
+		UserID:      userID,
+		InputFileID: req.InputFileID,
+		Top:         req.Top,
+		Bottom:      req.Bottom,
+		Left:        req.Left,
+		Right:       req.Right,
+		Box:         req.Box,
+		Pages:       req.Pages,
+		Status:      "pending",
+		CreatedAt:   time.Now(),
 	}
 
 	if err := s.stg.Crop().Create(ctx, job); err != nil {
-		s.log.Error("failed to create crop job", logger.Error(err))
 		return "", err
 	}
 
-	llx := req.Left
-	lly := req.Bottom
-	urx := 595 - req.Right
-	ury := 842 - req.Top
+	// ✅ To‘g‘rilangan crop description
+	cropDesc := fmt.Sprintf("%d %d %d %d", req.Top, req.Right, req.Bottom, req.Left)
 
-	args := []string{
-		"trim",
-		"-pages", req.Pages,
-		"-m", fmt.Sprintf("mediabox:%d %d %d %d", llx, lly, urx, ury),
-		file.FilePath,
-		outputPath,
+	args := []string{"crop"}
+
+	if req.Pages != "" {
+		args = append(args, "-pages", req.Pages)
 	}
+
+	args = append(args, "--", cropDesc, file.FilePath, outputPath)
+
 	cmd := exec.Command("pdfcpu", args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+
 	if err := cmd.Run(); err != nil {
 		s.log.Error("pdfcpu crop failed", logger.Error(err))
 		return "", err
@@ -88,7 +86,6 @@ func (s *cropPDFService) Create(ctx context.Context, req models.CropPDFRequest, 
 
 	fi, err := os.Stat(outputPath)
 	if err != nil {
-		s.log.Error("cannot stat output file", logger.Error(err))
 		return "", err
 	}
 
@@ -103,25 +100,20 @@ func (s *cropPDFService) Create(ctx context.Context, req models.CropPDFRequest, 
 	}
 
 	if _, err := s.stg.File().Save(ctx, newFile); err != nil {
-		s.log.Error("failed to save output file", logger.Error(err))
 		return "", err
 	}
 
+	job.OutputFileID = &outputFileID
 	job.Status = "done"
+
 	if err := s.stg.Crop().Update(ctx, job); err != nil {
-		s.log.Error("failed to update job", logger.Error(err))
 		return "", err
 	}
 
-	s.log.Info("Crop PDF job completed", logger.String("jobID", jobID))
+	s.log.Info("Crop job completed", logger.String("jobID", jobID))
 	return jobID, nil
 }
 
 func (s *cropPDFService) GetByID(ctx context.Context, id string) (*models.CropPDFJob, error) {
-	job, err := s.stg.Crop().GetByID(ctx, id)
-	if err != nil {
-		s.log.Error("failed to get crop job", logger.Error(err))
-		return nil, err
-	}
-	return job, nil
+	return s.stg.Crop().GetByID(ctx, id)
 }

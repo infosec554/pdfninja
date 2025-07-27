@@ -8,6 +8,7 @@ import (
 
 	"test/api/models"
 	"test/pkg/logger"
+	"test/pkg/utils" // Base62 util kutubxonasini qo'shish
 	"test/storage"
 )
 
@@ -29,16 +30,20 @@ func (s *sharedLinkService) Create(ctx context.Context, req models.CreateSharedL
 	s.log.Info("SharedLinkService.Create called")
 
 	linkID := uuid.New().String()
-	token := uuid.New().String() // token sifatida UUID ishlatyapmiz, kerak bo‘lsa short-link generator bilan almashtirish mumkin
 
+	// Base62 yordamida qisqa token yaratish
+	token := utils.Base62Encode(linkID) // Base62 kodlash
+
+	// SharedLink modelini yaratish
 	link := &models.SharedLink{
 		ID:          linkID,
 		FileID:      req.FileID,
 		SharedToken: token,
-		ExpiresAt:   req.ExpiresAt,
+		ExpiresAt:   *req.ExpiresAt,
 		CreatedAt:   time.Now(),
 	}
 
+	// Ma'lumotlarni saqlash
 	if err := s.stg.SharedLink().Create(ctx, link); err != nil {
 		s.log.Error("failed to create shared link", logger.Error(err))
 		return "", err

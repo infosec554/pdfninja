@@ -20,7 +20,7 @@ import (
 )
 
 type RemovePageService interface {
-	Create(ctx context.Context, req models.RemovePagesRequest, userID string) (string, error)
+	Create(ctx context.Context, req models.RemovePagesRequest, userID *string) (string, error)
 	GetByID(ctx context.Context, id string) (*models.RemoveJob, error)
 }
 
@@ -36,7 +36,7 @@ func NewRemoveService(stg storage.IStorage, log logger.ILogger) RemovePageServic
 	}
 }
 
-func (s *removePageService) Create(ctx context.Context, req models.RemovePagesRequest, userID string) (string, error) {
+func (s *removePageService) Create(ctx context.Context, req models.RemovePagesRequest, userID *string) (string, error) {
 	s.log.Info("RemoveService.Create called")
 
 	// 1. Kiruvchi faylni olish
@@ -51,7 +51,7 @@ func (s *removePageService) Create(ctx context.Context, req models.RemovePagesRe
 		ID:            uuid.New().String(),
 		UserID:        userID,
 		InputFileID:   req.InputFileID,
-		PagesToRemove: req.PagesToRemove, // e.g. "2,4-6"
+		PagesToRemove: req.PagesToRemove,
 		Status:        "pending",
 		CreatedAt:     time.Now(),
 	}
@@ -73,14 +73,14 @@ func (s *removePageService) Create(ctx context.Context, req models.RemovePagesRe
 	outputID := uuid.New().String()
 	outputPath := filepath.Join(outputDir, outputID+".pdf")
 
-	// 5. Sahifalar ro‘yxatini parse qilish (e.g. "2,4-6" -> []int -> []string)
+	// 5. Sahifalar ro‘yxatini parse qilish
 	pageList, err := parsePageList(req.PagesToRemove)
 	if err != nil {
 		s.log.Error("invalid page list", logger.Error(err))
 		return "", err
 	}
 
-	pageStrs := pkg.IntSliceToStringSlice(pageList) // []int → []string
+	pageStrs := pkg.IntSliceToStringSlice(pageList)
 
 	// 6. PDF sahifalarni olib tashlash
 	config := model.NewDefaultConfiguration()
@@ -114,7 +114,7 @@ func (s *removePageService) Create(ctx context.Context, req models.RemovePagesRe
 	}
 
 	// 8. Job ni yangilash (output_file_id, status)
-	job.OutputFileID = outputID
+	job.OutputFileID = &outputID
 	job.Status = "done"
 
 	if err := s.stg.RemovePage().Update(ctx, job); err != nil {

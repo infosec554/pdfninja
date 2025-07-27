@@ -16,7 +16,7 @@ import (
 )
 
 type ProtectPDFService interface {
-	Create(ctx context.Context, req models.ProtectPDFRequest, userID string) (string, error)
+	Create(ctx context.Context, req models.ProtectPDFRequest, userID *string) (string, error)
 	GetByID(ctx context.Context, id string) (*models.ProtectPDFJob, error)
 }
 
@@ -32,7 +32,7 @@ func NewProtectPDFService(stg storage.IStorage, log logger.ILogger) ProtectPDFSe
 	}
 }
 
-func (s *protectPDFService) Create(ctx context.Context, req models.ProtectPDFRequest, userID string) (string, error) {
+func (s *protectPDFService) Create(ctx context.Context, req models.ProtectPDFRequest, userID *string) (string, error) {
 	s.log.Info("ProtectPDFService.Create called")
 
 	// 1. Faylni olish
@@ -52,25 +52,7 @@ func (s *protectPDFService) Create(ctx context.Context, req models.ProtectPDFReq
 		return "", err
 	}
 
-	// 3. Job yaratish
-	job := &models.ProtectPDFJob{
-		ID:           jobID,
-		UserID:       userID,
-		InputFileID:  req.InputFileID,
-		OutputFileID: outputFileID,
-		Password:     req.Password,
-		Status:       "pending",
-		CreatedAt:    time.Now(),
-	}
-
-	if err := s.stg.Protect().Create(ctx, job); err != nil {
-		s.log.Error("failed to create job", logger.Error(err))
-		return "", err
-	}
-
-	// 4. pdfcpu orqali parol qo‘yish
-	// `pdfcpu` config format: user pw + owner pw (user pw yetarli)
-
+	// 3. PDF faylga parol qo‘yish
 	args := []string{
 		"encrypt",
 		"-upw", req.Password,
@@ -78,7 +60,6 @@ func (s *protectPDFService) Create(ctx context.Context, req models.ProtectPDFReq
 		file.FilePath,
 		outputPath,
 	}
-
 	cmd := exec.Command("pdfcpu", args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -88,7 +69,7 @@ func (s *protectPDFService) Create(ctx context.Context, req models.ProtectPDFReq
 		return "", err
 	}
 
-	// 5. Faylni DBga saqlash
+	// 4. Faylni bazaga yozish (files jadvaliga)
 	fi, err := os.Stat(outputPath)
 	if err != nil {
 		s.log.Error("output file not found", logger.Error(err))
@@ -104,15 +85,25 @@ func (s *protectPDFService) Create(ctx context.Context, req models.ProtectPDFReq
 		FileSize:   fi.Size(),
 		UploadedAt: time.Now(),
 	}
+
 	if _, err := s.stg.File().Save(ctx, newFile); err != nil {
 		s.log.Error("failed to save output file", logger.Error(err))
 		return "", err
 	}
 
-	// 6. Holatni yangilash
-	job.Status = "done"
-	if err := s.stg.Protect().Update(ctx, job); err != nil {
-		s.log.Error("failed to update job status", logger.Error(err))
+	// 5. Protect Job yaratish (endi output_file_id bor)
+	job := &models.ProtectPDFJob{
+		ID:           jobID,
+		UserID:       userID,
+		InputFileID:  req.InputFileID,
+		OutputFileID: &outputFileID,
+		Password:     req.Password,
+		Status:       "done",
+		CreatedAt:    time.Now(),
+	}
+
+	if err := s.stg.Protect().Create(ctx, job); err != nil {
+		s.log.Error("failed to create job", logger.Error(err))
 		return "", err
 	}
 

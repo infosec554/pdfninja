@@ -18,7 +18,7 @@ import (
 // @Tags         pdf-header-footer
 // @Accept       json
 // @Produce      json
-// @Param        request body models.AddHeaderFooterRequest true "Header/Footer parametrlari"
+// @Param        request body models.CreateAddHeaderFooterRequest true "Header/Footer parametrlari"
 // @Success      201 {object} map[string]string
 // @Failure      400 {object} models.Response
 // @Failure      500 {object} models.Response

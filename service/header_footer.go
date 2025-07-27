@@ -79,7 +79,7 @@ func (s *addHeaderFooterService) Create(ctx context.Context, req models.CreateAd
 	fi, _ := os.Stat(outputPath)
 	newFile := models.File{
 		ID:         outputID,
-		UserID:     userID,
+		UserID:     &userID,
 		FileName:   filepath.Base(outputPath),
 		FilePath:   outputPath,
 		FileType:   "application/pdf",

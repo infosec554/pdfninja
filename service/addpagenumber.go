@@ -16,7 +16,7 @@ import (
 )
 
 type AddPageNumberService interface {
-	Create(ctx context.Context, req models.AddPageNumbersRequest, userID string) (string, error)
+	Create(ctx context.Context, req models.AddPageNumbersRequest, userID *string) (string, error)
 	GetByID(ctx context.Context, id string) (*models.AddPageNumberJob, error)
 }
 
@@ -26,59 +26,64 @@ type addPageNumberService struct {
 }
 
 func NewAddPageNumberService(stg storage.IStorage, log logger.ILogger) AddPageNumberService {
-	return &addPageNumberService{
-		stg: stg,
-		log: log,
-	}
+	return &addPageNumberService{stg: stg, log: log}
 }
 
-func (s *addPageNumberService) Create(ctx context.Context, req models.AddPageNumbersRequest, userID string) (string, error) {
+func (s *addPageNumberService) Create(ctx context.Context, req models.AddPageNumbersRequest, userID *string) (string, error) {
 	s.log.Info("AddPageNumberService.Create called")
 
-	// 1. Kiruvchi faylni olish
+	// 1. Input faylni tekshirish
 	file, err := s.stg.File().GetByID(ctx, req.InputFileID)
 	if err != nil {
 		s.log.Error("input file not found", logger.Error(err))
 		return "", fmt.Errorf("input file not found: %v", err)
 	}
 
-	// 2. Job yaratish
+	// 2. Job ID va output path yaratish
 	jobID := uuid.NewString()
 	outputFileID := uuid.NewString()
 	outputPath := filepath.Join("storage/add_page_numbers", outputFileID+".pdf")
 
 	if err := os.MkdirAll(filepath.Dir(outputPath), os.ModePerm); err != nil {
-		s.log.Error("failed to create output directory", logger.Error(err))
 		return "", err
 	}
 
+	// 3. Job ma'lumotlarini saqlash
 	job := &models.AddPageNumberJob{
-		ID:           jobID,
-		UserID:       userID,
-		InputFileID:  req.InputFileID,
-		OutputFileID: outputFileID,
-		Position:     req.Position,
-		FirstNumber:  req.FirstNumber,
-		Status:       "pending",
-		CreatedAt:    time.Now(),
+		ID:          jobID,
+		UserID:      userID,
+		InputFileID: req.InputFileID,
+		Status:      "pending",
+		FirstNumber: req.FirstNumber,
+		PageRange:   req.PageRange,
+		Position:    req.Position,
+		Color:       req.Color,
+		FontSize:    req.FontSize,
+		CreatedAt:   time.Now(),
 	}
 
 	if err := s.stg.AddPageNumber().Create(ctx, job); err != nil {
-		s.log.Error("failed to create job", logger.Error(err))
 		return "", err
 	}
 
-	// 3. CLI orqali sahifalarga raqam qo‘shish (pdfcpu ishlatilmoqda)
+	// 4. CLI buyrug‘ini to‘g‘ri formatda tuzish
 	args := []string{
-		"stamp",
-		"add",
+		"stamp", "add",
 		"-mode", "text",
-		"-pages", "all",
-		"-pos", req.Position,
-		"-text", "#p", // `#p` sahifa raqami degani
+		"-pages", req.PageRange,
+		"--",
+		"Page %p of %P", // matn formati
+		fmt.Sprintf(
+			"scale:1.0 abs, pos:%s, rot:0, fillcolor:%s, fontname:Helvetica, points:%d",
+			req.Position,
+			req.Color,
+			req.FontSize,
+		),
 		file.FilePath,
 		outputPath,
 	}
+
+	// 5. Komandani ishga tushirish
 	cmd := exec.Command("pdfcpu", args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -88,10 +93,9 @@ func (s *addPageNumberService) Create(ctx context.Context, req models.AddPageNum
 		return "", err
 	}
 
-	// 4. Yangi faylni DBga saqlash
+	// 6. Natijaviy faylni tekshirish va DBga saqlash
 	fi, err := os.Stat(outputPath)
 	if err != nil {
-		s.log.Error("failed to stat output file", logger.Error(err))
 		return "", err
 	}
 
@@ -104,15 +108,16 @@ func (s *addPageNumberService) Create(ctx context.Context, req models.AddPageNum
 		FileSize:   fi.Size(),
 		UploadedAt: time.Now(),
 	}
+
 	if _, err := s.stg.File().Save(ctx, newFile); err != nil {
-		s.log.Error("failed to save output file", logger.Error(err))
 		return "", err
 	}
 
-	// 5. Job holatini "done" qilish
+	// 7. Job holatini yangilash
+	job.OutputFileID = &outputFileID
 	job.Status = "done"
+
 	if err := s.stg.AddPageNumber().Update(ctx, job); err != nil {
-		s.log.Error("failed to update job", logger.Error(err))
 		return "", err
 	}
 
@@ -121,10 +126,5 @@ func (s *addPageNumberService) Create(ctx context.Context, req models.AddPageNum
 }
 
 func (s *addPageNumberService) GetByID(ctx context.Context, id string) (*models.AddPageNumberJob, error) {
-	job, err := s.stg.AddPageNumber().GetByID(ctx, id)
-	if err != nil {
-		s.log.Error("failed to get job", logger.Error(err))
-		return nil, err
-	}
-	return job, nil
+	return s.stg.AddPageNumber().GetByID(ctx, id)
 }

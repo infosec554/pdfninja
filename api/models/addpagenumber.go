@@ -2,25 +2,25 @@ package models
 
 import "time"
 
-type AddPageNumberJob struct {
-	ID           string    `json:"id"`
-	UserID       string    `json:"user_id"`
-	InputFileID  string    `json:"input_file_id"`
-	OutputFileID string    `json:"output_file_id"`
-	Status       string    `json:"status"` // pending, done, failed
-	CreatedAt    time.Time `json:"created_at"`
-	Font         string    `json:"font"`
-	FontSize     int       `json:"font_size"`
-	Position     string    `json:"position"` // bottom-right, top-left, etc.
-	FirstNumber  int       `json:"first_number"`
-}
-
 type AddPageNumbersRequest struct {
 	InputFileID string `json:"input_file_id" binding:"required"`
-	Font        string `json:"font"`                   // Arial, Helvetica, va hokazo
-	FontSize    int    `json:"font_size"`              // 12, 14, ...
-	Position    string `json:"position"`               // bottom-center, top-right, ...
-	PageRange   string `json:"page_range"`             // 1-5,7
-	Color       string `json:"color"`                  // #000000
-	FirstNumber int    `json:"first_number"`           // Boshlang‘ich raqam
+	FirstNumber int    `json:"first_number" binding:"required,min=1"` // <-- bu yer o‘zgardi
+	PageRange   string `json:"page_range" binding:"required"`
+	Position    string `json:"position" binding:"required"`
+	Color       string `json:"color" binding:"required"`
+	FontSize    int    `json:"font_size" binding:"required,min=1"` // <-- bu yer o‘zgardi
+}
+
+type AddPageNumberJob struct {
+	ID           string    `json:"id"`
+	UserID       *string   `json:"user_id"`
+	InputFileID  string    `json:"input_file_id"`
+	OutputFileID *string   `json:"output_file_id"`
+	Status       string    `json:"status"`
+	CreatedAt    time.Time `json:"created_at"`
+	FirstNumber  int       `json:"first_number"`
+	PageRange    string    `json:"page_range"`
+	Position     string    `json:"position"`
+	Color        string    `json:"color"`
+	FontSize     int       `json:"font_size"`
 }

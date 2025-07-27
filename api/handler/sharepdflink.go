@@ -12,7 +12,6 @@ import (
 
 // @Router       /api/pdf/share [POST]
 // @Summary      Faylga ulashish havolasi yaratish
-// @Security     ApiKeyAuth
 // @Description  PDF faylni boshqalar bilan ulashish uchun link yaratish
 // @Tags         share
 // @Accept       json
@@ -23,14 +22,21 @@ import (
 // @Failure      500 {object} models.Response
 func (h *Handler) CreateSharedLink(c *gin.Context) {
 	var req models.CreateSharedLinkRequest
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		handleResponse(c, h.log, "invalid request", http.StatusBadRequest, err.Error())
 		return
 	}
 
-	if req.FileID == "" || req.ExpiresAt.Before(time.Now()) {
-		handleResponse(c, h.log, "invalid expiration time or file_id", http.StatusBadRequest, nil)
+	if req.FileID == "" {
+		handleResponse(c, h.log, "missing file_id", http.StatusBadRequest, nil)
 		return
+	}
+
+	// Agar expires_at bo‘sh bo‘lsa, 24 soat qo‘shib o‘rnatish
+	if req.ExpiresAt == nil {
+		defaultExpiry := time.Now().Add(24 * time.Hour)
+		req.ExpiresAt = &defaultExpiry
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

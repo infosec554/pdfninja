@@ -12,7 +12,6 @@ import (
 
 // CreateAddPageNumbersJob godoc
 // @Router       /api/pdf/add-page-numbers [POST]
-// @Security     ApiKeyAuth
 // @Summary      Add page numbers to PDF
 // @Tags         PDF
 // @Accept       json
@@ -28,7 +27,19 @@ func (h *Handler) CreateAddPageNumbersJob(c *gin.Context) {
 		return
 	}
 
-	userID := c.GetString("user_id")
+	// Check if inputFileIDs are provided
+	if len(req.InputFileID) == 0 {
+		handleResponse(c, h.log, "no input files", http.StatusBadRequest, "input_file_ids required")
+		return
+	}
+	// Handle guest user (if user_id is empty)
+	var userID *string
+	if uid := c.GetString("user_id"); uid != "" {
+		userID = &uid
+	} else {
+		// For guest user, we pass nil
+		userID = nil
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -44,7 +55,6 @@ func (h *Handler) CreateAddPageNumbersJob(c *gin.Context) {
 
 // GetAddPageNumbersJob godoc
 // @Router       /api/pdf/add-page-numbers/{id} [GET]
-// @Security     ApiKeyAuth
 // @Summary      Get add page numbers job by ID
 // @Tags         PDF
 // @Param        id path string true "Job ID"

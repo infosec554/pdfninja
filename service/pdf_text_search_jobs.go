@@ -14,7 +14,7 @@ import (
 )
 
 type PDFTextSearchService interface {
-	Create(ctx context.Context, inputFileID, userID string) (string, error)
+	Create(ctx context.Context, inputFileID  string, userID *string) (string, error)
 	GetByID(ctx context.Context, id string) (*models.PDFTextSearchJob, error)
 }
 
@@ -27,7 +27,7 @@ func NewPDFTextSearchService(stg storage.IStorage, log logger.ILogger) PDFTextSe
 	return &pdfTextSearchService{stg: stg, log: log}
 }
 
-func (s *pdfTextSearchService) Create(ctx context.Context, inputFileID, userID string) (string, error) {
+func (s *pdfTextSearchService) Create(ctx context.Context, inputFileID string, userID *string) (string, error) {
 	s.log.Info("PDFTextSearchService.Create called")
 
 	file, err := s.stg.File().GetByID(ctx, inputFileID)

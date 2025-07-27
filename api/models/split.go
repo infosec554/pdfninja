@@ -9,7 +9,7 @@ type CreateSplitJobRequest struct {
 
 type SplitJob struct {
 	ID            string    `json:"id"`
-	UserID        string    `json:"user_id"`
+	UserID        *string   `json:"user_id"` // ❗️ string emas, *string bo‘lishi kerak
 	InputFileID   string    `json:"input_file_id"`
 	SplitRanges   string    `json:"split_ranges"`
 	OutputFileIDs []string  `json:"output_file_ids"`

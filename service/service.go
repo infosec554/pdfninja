@@ -18,10 +18,10 @@ type IServiceManager interface {
 	Split() SplitService // ✅ QO‘SH!
 	RemovePage() RemovePageService
 	ExtractPage() ExtractPageService
-	Organize() OrganizeService
+
 	Compress() CompressService
 	PDFToJPG() PDFToJPGService
-	Rotate() RoatateService
+	Rotate() RotateService
 	AddPageNumber() AddPageNumberService
 	Crop() CropPDFService
 	Unlock() UnlockService
@@ -33,7 +33,6 @@ type IServiceManager interface {
 	TranslatePDF() TranslatePDFService
 	SharedLink() SharedLinkService
 	AddHeaderFooter() AddHeaderFooterService
-	AddBackground() AddBackgroundService
 	DetectBlank() DetectBlankService
 	QRCode() QRCodeService
 	PDFTextSearch() PDFTextSearchService
@@ -50,10 +49,9 @@ type service struct {
 	splitService           SplitService
 	removepageService      RemovePageService
 	extractPageService     ExtractPageService
-	organizeService        OrganizeService
 	compressService        CompressService
 	pdfToJPGService        PDFToJPGService
-	rotateSrvice           RoatateService
+	rotateSrvice           RotateService
 	addPageNumberService   AddPageNumberService
 	cropPDFService         CropPDFService
 	unlockService          UnlockService
@@ -65,7 +63,6 @@ type service struct {
 	translatePDF           TranslatePDFService
 	sharedLinkService      SharedLinkService
 	addHeaderFooterService AddHeaderFooterService
-	addBackgroundService   AddBackgroundService
 	detectBlankService     DetectBlankService
 	qRCodeService          QRCodeService
 	pDFTextSearchService   PDFTextSearchService
@@ -83,7 +80,6 @@ func New(storage storage.IStorage, log logger.ILogger, mailerCore *mailer.Mailer
 		splitService:           NewSplitService(storage, log),
 		removepageService:      NewRemoveService(storage, log),
 		extractPageService:     NewExtractService(storage, log),
-		organizeService:        NewOrganizeService(storage, log),
 		compressService:        NewCompressService(storage, log),
 		pdfToJPGService:        NewPDFToJPGService(storage, log),
 		rotateSrvice:           NewRotateService(storage, log),
@@ -98,7 +94,6 @@ func New(storage storage.IStorage, log logger.ILogger, mailerCore *mailer.Mailer
 		translatePDF:           NewTranslatePDFService(storage, log),
 		sharedLinkService:      NewSharedLinkService(storage, log),
 		addHeaderFooterService: NewAddHeaderFooterService(storage, log),
-		addBackgroundService:   NewAddBackgroundService(storage, log),
 		detectBlankService:     NewDetectBlankService(storage, log),
 		qRCodeService:          NewQRCodeService(storage, log),
 		pDFTextSearchService:   NewPDFTextSearchService(storage, log),
@@ -145,9 +140,7 @@ func (s *service) ExtractPage() ExtractPageService {
 	return s.extractPageService
 }
 
-func (s *service) Organize() OrganizeService {
-	return s.organizeService
-}
+
 func (s *service) Compress() CompressService {
 	return s.compressService
 }
@@ -156,7 +149,7 @@ func (s *service) PDFToJPG() PDFToJPGService {
 	return s.pdfToJPGService
 }
 
-func (s *service) Rotate() RoatateService {
+func (s *service) Rotate() RotateService {
 	return s.rotateSrvice
 }
 
@@ -203,9 +196,6 @@ func (s *service) AddHeaderFooter() AddHeaderFooterService {
 	return s.addHeaderFooterService
 }
 
-func (s *service) AddBackground() AddBackgroundService {
-	return s.addBackgroundService
-}
 
 func (s *service) DetectBlank() DetectBlankService {
 	return s.detectBlankService

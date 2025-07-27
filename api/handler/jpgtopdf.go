@@ -14,7 +14,7 @@ import (
 // @Router       /api/pdf/jpg-to-pdf [POST]
 // @Security     ApiKeyAuth
 // @Summary      Convert JPG to PDF
-// @Description  Bir nechta JPG fayllarni bitta PDF faylga aylantirish
+// @Description  Convert a JPG to PDF
 // @Tags         jpg-to-pdf
 // @Accept       json
 // @Produce      json
@@ -22,6 +22,7 @@ import (
 // @Success      201 {object} map[string]string
 // @Failure      400 {object} models.Response
 // @Failure      500 {object} models.Response
+// @Router       /api/pdf/jpg-to-pdf [post]
 func (h Handler) CreateJPGToPDF(c *gin.Context) {
 	var req models.CreateJPGToPDFRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -29,20 +30,26 @@ func (h Handler) CreateJPGToPDF(c *gin.Context) {
 		return
 	}
 
+	// Check if inputFileIDs are provided
 	if len(req.InputFileIDs) == 0 {
 		handleResponse(c, h.log, "no input files", http.StatusBadRequest, "input_file_ids required")
 		return
 	}
 
-	userID := c.GetString("user_id")
-	if userID == "" {
-		handleResponse(c, h.log, "unauthorized", http.StatusUnauthorized, "user_id required")
-		return
+	// Handle guest user (if user_id is empty)
+	var userID *string
+	if uid := c.GetString("user_id"); uid != "" {
+		userID = &uid
+	} else {
+		// For guest user, we pass nil
+		userID = nil
 	}
 
+	// Set timeout for processing
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
+	// Create the JPG to PDF job
 	jobID, err := h.services.JPGToPDF().CreateJob(ctx, userID, req.InputFileIDs)
 	if err != nil {
 		handleResponse(c, h.log, "failed to create jpg to pdf job", http.StatusInternalServerError, err.Error())
@@ -63,6 +70,7 @@ func (h Handler) CreateJPGToPDF(c *gin.Context) {
 // @Success      200 {object} models.JPGToPDFJob
 // @Failure      404 {object} models.Response
 // @Failure      500 {object} models.Response
+// @Router       /api/pdf/jpg-to-pdf/{id} [get]
 func (h Handler) GetJPGToPDFJob(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -70,14 +78,17 @@ func (h Handler) GetJPGToPDFJob(c *gin.Context) {
 		return
 	}
 
+	// Set timeout to fetch the job details
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	// Get job by ID
 	job, err := h.services.JPGToPDF().GetJobByID(ctx, id)
 	if err != nil {
 		handleResponse(c, h.log, "jpg to pdf job not found", http.StatusNotFound, err.Error())
 		return
 	}
 
+	// Return job details
 	handleResponse(c, h.log, "jpg to pdf job fetched", http.StatusOK, job)
 }
