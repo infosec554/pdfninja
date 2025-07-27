@@ -4,9 +4,9 @@ import "time"
 
 type JPGToPDFJob struct {
 	ID           string    `json:"id"`
-	UserID       string    `json:"user_id"`
+	UserID       *string   `json:"user_id"`
 	InputFileIDs []string  `json:"input_file_ids"`
-	OutputFileID string    `json:"output_file_id,omitempty"`
+	OutputFileID *string   `json:"output_file_id,omitempty"`
 	Status       string    `json:"status"`
 	CreatedAt    time.Time `json:"created_at"`
 }

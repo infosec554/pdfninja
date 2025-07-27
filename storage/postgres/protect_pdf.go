@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -23,15 +24,31 @@ func NewProtectRepo(db *pgxpool.Pool, log logger.ILogger) *protectRepo {
 
 func (r *protectRepo) Create(ctx context.Context, job *models.ProtectPDFJob) error {
 	query := `
-        INSERT INTO protect_pdf_jobs (
+        INSERT INTO protect_jobs (
             id, user_id, input_file_id, output_file_id, password, status, created_at
         ) VALUES ($1, $2, $3, $4, $5, $6, $7)
     `
+
+	var userID interface{}
+	if job.UserID != nil && *job.UserID != "" {
+		userID = *job.UserID
+	} else {
+		userID = nil // NULL for guest users
+	}
+
+	// Check for nil OutputFileID and use sql.NullString accordingly
+	var outputFileID sql.NullString
+	if job.OutputFileID != nil {
+		outputFileID = sql.NullString{String: *job.OutputFileID, Valid: true}
+	} else {
+		outputFileID = sql.NullString{Valid: false} // NULL value in DB
+	}
+
 	_, err := r.db.Exec(ctx, query,
 		job.ID,
-		job.UserID,
+		userID,
 		job.InputFileID,
-		job.OutputFileID,
+		outputFileID,
 		job.Password,
 		job.Status,
 		job.CreatedAt,
@@ -42,7 +59,7 @@ func (r *protectRepo) Create(ctx context.Context, job *models.ProtectPDFJob) err
 func (r *protectRepo) GetByID(ctx context.Context, id string) (*models.ProtectPDFJob, error) {
 	query := `
         SELECT id, user_id, input_file_id, output_file_id, password, status, created_at
-        FROM protect_pdf_jobs
+        FROM protect_jobs
         WHERE id = $1
     `
 	var job models.ProtectPDFJob
@@ -63,10 +80,18 @@ func (r *protectRepo) GetByID(ctx context.Context, id string) (*models.ProtectPD
 
 func (r *protectRepo) Update(ctx context.Context, job *models.ProtectPDFJob) error {
 	query := `
-        UPDATE protect_pdf_jobs
-        SET status = $1
-        WHERE id = $2
+        UPDATE protect_jobs
+        SET status = $1, output_file_id = $2
+        WHERE id = $3
     `
-	_, err := r.db.Exec(ctx, query, job.Status, job.ID)
+
+	var outputFileID interface{}
+	if job.OutputFileID != nil && *job.OutputFileID != "" {
+		outputFileID = *job.OutputFileID
+	} else {
+		outputFileID = nil
+	}
+
+	_, err := r.db.Exec(ctx, query, job.Status, outputFileID, job.ID)
 	return err
 }

@@ -12,7 +12,6 @@ import (
 
 // CreateMergeJob godoc
 // @Router /api/pdf/merge [post]
-// @Security     ApiKeyAuth
 // @Summary      Create merge job
 // @Tags         pdf-merge
 // @Accept       json
@@ -27,11 +26,12 @@ func (h Handler) CreateMergeJob(c *gin.Context) {
 		handleResponse(c, h.log, "invalid request body", http.StatusBadRequest, err.Error())
 		return
 	}
-
-	userID := c.GetString("user_id") // JWT middleware orqali
-	if userID == "" {
-		handleResponse(c, h.log, "unauthorized", http.StatusUnauthorized, "user_id required")
-		return
+	// Foydalanuvchi ID sini olish (registratsiyasiz foydalanuvchilar uchun ham ishlaydi)
+	var userID *string
+	if val, ok := c.Get("user_id"); ok {
+		if strID, ok := val.(string); ok && strID != "" {
+			userID = &strID
+		}
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

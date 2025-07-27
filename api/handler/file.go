@@ -25,8 +25,15 @@ import (
 // @Failure      400  {object}  models.Response
 // @Failure      500  {object}  models.Response
 func (h Handler) UploadFile(c *gin.Context) {
-	userID := c.GetString("user_id")
+	// Auth optional: user_id bo'lishi shart emas
+	var ptrUserID *string
+	if uid, exists := c.Get("user_id"); exists {
+		if strID, ok := uid.(string); ok && strID != "" {
+			ptrUserID = &strID
+		}
+	}
 
+	// Faylni olish
 	fileHeader, err := c.FormFile("file")
 	if err != nil {
 		handleResponse(c, h.log, "file is required", http.StatusBadRequest, err.Error())
@@ -40,16 +47,29 @@ func (h Handler) UploadFile(c *gin.Context) {
 	fileID := uuid.NewString()
 	savePath := fmt.Sprintf("uploads/%s%s", fileID, fileType)
 
-	// Faylni fayl tizimiga saqlash
+	// 🔒 Fayl hajmi cheklovi
+	const guestMaxSize = 30 * 1024 * 1024      // 30 MB
+	const registeredMaxSize = 50 * 1024 * 1024 // 50 MB
+
+	if ptrUserID == nil && fileSize > guestMaxSize {
+		handleResponse(c, h.log, "Guests can upload files up to 30MB only", http.StatusBadRequest, nil)
+		return
+	}
+	if ptrUserID != nil && fileSize > registeredMaxSize {
+		handleResponse(c, h.log, "Registered users can upload files up to 50MB only", http.StatusBadRequest, nil)
+		return
+	}
+
+	// Faylni saqlash
 	if err := c.SaveUploadedFile(fileHeader, savePath); err != nil {
 		handleResponse(c, h.log, "failed to save file", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	// DB uchun model tayyorlash
+	// Bazaga yozish uchun model
 	file := models.File{
 		ID:         fileID,
-		UserID:     userID,
+		UserID:     ptrUserID, // <-- pointer bo'lishi kerak
 		FileName:   fileName,
 		FilePath:   savePath,
 		FileType:   fileType,

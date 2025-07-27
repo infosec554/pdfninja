@@ -22,26 +22,34 @@ func NewJPGToPDFRepo(db *pgxpool.Pool, log logger.ILogger) *jpgToPDFRepo {
 }
 
 // 🧩 PostgreSQL uuid[] formatiga o'tkazish: '{uuid1,uuid2,uuid3}'
-
 func (r *jpgToPDFRepo) formatUUIDArray(ids []string) string {
 	return "{" + strings.Join(ids, ",") + "}"
 }
 
 // ✅ CREATE FUNCTION
 func (r *jpgToPDFRepo) Create(ctx context.Context, job *models.JPGToPDFJob) error {
-	query := `
-		INSERT INTO jpg_to_pdf_jobs (
-			id, user_id, input_file_ids, output_file_id, status, created_at
-		) VALUES ($1, $2, $3::uuid[], $4, $5, NOW())
-	`
+	// If userID exists, use it, otherwise set it to NULL
+	var userID interface{}
+	if job.UserID != nil && *job.UserID != "" {
+		userID = *job.UserID
+	} else {
+		userID = nil // NULL for guest users
+	}
 
-	_, err := r.db.Exec(ctx, query,
-		job.ID,
-		job.UserID,
-		r.formatUUIDArray(job.InputFileIDs), // ✅ array string formatda uzatildi
-		sql.NullString{String: job.OutputFileID, Valid: job.OutputFileID != ""},
-		job.Status,
-	)
+	// Check for nil OutputFileID and use sql.NullString accordingly
+	var outputFileID sql.NullString
+	if job.OutputFileID != nil {
+		outputFileID = sql.NullString{String: *job.OutputFileID, Valid: true}
+	} else {
+		outputFileID = sql.NullString{Valid: false} // NULL value in DB
+	}
+
+	_, err := r.db.Exec(ctx, `
+        INSERT INTO jpg_to_pdf_jobs (
+            id, user_id, input_file_ids, output_file_id, status, created_at
+        ) VALUES ($1, $2, $3::uuid[], $4, $5, NOW())
+    `, job.ID, userID, r.formatUUIDArray(job.InputFileIDs),
+		outputFileID, job.Status)
 
 	if err != nil {
 		r.log.Error("jpgToPDFRepo.Create failed", logger.Error(err))
@@ -62,12 +70,8 @@ func (r *jpgToPDFRepo) GetByID(ctx context.Context, id string) (*models.JPGToPDF
 	var outputFileID sql.NullString
 
 	err := r.db.QueryRow(ctx, query, id).Scan(
-		&job.ID,
-		&job.UserID,
-		&inputFileIDs, // ✅ UUID[] ni to‘g‘ri skan qiladi
-		&outputFileID,
-		&job.Status,
-		&job.CreatedAt,
+		&job.ID, &job.UserID, &inputFileIDs,
+		&outputFileID, &job.Status, &job.CreatedAt,
 	)
 	if err != nil {
 		r.log.Error("jpgToPDFRepo.GetByID failed", logger.Error(err))
@@ -80,7 +84,7 @@ func (r *jpgToPDFRepo) GetByID(ctx context.Context, id string) (*models.JPGToPDF
 	}
 
 	if outputFileID.Valid {
-		job.OutputFileID = outputFileID.String
+		job.OutputFileID = &outputFileID.String
 	}
 
 	return &job, nil

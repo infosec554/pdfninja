@@ -17,7 +17,7 @@ import (
 )
 
 type MergeService interface {
-	Create(ctx context.Context, userID string, inputFileIDs []string) (string, error)
+	Create(ctx context.Context, userID *string, inputFileIDs []string) (string, error)
 	GetByID(ctx context.Context, id string) (*models.MergeJob, error)
 	ProcessJob(ctx context.Context, jobID string) (string, error)
 }
@@ -36,8 +36,12 @@ func NewMergeService(stg storage.IStorage, log logger.ILogger) MergeService {
 	}
 }
 
-func (s *mergeService) Create(ctx context.Context, userID string, inputFileIDs []string) (string, error) {
-	s.log.Info("MergeService.Create called", logger.String("userID", userID))
+func (s *mergeService) Create(ctx context.Context, userID *string, inputFileIDs []string) (string, error) {
+	if userID == nil {
+		s.log.Info("📥 MergeService.Create by guest")
+	} else {
+		s.log.Info("📥 MergeService.Create", logger.String("userID", *userID))
+	}
 
 	job := &models.MergeJob{
 		ID:        uuid.New().String(),
@@ -47,25 +51,25 @@ func (s *mergeService) Create(ctx context.Context, userID string, inputFileIDs [
 	}
 
 	if err := s.stg.Create(ctx, job); err != nil {
-		s.log.Error("failed to create merge job", logger.Error(err))
+		s.log.Error("❌ failed to create merge job", logger.Error(err))
 		return "", err
 	}
 
 	if err := s.stg.AddInputFiles(ctx, job.ID, inputFileIDs); err != nil {
-		s.log.Error("failed to add input files", logger.Error(err))
+		s.log.Error("❌ failed to add input files", logger.Error(err))
 		return "", err
 	}
 
-	s.log.Info("merge job created", logger.String("jobID", job.ID))
+	s.log.Info("✅ merge job created", logger.String("jobID", job.ID))
 	return job.ID, nil
 }
 
 func (s *mergeService) GetByID(ctx context.Context, id string) (*models.MergeJob, error) {
-	s.log.Info("MergeService.GetByID called", logger.String("jobID", id))
+	s.log.Info("📥 MergeService.GetByID", logger.String("jobID", id))
 
 	job, err := s.stg.GetByID(ctx, id)
 	if err != nil {
-		s.log.Error("failed to get merge job", logger.Error(err))
+		s.log.Error("❌ failed to get merge job", logger.Error(err))
 		return nil, err
 	}
 
@@ -73,9 +77,9 @@ func (s *mergeService) GetByID(ctx context.Context, id string) (*models.MergeJob
 }
 
 func (s *mergeService) ProcessJob(ctx context.Context, jobID string) (string, error) {
-	s.log.Info("📥 MergeService.ProcessJob called", logger.String("jobID", jobID))
+	s.log.Info("📥 MergeService.ProcessJob", logger.String("jobID", jobID))
 
-	// Merge katalogini tayyorlash
+	// Output folder
 	if err := os.MkdirAll("storage/merge", os.ModePerm); err != nil {
 		s.log.Error("❌ failed to create merge dir", logger.Error(err))
 		return "", err
@@ -93,7 +97,6 @@ func (s *mergeService) ProcessJob(ctx context.Context, jobID string) (string, er
 		return "", fmt.Errorf("need at least two files to merge")
 	}
 
-	// Fayl yo'llarini tayyorlash
 	var inputPaths []string
 	for _, fileID := range job.InputFileIDs {
 		file, err := s.fs.GetByID(ctx, fileID)
@@ -103,9 +106,8 @@ func (s *mergeService) ProcessJob(ctx context.Context, jobID string) (string, er
 		}
 		s.log.Info("✅ got input file", logger.String("fileID", fileID), logger.String("path", file.FilePath))
 
-		// Fayl mavjudligini tekshiramiz
 		if _, err := os.Stat(file.FilePath); os.IsNotExist(err) {
-			s.log.Error("❌ input file does not exist", logger.String("filePath", file.FilePath))
+			s.log.Error("❌ input file not found", logger.String("filePath", file.FilePath))
 			return "", fmt.Errorf("input file does not exist: %s", file.FilePath)
 		}
 
@@ -114,25 +116,22 @@ func (s *mergeService) ProcessJob(ctx context.Context, jobID string) (string, er
 
 	s.log.Info("📄 All input files ready", logger.Any("paths", inputPaths))
 
-	// Output fayl tayyorlash
 	outputID := uuid.New().String()
 	outputPath := filepath.Join("storage/merge", outputID+".pdf")
 
-	config := model.NewDefaultConfiguration()
-	if err := api.MergeCreateFile(inputPaths, outputPath, false, config); err != nil {
+	conf := model.NewDefaultConfiguration()
+	if err := api.MergeCreateFile(inputPaths, outputPath, false, conf); err != nil {
 		s.log.Error("❌ pdf merge failed", logger.Error(err))
 		return "", fmt.Errorf("merge failed: %w", err)
 	}
 	s.log.Info("✅ PDF successfully merged", logger.String("outputPath", outputPath))
 
-	// Output faylni tekshirish
 	info, err := os.Stat(outputPath)
 	if err != nil {
 		s.log.Error("❌ failed to stat merged file", logger.Error(err))
 		return "", fmt.Errorf("output file stat failed: %w", err)
 	}
 
-	// Yangi faylni saqlash
 	outputFile := models.File{
 		ID:         outputID,
 		UserID:     job.UserID,
@@ -147,7 +146,6 @@ func (s *mergeService) ProcessJob(ctx context.Context, jobID string) (string, er
 		return "", fmt.Errorf("failed to save output file: %w", err)
 	}
 
-	// Jobni yangilash
 	job.OutputFileID = &outputID
 	job.Status = "done"
 	if err := s.stg.Update(ctx, job); err != nil {

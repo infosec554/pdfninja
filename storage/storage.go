@@ -19,7 +19,7 @@ type IStorage interface {
 	Split() ISplitStorage
 	RemovePage() IRemovePageStorage
 	ExtractPage() IExtractPageStorage
-	Organize() IOrganizeStorage
+
 	Compress() ICompressStorage
 	PDFToJPG() IPDFToJPGStorage
 	Rotate() IRotateStorage
@@ -34,7 +34,6 @@ type IStorage interface {
 	TranslatePDF() ITranslatePDFStorage
 	SharedLink() ISharedLinkStorage
 	AddHeaderFooter() AddHeaderFooterStorage
-	AddBackground() IAddBackgroundStorage
 	DetectBlankPages() IDetectBlankPagesStorage
 	QRCode() IQRCodeStorage
 	PDFTextSearch() IPDFTextSearchStorage
@@ -189,12 +188,6 @@ type AddHeaderFooterStorage interface {
 	GetByID(ctx context.Context, id string) (*models.AddHeaderFooterJob, error)
 }
 
-type IAddBackgroundStorage interface {
-	Create(ctx context.Context, job *models.AddBackgroundJob) error
-	Update(ctx context.Context, job *models.AddBackgroundJob) error
-	GetByID(ctx context.Context, id string) (*models.AddBackgroundJob, error)
-}
-
 type IDetectBlankPagesStorage interface {
 	Create(ctx context.Context, job *models.DetectBlankPagesJob) error
 	Update(ctx context.Context, job *models.DetectBlankPagesJob) error
@@ -208,7 +201,7 @@ type IQRCodeStorage interface {
 }
 
 type IPDFTextSearchStorage interface {
-    Create(ctx context.Context, job *models.PDFTextSearchJob) error
-    Update(ctx context.Context, job *models.PDFTextSearchJob) error
-    GetByID(ctx context.Context, id string) (*models.PDFTextSearchJob, error)
+	Create(ctx context.Context, job *models.PDFTextSearchJob) error
+	Update(ctx context.Context, job *models.PDFTextSearchJob) error
+	GetByID(ctx context.Context, id string) (*models.PDFTextSearchJob, error)
 }

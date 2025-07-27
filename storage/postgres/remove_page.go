@@ -66,7 +66,7 @@ func (r *removeRepo) GetByID(ctx context.Context, id string) (*models.RemoveJob,
 	}
 
 	if outputFileID != nil {
-		job.OutputFileID = *outputFileID
+		job.OutputFileID = outputFileID
 	}
 
 	return &job, nil

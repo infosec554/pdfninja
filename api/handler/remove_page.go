@@ -12,7 +12,6 @@ import (
 
 // CreateRemovePagesJob godoc
 // @Router       /api/pdf/removepage [post]
-// @Security     ApiKeyAuth
 // @Summary      Create remove pages job
 // @Tags         pdf-remove
 // @Accept       json
@@ -29,16 +28,16 @@ func (h Handler) CreateRemovePagesJob(c *gin.Context) {
 		return
 	}
 
-	userID := c.GetString("user_id")
-	if userID == "" {
-		handleResponse(c, h.log, "unauthorized", http.StatusUnauthorized, "user_id required")
-		return
+	// ❗️ Majburiy emas qilamiz
+	var userID *string
+	if rawUserID := c.GetString("user_id"); rawUserID != "" {
+		userID = &rawUserID
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	jobID, err := h.services.RemovePage().Create(ctx, req, userID)
+	jobID, err := h.services.RemovePage().Create(ctx, req, userID) // ❗️ pointer bo'lishi kerak
 	if err != nil {
 		handleResponse(c, h.log, "failed to create remove pages job", http.StatusInternalServerError, err.Error())
 		return
@@ -49,7 +48,6 @@ func (h Handler) CreateRemovePagesJob(c *gin.Context) {
 
 // GetRemovePagesJob godoc
 // @Router       /api/pdf/removepage/{id} [GET]
-// @Security     ApiKeyAuth
 // @Summary      Get remove pages job by ID
 // @Tags         pdf-remove
 // @Accept       json

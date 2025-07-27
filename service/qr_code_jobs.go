@@ -113,7 +113,7 @@ func (s *qrCodeService) Create(ctx context.Context, req models.CreateQRCodeReque
 	fi, _ := os.Stat(outputPath)
 	newFile := models.File{
 		ID:         outputID,
-		UserID:     userID,
+		UserID:     &userID,
 		FileName:   filepath.Base(outputPath),
 		FilePath:   outputPath,
 		FileType:   "application/pdf",

@@ -12,7 +12,6 @@ import (
 
 // CreateExtractJob godoc
 // @Router       /api/pdf/extract [POST]
-// @Security     ApiKeyAuth
 // @Summary      Create extract job
 // @Tags         pdf-extract
 // @Accept       json
@@ -29,10 +28,18 @@ func (h *Handler) CreateExtractJob(c *gin.Context) {
 		return
 	}
 
-	userID := c.GetString("user_id")
-	if userID == "" {
-		handleResponse(c, h.log, "unauthorized", http.StatusUnauthorized, "user_id required")
+	// Check if inputFileIDs are provided
+	if len(req.InputFileID) == 0 {
+		handleResponse(c, h.log, "no input files", http.StatusBadRequest, "input_file_ids required")
 		return
+	}
+	// Handle guest user (if user_id is empty)
+	var userID *string
+	if uid := c.GetString("user_id"); uid != "" {
+		userID = &uid
+	} else {
+		// For guest user, we pass nil
+		userID = nil
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -49,7 +56,6 @@ func (h *Handler) CreateExtractJob(c *gin.Context) {
 
 // GetExtractJob godoc
 // @Router       /api/pdf/extract/{id} [GET]
-// @Security     ApiKeyAuth
 // @Summary      Get extract job by ID
 // @Tags         pdf-extract
 // @Accept       json

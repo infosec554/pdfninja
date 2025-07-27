@@ -13,7 +13,6 @@ import (
 // CreateCropJob godoc
 // @Summary      Crop PDF pages
 // @Description  PDF sahifalarini belgilangan tomonlardan qirqadi (top, bottom, left, right)
-// @Security     ApiKeyAuth
 // @Tags         PDF Edit
 // @Accept       json
 // @Produce      json
@@ -25,26 +24,38 @@ import (
 func (h *Handler) CreateCropJob(c *gin.Context) {
 	var req models.CropPDFRequest
 
+	// JSONni binding qilish
 	if err := c.ShouldBindJSON(&req); err != nil {
 		handleResponse(c, h.log, "invalid request", http.StatusBadRequest, err.Error())
 		return
 	}
 
-	userID := c.GetString("user_id")
-	if userID == "" {
-		handleResponse(c, h.log, "user_id is missing", http.StatusBadRequest, "auth required")
+	// Check if inputFileIDs are provided
+	if len(req.InputFileID) == 0 {
+		handleResponse(c, h.log, "no input files", http.StatusBadRequest, "input_file_ids required")
 		return
 	}
+	// Handle guest user (if user_id is empty)
+	var userID *string
+	if uid := c.GetString("user_id"); uid != "" {
+		userID = &uid
+	} else {
+		// For guest user, we pass nil
+		userID = nil
+	}
 
+	// Crop job yaratish uchun kerakli kontekstni o'rnatish
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	// Crop jobni yaratish
 	jobID, err := h.services.Crop().Create(ctx, req, userID)
 	if err != nil {
 		handleResponse(c, h.log, "crop job failed", http.StatusInternalServerError, err.Error())
 		return
 	}
 
+	// Yaratilgan job haqida response
 	handleResponse(c, h.log, "crop job created", http.StatusCreated, gin.H{"id": jobID})
 }
 
@@ -57,7 +68,6 @@ func (h *Handler) CreateCropJob(c *gin.Context) {
 // @Success      200 {object} models.CropPDFJob
 // @Failure      404 {object} models.Response
 // @Router       /api/pdf/crop/{id} [get]
-// @Security     ApiKeyAuth
 func (h *Handler) GetCropJob(c *gin.Context) {
 	jobID := c.Param("id")
 

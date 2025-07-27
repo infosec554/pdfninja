@@ -25,20 +25,38 @@ func NewSplitRepo(db *pgxpool.Pool, log logger.ILogger) storage.ISplitStorage {
 
 func (r *splitRepo) Create(ctx context.Context, job *models.SplitJob) error {
 	query := `
-        INSERT INTO split_jobs (id, user_id, input_file_id, split_ranges, output_file_ids, status, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-    `
+		INSERT INTO split_jobs (
+			id,
+			user_id,
+			input_file_id,
+			split_ranges,
+			output_file_ids,
+			status,
+			created_at
+		)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+	`
+
+	var userID interface{}
+	if job.UserID != nil && *job.UserID != "" {
+		userID = *job.UserID
+	} else {
+		userID = nil // NULL bo'ladi agar guest bo'lsa
+	}
 
 	_, err := r.db.Exec(ctx, query,
 		job.ID,
-		job.UserID,
+		userID,
 		job.InputFileID,
 		job.SplitRanges,
-		job.OutputFileIDs, // ✅
+		job.OutputFileIDs,
 		job.Status,
 		job.CreatedAt,
 	)
 
+	if err != nil {
+		r.log.Error("Failed to insert split job", logger.Any("error", err))
+	}
 	return err
 }
 

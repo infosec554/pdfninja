@@ -29,10 +29,12 @@ func (h Handler) CreatePDFTextSearchJob(c *gin.Context) {
 		return
 	}
 
-	userID := c.GetString("user_id")
-	if userID == "" {
-		handleResponse(c, h.log, "unauthorized", http.StatusUnauthorized, "user_id required")
-		return
+	var userID *string
+	if uid := c.GetString("user_id"); uid != "" {
+		userID = &uid
+	} else {
+		// For guest user, we pass nil
+		userID = nil
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)

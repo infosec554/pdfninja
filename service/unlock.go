@@ -16,7 +16,7 @@ import (
 )
 
 type UnlockService interface {
-	Create(ctx context.Context, req models.UnlockPDFRequest, userID string) (string, error)
+	Create(ctx context.Context, req models.UnlockPDFRequest, userID *string) (string, error)
 	GetByID(ctx context.Context, id string) (*models.UnlockPDFJob, error)
 }
 
@@ -29,7 +29,7 @@ func NewUnlockService(stg storage.IStorage, log logger.ILogger) UnlockService {
 	return &unlockService{stg: stg, log: log}
 }
 
-func (s *unlockService) Create(ctx context.Context, req models.UnlockPDFRequest, userID string) (string, error) {
+func (s *unlockService) Create(ctx context.Context, req models.UnlockPDFRequest, userID *string) (string, error) {
 	s.log.Info("UnlockService.Create called")
 
 	// 1. Kiruvchi faylni olish
@@ -39,7 +39,7 @@ func (s *unlockService) Create(ctx context.Context, req models.UnlockPDFRequest,
 		return "", fmt.Errorf("input file not found: %v", err)
 	}
 
-	// 2. Job yaratish
+	// 2. Yangi fayl nomi va joylashuv
 	jobID := uuid.NewString()
 	outputFileID := uuid.NewString()
 	outputPath := filepath.Join("storage/unlock_pdf", outputFileID+".pdf")
@@ -49,23 +49,10 @@ func (s *unlockService) Create(ctx context.Context, req models.UnlockPDFRequest,
 		return "", err
 	}
 
-	job := &models.UnlockPDFJob{
-		ID:           jobID,
-		UserID:       userID,
-		InputFileID:  req.InputFileID,
-		OutputFileID: outputFileID,
-		Status:       "pending",
-		CreatedAt:    time.Now(),
-	}
-
-	if err := s.stg.Unlock().Create(ctx, job); err != nil {
-		s.log.Error("failed to create unlock job", logger.Error(err))
-		return "", err
-	}
-
-	// 3. PDF faylni qulfdan chiqarish (pdfcpu decrypt)
+	// 3. `pdfcpu decrypt` bajarish (parol bilan)
 	args := []string{
 		"decrypt",
+		"-upw", req.Password,
 		file.FilePath,
 		outputPath,
 	}
@@ -78,13 +65,14 @@ func (s *unlockService) Create(ctx context.Context, req models.UnlockPDFRequest,
 		return "", err
 	}
 
-	// 4. Chiqarilgan faylni saqlash
+	// 4. Output fayl mavjudligini tekshirish
 	fi, err := os.Stat(outputPath)
 	if err != nil {
 		s.log.Error("cannot stat output file", logger.Error(err))
 		return "", err
 	}
 
+	// 5. Faylni DBga saqlash (avval files jadvaliga)
 	newFile := models.File{
 		ID:         outputFileID,
 		UserID:     userID,
@@ -99,14 +87,21 @@ func (s *unlockService) Create(ctx context.Context, req models.UnlockPDFRequest,
 		return "", err
 	}
 
-	// 5. Holatni 'done' ga o‘zgartirish
-	job.Status = "done"
-	if err := s.stg.Unlock().Update(ctx, job); err != nil {
-		s.log.Error("failed to update unlock job", logger.Error(err))
+	// 6. Job obyektini yaratish (keyin unlock_jobs jadvaliga)
+	job := &models.UnlockPDFJob{
+		ID:           jobID,
+		UserID:       userID,
+		InputFileID:  req.InputFileID,
+		OutputFileID: &outputFileID,
+		Status:       "done",
+		CreatedAt:    time.Now(),
+	}
+	if err := s.stg.Unlock().Create(ctx, job); err != nil {
+		s.log.Error("failed to create unlock job", logger.Error(err))
 		return "", err
 	}
 
-	s.log.Info("Unlock job completed successfully", logger.String("jobID", jobID))
+	s.log.Info("Unlock job completed", logger.String("jobID", jobID))
 	return jobID, nil
 }
 

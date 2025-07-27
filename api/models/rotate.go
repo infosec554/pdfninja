@@ -9,13 +9,14 @@ type RotatePDFRequest struct {
 	Pages       string `json:"pages" binding:"required"` // Sahifa raqamlari masalan: "1-3", "2", "odd"
 }
 
+// RotateJob - Burilish jarayoni haqida ma'lumot
 type RotateJob struct {
 	ID           string    `json:"id"`
-	UserID       string    `json:"user_id"`
+	UserID       *string   `json:"user_id,omitempty"`
 	InputFileID  string    `json:"input_file_id"`
-	Angle        int       `json:"angle" db:"rotation_angle"` // 🔧
-	Pages        string    `json:"pages" db:"pages"`          // agar mavjud bo‘lsa
-	OutputFileID string    `json:"output_file_id"`
+	Angle        int       `json:"angle" db:"rotation_angle"` // Burilish burchagi
+	Pages        string    `json:"pages" db:"pages"`          // Tanlangan sahifalar
+	OutputFileID *string   `json:"output_file_id"`
 	OutputPath   string    `json:"output_path" db:"output_path"`
 	Status       string    `json:"status"`
 	CreatedAt    time.Time `json:"created_at"`

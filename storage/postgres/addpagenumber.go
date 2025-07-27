@@ -20,16 +20,26 @@ func NewAddPageNumberRepo(db *pgxpool.Pool, log logger.ILogger) *addPageNumberRe
 
 func (r *addPageNumberRepo) Create(ctx context.Context, job *models.AddPageNumberJob) error {
 	query := `
-		INSERT INTO add_page_number_jobs (
-			id, user_id, input_file_id, output_file_id, status,
-			created_at, font, font_size, position, first_number
-		) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+	INSERT INTO add_page_number_jobs (
+		id, user_id, input_file_id, status,
+		created_at, first_number, page_range,
+		position, color, font_size
+	) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 	`
+
+	var userID interface{}
+	if job.UserID != nil && *job.UserID != "" {
+		userID = *job.UserID
+	} else {
+		userID = nil
+	}
+
 	_, err := r.db.Exec(ctx, query,
-		job.ID, job.UserID, job.InputFileID, job.OutputFileID,
-		job.Status, job.CreatedAt, job.Font, job.FontSize,
-		job.Position, job.FirstNumber,
+		job.ID, userID, job.InputFileID, job.Status,
+		job.CreatedAt, job.FirstNumber, job.PageRange,
+		job.Position, job.Color, job.FontSize,
 	)
+
 	if err != nil {
 		r.log.Error("failed to insert AddPageNumberJob", logger.Error(err))
 	}
@@ -38,17 +48,17 @@ func (r *addPageNumberRepo) Create(ctx context.Context, job *models.AddPageNumbe
 
 func (r *addPageNumberRepo) GetByID(ctx context.Context, id string) (*models.AddPageNumberJob, error) {
 	query := `
-		SELECT id, user_id, input_file_id, output_file_id, status,
-		       created_at, font, font_size, position, first_number
-		FROM add_page_number_jobs WHERE id=$1
+		SELECT id, user_id, input_file_id, output_file_id,
+		       status, created_at, first_number, page_range,
+		       position, color, font_size
+		FROM add_page_number_jobs WHERE id = $1
 	`
-	row := r.db.QueryRow(ctx, query, id)
 
 	var job models.AddPageNumberJob
-	err := row.Scan(
+	err := r.db.QueryRow(ctx, query, id).Scan(
 		&job.ID, &job.UserID, &job.InputFileID, &job.OutputFileID,
-		&job.Status, &job.CreatedAt, &job.Font, &job.FontSize,
-		&job.Position, &job.FirstNumber,
+		&job.Status, &job.CreatedAt, &job.FirstNumber, &job.PageRange,
+		&job.Position, &job.Color, &job.FontSize,
 	)
 	if err != nil {
 		r.log.Error("failed to get AddPageNumberJob", logger.Error(err))
@@ -61,8 +71,8 @@ func (r *addPageNumberRepo) GetByID(ctx context.Context, id string) (*models.Add
 func (r *addPageNumberRepo) Update(ctx context.Context, job *models.AddPageNumberJob) error {
 	query := `
 		UPDATE add_page_number_jobs
-		SET output_file_id=$1, status=$2
-		WHERE id=$3
+		SET output_file_id = $1, status = $2
+		WHERE id = $3
 	`
 	_, err := r.db.Exec(ctx, query, job.OutputFileID, job.Status, job.ID)
 	if err != nil {
