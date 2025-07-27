@@ -1,6 +1,7 @@
 package service
 
 import (
+	"test/pkg/gotenberg"
 	"test/pkg/logger"
 	"test/pkg/mailer"
 	"test/storage"
@@ -30,12 +31,13 @@ type IServiceManager interface {
 	Log() LogService
 	JPGToPDF() JPGToPDFService
 	Inspect() InspectService
-	TranslatePDF() TranslatePDFService
+
 	SharedLink() SharedLinkService
 	AddHeaderFooter() AddHeaderFooterService
 	DetectBlank() DetectBlankService
 	QRCode() QRCodeService
-	PDFTextSearch() PDFTextSearchService
+	PDFToWord() PDFToWordService
+	WordToPDF() WordToPDFService
 }
 
 type service struct {
@@ -60,15 +62,16 @@ type service struct {
 	logService             LogService
 	jPGToPDF               JPGToPDFService
 	inspect                InspectService
-	translatePDF           TranslatePDFService
+	
 	sharedLinkService      SharedLinkService
 	addHeaderFooterService AddHeaderFooterService
 	detectBlankService     DetectBlankService
 	qRCodeService          QRCodeService
-	pDFTextSearchService   PDFTextSearchService
+	pdfToWordService       PDFToWordService
+	wordToPDFService       WordToPDFService
 }
 
-func New(storage storage.IStorage, log logger.ILogger, mailerCore *mailer.Mailer, redis storage.IRedisStorage) IServiceManager {
+func New(storage storage.IStorage, log logger.ILogger, mailerCore *mailer.Mailer, redis storage.IRedisStorage, gotClient gotenberg.Client) IServiceManager {
 	return &service{
 		userService:            NewUserService(storage, log),
 		otpService:             NewOtpService(storage, log, mailerCore, redis),
@@ -91,12 +94,13 @@ func New(storage storage.IStorage, log logger.ILogger, mailerCore *mailer.Mailer
 		logService:             NewLogService(storage, log),
 		jPGToPDF:               NewJPGToPDFService(storage, log),
 		inspect:                NewInspectService(storage, log),
-		translatePDF:           NewTranslatePDFService(storage, log),
+	
 		sharedLinkService:      NewSharedLinkService(storage, log),
 		addHeaderFooterService: NewAddHeaderFooterService(storage, log),
 		detectBlankService:     NewDetectBlankService(storage, log),
 		qRCodeService:          NewQRCodeService(storage, log),
-		pDFTextSearchService:   NewPDFTextSearchService(storage, log),
+		pdfToWordService:       NewPDFToWordService(storage, log),
+		wordToPDFService:       NewWordToPDFService(storage, log, gotClient),
 	}
 }
 
@@ -139,7 +143,6 @@ func (s *service) RemovePage() RemovePageService {
 func (s *service) ExtractPage() ExtractPageService {
 	return s.extractPageService
 }
-
 
 func (s *service) Compress() CompressService {
 	return s.compressService
@@ -185,9 +188,6 @@ func (s *service) Inspect() InspectService {
 	return s.inspect
 }
 
-func (s *service) TranslatePDF() TranslatePDFService {
-	return s.translatePDF
-}
 
 func (s *service) SharedLink() SharedLinkService {
 	return s.sharedLinkService
@@ -195,7 +195,6 @@ func (s *service) SharedLink() SharedLinkService {
 func (s *service) AddHeaderFooter() AddHeaderFooterService {
 	return s.addHeaderFooterService
 }
-
 
 func (s *service) DetectBlank() DetectBlankService {
 	return s.detectBlankService
@@ -205,6 +204,10 @@ func (s *service) QRCode() QRCodeService {
 	return s.qRCodeService
 }
 
-func (s *service) PDFTextSearch() PDFTextSearchService {
-	return s.pDFTextSearchService
+func (s *service) PDFToWord() PDFToWordService {
+	return s.pdfToWordService
+}
+
+func (s *service) WordToPDF() WordToPDFService {
+	return s.wordToPDFService
 }
