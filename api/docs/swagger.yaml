@@ -1,25 +1,4 @@
 definitions:
-  models.AddBackgroundJob:
-    properties:
-      background_image_file_id:
-        type: string
-      created_at:
-        type: string
-      id:
-        type: string
-      input_file_id:
-        type: string
-      opacity:
-        type: number
-      output_file_id:
-        type: string
-      position:
-        type: string
-      status:
-        type: string
-      user_id:
-        type: string
-    type: object
   models.AddHeaderFooterJob:
     properties:
       created_at:
@@ -149,22 +128,6 @@ definitions:
       otp_id:
         type: string
     type: object
-  models.CreateAddBackgroundRequest:
-    properties:
-      background_image_file_id:
-        type: string
-      input_file_id:
-        type: string
-      opacity:
-        description: 0.0 - 1.0
-        type: number
-      position:
-        description: center, top-left, bottom-right
-        type: string
-    required:
-    - background_image_file_id
-    - input_file_id
-    type: object
   models.CreateAddHeaderFooterRequest:
     properties:
       font_color:
@@ -205,13 +168,6 @@ definitions:
       user_id:
         description: optional (guest user uchun nil bo'lishi mumkin)
         type: string
-    type: object
-  models.CreatePDFTextSearchRequest:
-    properties:
-      input_file_id:
-        type: string
-    required:
-    - input_file_id
     type: object
   models.CreateQRCodeRequest:
     properties:
@@ -551,21 +507,6 @@ definitions:
         description: NULL bo'lishi mumkin (guest)
         type: string
     type: object
-  models.PDFTextSearchJob:
-    properties:
-      created_at:
-        type: string
-      extracted_text:
-        type: string
-      id:
-        type: string
-      input_file_id:
-        type: string
-      status:
-        type: string
-      user_id:
-        type: string
-    type: object
   models.PDFToJPGJob:
     properties:
       created_at:
@@ -596,6 +537,28 @@ definitions:
     properties:
       input_file_id:
         description: Required input file ID
+        type: string
+    required:
+    - input_file_id
+    type: object
+  models.PDFToWordJob:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      input_file_id:
+        type: string
+      output_file_id:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.PDFToWordRequest:
+    properties:
+      input_file_id:
         type: string
     required:
     - input_file_id
@@ -781,39 +744,6 @@ definitions:
         description: ❗️ string emas, *string bo‘lishi kerak
         type: string
     type: object
-  models.TranslatePDFJob:
-    properties:
-      created_at:
-        type: string
-      id:
-        type: string
-      input_file_id:
-        type: string
-      output_file_id:
-        type: string
-      source_lang:
-        type: string
-      status:
-        description: pending, processing, done, failed
-        type: string
-      target_lang:
-        type: string
-      user_id:
-        type: string
-    type: object
-  models.TranslatePDFRequest:
-    properties:
-      input_file_id:
-        type: string
-      source_lang:
-        type: string
-      target_lang:
-        type: string
-    required:
-    - input_file_id
-    - source_lang
-    - target_lang
-    type: object
   models.UnlockPDFJob:
     properties:
       created_at:
@@ -923,6 +853,28 @@ definitions:
         description: Suv belgisi qo‘shilganlar
         type: integer
     type: object
+  models.WordToPDFJob:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      input_file_id:
+        type: string
+      output_file_id:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.WordToPDFRequest:
+    properties:
+      input_file_id:
+        type: string
+    required:
+    - input_file_id
+    type: object
 info:
   contact: {}
   description: Authentication and Authorization API
@@ -985,65 +937,6 @@ paths:
       summary: Get logs for a specific job
       tags:
       - logs
-  /api/pdf/add-background:
-    post:
-      consumes:
-      - application/json
-      description: PDF faylga orqa fon rasmi qo‘shadi
-      parameters:
-      - description: Add background image request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.CreateAddBackgroundRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      summary: Add background image to PDF
-      tags:
-      - pdf-add-background
-  /api/pdf/add-background/{id}:
-    get:
-      description: Qo‘shilgan orqa fon rasmi job holatini olish
-      parameters:
-      - description: Job ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.AddBackgroundJob'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      summary: Get Add Background job status
-      tags:
-      - pdf-add-background
   /api/pdf/add-page-numbers:
     post:
       consumes:
@@ -1682,6 +1575,65 @@ paths:
       summary: Get PDF to JPG conversion job
       tags:
       - pdf-to-jpg
+  /api/pdf/pdf-to-word:
+    post:
+      consumes:
+      - application/json
+      description: PDF faylni Word formatiga o‘tkazish
+      parameters:
+      - description: PDF to Word request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.PDFToWordRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Convert PDF to Word
+      tags:
+      - PDF to Word
+  /api/pdf/pdf-to-word/{id}:
+    get:
+      description: PDF to Word ish holatini ko‘rish
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PDFToWordJob'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Get PDF to Word Job
+      tags:
+      - PDF to Word
   /api/pdf/protect:
     post:
       consumes:
@@ -2037,142 +1989,6 @@ paths:
       summary: Get split job by ID
       tags:
       - pdf-split
-  /api/pdf/text-search:
-    post:
-      consumes:
-      - application/json
-      description: Foydalanuvchi yuklagan PDF fayldan matnni chiqarib, bazaga saqlaydi
-      parameters:
-      - description: InputFileID
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.CreatePDFTextSearchRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: PDF fayldan matn chiqarib, qidirish uchun tayyorlaydi
-      tags:
-      - pdf-text-search
-  /api/pdf/text-search/{id}:
-    get:
-      description: Avval yaratilgan PDF matn qidirish ishining holati va chiqarilgan
-        matnni olish
-      parameters:
-      - description: Job ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.PDFTextSearchJob'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: PDF matn qidirish ishining holatini ko‘rish
-      tags:
-      - pdf-text-search
-  /api/pdf/translate:
-    post:
-      consumes:
-      - application/json
-      description: 'Tarjima qilish: PDF fayldagi matnni boshqa tilga o‘girish va yangi
-        PDFga saqlash'
-      parameters:
-      - description: Translation parameters
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.TranslatePDFRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - BearerAuth: []
-      summary: Translate PDF file to another language
-      tags:
-      - pdf-translate
-  /api/pdf/translate/{id}:
-    get:
-      description: PDF tarjima qilish jarayonining holatini olish
-      parameters:
-      - description: Job ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.TranslatePDFJob'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - BearerAuth: []
-      summary: Get translation job status
-      tags:
-      - pdf-translate
   /api/pdf/unlock:
     post:
       consumes:
@@ -2232,6 +2048,65 @@ paths:
       summary: Get Unlock Job status
       tags:
       - PDF Unlock
+  /api/pdf/word-to-pdf:
+    post:
+      consumes:
+      - application/json
+      description: Word hujjatni PDF formatga o‘tkazish
+      parameters:
+      - description: Word to PDF so‘rovi
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.WordToPDFRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Convert Word to PDF
+      tags:
+      - Word to PDF
+  /api/pdf/word-to-pdf/{id}:
+    get:
+      description: Konvertatsiya holatini olish
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.WordToPDFJob'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Get Word→PDF Job Status
+      tags:
+      - Word to PDF
   /api/stats/user:
     get:
       consumes:

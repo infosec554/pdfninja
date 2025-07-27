@@ -5,6 +5,7 @@ import (
 
 	"test/api"
 	"test/config"
+	"test/pkg/gotenberg" // gotenberg package'ni import qilish
 	"test/pkg/logger"
 	"test/pkg/mailer"
 	"test/service"
@@ -36,12 +37,16 @@ func main() {
 		cfg.SMTPSenderName,
 	)
 
-	redis := redis.New(cfg) // storage/redis package'idan
+	// 5. Redis yaratish
+	redis := redis.New(cfg)
 
-	// 5. Servicelarni ulash (Redis hozircha kerak emas)
-	services := service.New(pgStore, log, mailService, redis)
+	// 6. Gotenberg client yaratish
+	gotClient := gotenberg.New(cfg.GotenbergURL) // gotenberg clientini yaratish
 
-	// 6. API serverni ishga tushurish
+	// 7. Servicelarni ulash
+	services := service.New(pgStore, log, mailService, redis, gotClient) // gotClient ni uzatish
+
+	// 8. API serverni ishga tushurish
 	server := api.New(services, log)
 
 	log.Info("Service is running on", logger.Int("port", 8080))

@@ -31,12 +31,14 @@ type IStorage interface {
 	Log() ILogService
 	JPGToPDF() IJPGToPDFStorage
 	Inspect() IInspectStorage
-	TranslatePDF() ITranslatePDFStorage
+
 	SharedLink() ISharedLinkStorage
 	AddHeaderFooter() AddHeaderFooterStorage
 	DetectBlankPages() IDetectBlankPagesStorage
 	QRCode() IQRCodeStorage
-	PDFTextSearch() IPDFTextSearchStorage
+
+	PDFToWord() IPDFToWordStorage
+	WordToPDF() IWordToPDFStorage
 }
 
 type IUserStorage interface {
@@ -171,11 +173,6 @@ type IInspectStorage interface {
 	GetByID(ctx context.Context, id string) (*models.InspectJob, error)
 }
 
-type ITranslatePDFStorage interface {
-	Create(ctx context.Context, job *models.TranslatePDFJob) error
-	Update(ctx context.Context, job *models.TranslatePDFJob) error
-	GetByID(ctx context.Context, id string) (*models.TranslatePDFJob, error)
-}
 
 type ISharedLinkStorage interface {
 	Create(ctx context.Context, req *models.SharedLink) error
@@ -200,8 +197,15 @@ type IQRCodeStorage interface {
 	GetByID(ctx context.Context, id string) (*models.QRCodeJob, error)
 }
 
-type IPDFTextSearchStorage interface {
-	Create(ctx context.Context, job *models.PDFTextSearchJob) error
-	Update(ctx context.Context, job *models.PDFTextSearchJob) error
-	GetByID(ctx context.Context, id string) (*models.PDFTextSearchJob, error)
+
+
+type IPDFToWordStorage interface {
+	Create(ctx context.Context, job *models.PDFToWordJob) error
+	GetByID(ctx context.Context, id string) (*models.PDFToWordJob, error)
+	Update(ctx context.Context, job *models.PDFToWordJob) error
+}
+type IWordToPDFStorage interface {
+	Create(ctx context.Context, job *models.WordToPDFJob) error
+	GetByID(ctx context.Context, id string) (*models.WordToPDFJob, error)
+	Update(ctx context.Context, job *models.WordToPDFJob) error
 }

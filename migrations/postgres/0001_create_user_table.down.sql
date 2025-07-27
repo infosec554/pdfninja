@@ -1,4 +1,6 @@
 -- TOZALASH (avval drop, so'ng create)
+DROP TABLE IF EXISTS word_to_pdf_jobs
+DROP TABLE IF EXISTS pdf_to_word_jobs;
 DROP TABLE IF EXISTS shared_links;
 DROP TABLE IF EXISTS translate_jobs;
 DROP TABLE IF EXISTS pdf_inspect_jobs;

@@ -293,3 +293,23 @@ CREATE TABLE add_background_jobs (
     status VARCHAR(20) NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT NOW()
 );
+
+
+CREATE TABLE pdf_to_word_jobs (
+    id UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(id),
+    input_file_id UUID NOT NULL REFERENCES files(id),
+    output_file_id UUID REFERENCES files(id),
+    status VARCHAR(50) NOT NULL CHECK (
+        status IN ('pending', 'processing', 'done', 'failed', 'conversion_failed')
+    ),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+CREATE TABLE word_to_pdf_jobs (
+    id UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(id),
+    input_file_id UUID NOT NULL REFERENCES files(id),
+    output_file_id UUID REFERENCES files(id),
+    status VARCHAR(50) NOT NULL CHECK (status IN ('pending', 'processing', 'done', 'failed')),
+    created_at TIMESTAMP DEFAULT NOW()
+);

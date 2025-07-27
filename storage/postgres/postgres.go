@@ -149,9 +149,7 @@ func (s *Store) Inspect() storage.IInspectStorage {
 	return NewInspectRepo(s.pool, s.log)
 }
 
-func (s *Store) TranslatePDF() storage.ITranslatePDFStorage {
-	return NewTranslatePDFRepo(s.pool, s.log)
-}
+
 
 func (s *Store) SharedLink() storage.ISharedLinkStorage {
 	return NewSharedLinkRepo(s.pool, s.log)
@@ -161,8 +159,6 @@ func (s *Store) AddHeaderFooter() storage.AddHeaderFooterStorage {
 	return NewAddHeaderFooterRepo(s.pool, s.log)
 }
 
-
-
 func (s *Store) DetectBlankPages() storage.IDetectBlankPagesStorage {
 	return NewDetectBlankPagesRepo(s.pool, s.log)
 }
@@ -171,6 +167,11 @@ func (s *Store) QRCode() storage.IQRCodeStorage {
 	return NewQRCodeRepo(s.pool, s.log)
 }
 
-func (s *Store) PDFTextSearch() storage.IPDFTextSearchStorage {
-	return NewPDFTextSearchRepo(s.pool, s.log)
+
+func (s *Store) PDFToWord() storage.IPDFToWordStorage {
+	return NewPDFToWordRepo(s.pool, s.log)
+}
+
+func (s *Store) WordToPDF() storage.IWordToPDFStorage {
+	return NewWordToPDFRepo(s.pool, s.log)
 }
