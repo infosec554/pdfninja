@@ -122,9 +122,6 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 		pdf.POST("/inspect", h.CreateInspectJob)
 		pdf.GET("/inspect/:id", h.GetInspectJob)
 
-		pdf.POST("/translate", h.TranslatePDF)
-		pdf.GET("/translate/:id", h.GetTranslatePDFJob)
-
 		pdf.POST("/header-footer", h.AddHeaderFooter)
 		pdf.GET("/header-footer/:id", h.GetHeaderFooterJob)
 
@@ -134,11 +131,23 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 		pdf.POST("/qr-code", h.CreateQRCodeJob)
 		pdf.GET("/qr-code/:id", h.GetQRCodeJob)
 
-		pdf.POST("/text-search", h.CreatePDFTextSearchJob)
-		pdf.GET("/text-search/:id", h.GetPDFTextSearchJob)
-
 		pdf.POST("/share", h.CreateSharedLink)
 		pdf.GET("/share/:token", h.GetSharedLink)
+
+		pdf.POST("/pdf-to-word", h.CreatePDFToWordJob)
+		pdf.GET("/pdf-to-word/:id", h.GetPDFToWordJob)
+
+		pdf.POST("/word-to-pdf", h.CreateWordToPDF)
+		pdf.GET("/word-to-pdf/:id", h.GetWordToPDFJob)
+
+		pdf.POST("/excel-to-pdf", h.CreateExcelToPDF)
+		pdf.GET("/excel-to-pdf/:id", h.GetExcelToPDFJob)
+
+		pdf.POST("/ppt-to-pdf", h.CreatePowerPointToPDF)
+		pdf.GET("/ppt-to-pdf/:id", h.GetPowerPointToPDFJob)
+		
+		pdf.POST("/html-to-pdf", h.CreateHTMLToPDF)
+		pdf.GET("/html-to-pdf/:id", h.GetHTMLToPDFJob)
 	}
 
 	return r

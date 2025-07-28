@@ -26,3 +26,8 @@ migrate:
 
 clean:
 	docker rm -f my_postgres my_redis || true
+
+.PHONY: generate
+
+generate:
+	swag init --g api/router.go -o api/docs

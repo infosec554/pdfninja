@@ -31,6 +31,7 @@ type Config struct {
 	SMTPSenderName string
 	JWTSecretKey   string // ✅ YANGI QO‘SHILDI
 
+	GotenbergURL string
 }
 
 func Load() Config {
@@ -62,6 +63,7 @@ func Load() Config {
 	cfg.SMTPUser = cast.ToString(getOrReturnDefault("SMTP_USER", "infosec557@gmail.com"))
 	cfg.SMTPPass = cast.ToString(getOrReturnDefault("SMTP_PASS", "wwvn ehzs qsvs ojcf"))
 	cfg.SMTPSenderName = cast.ToString(getOrReturnDefault("SMTP_SENDER_NAME", "pdfninja"))
+	cfg.GotenbergURL = cast.ToString(getOrReturnDefault("GOTENBERG_URL", "http://localhost:3000"))
 
 	return cfg
 }

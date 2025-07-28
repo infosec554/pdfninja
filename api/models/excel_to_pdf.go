@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type PDFToWordJob struct {
+type ExcelToPDFJob struct {
 	ID           string    `json:"id"`
 	UserID       *string   `json:"user_id,omitempty"`
 	InputFileID  string    `json:"input_file_id"`
@@ -11,6 +11,6 @@ type PDFToWordJob struct {
 	CreatedAt    time.Time `json:"created_at"`
 }
 
-type PDFToWordRequest struct {
-	InputFileID string `json:"input_file_id" binding:"required"`
+type ExcelToPDFRequest struct {
+	InputFileID string `json:"input_file_id" binding:"required,uuid"`
 }

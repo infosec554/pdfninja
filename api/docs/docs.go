@@ -104,96 +104,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/pdf/add-background": {
-            "post": {
-                "description": "PDF faylga orqa fon rasmi qo‘shadi",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-add-background"
-                ],
-                "summary": "Add background image to PDF",
-                "parameters": [
-                    {
-                        "description": "Add background image request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.CreateAddBackgroundRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/pdf/add-background/{id}": {
-            "get": {
-                "description": "Qo‘shilgan orqa fon rasmi job holatini olish",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-add-background"
-                ],
-                "summary": "Get Add Background job status",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Job ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.AddBackgroundJob"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/api/pdf/add-page-numbers": {
             "post": {
                 "consumes": [
@@ -561,6 +471,105 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/pdf/excel-to-pdf": {
+            "post": {
+                "description": "Excel faylni PDF formatga o‘tkazish",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Excel to PDF"
+                ],
+                "summary": "Excel → PDF konvertatsiya qilish",
+                "parameters": [
+                    {
+                        "description": "Excel fayl IDsi",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ExcelToPDFRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Yaratilgan job ID",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/excel-to-pdf/{id}": {
+            "get": {
+                "description": "Job statusini ko‘rish",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Excel to PDF"
+                ],
+                "summary": "Excel→PDF Job holatini olish",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ExcelToPDFJob"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/pdf/extract": {
             "post": {
                 "consumes": [
@@ -735,6 +744,105 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.AddHeaderFooterJob"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/html-to-pdf": {
+            "post": {
+                "description": "HTML kontentni PDF formatga o‘tkazish",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "HTML to PDF"
+                ],
+                "summary": "Convert HTML to PDF",
+                "parameters": [
+                    {
+                        "description": "HTML to PDF request",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateHTMLToPDFRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "job_id qaytadi",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/html-to-pdf/{id}": {
+            "get": {
+                "description": "Konvertatsiya holatini olish",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "HTML to PDF"
+                ],
+                "summary": "Get HTML→PDF Job Status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTMLToPDFJob"
                         }
                     },
                     "404": {
@@ -1175,6 +1283,195 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.PDFToJPGJob"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/pdf-to-word": {
+            "post": {
+                "description": "PDF faylni Word formatiga o‘tkazish",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PDF to Word"
+                ],
+                "summary": "Convert PDF to Word",
+                "parameters": [
+                    {
+                        "description": "PDF to Word request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.PDFToWordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/pdf-to-word/{id}": {
+            "get": {
+                "description": "PDF to Word ish holatini ko‘rish",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PDF to Word"
+                ],
+                "summary": "Get PDF to Word Job",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.PDFToWordJob"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/ppt-to-pdf": {
+            "post": {
+                "description": "PowerPoint faylni PDF formatga o‘tkazish",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PowerPoint to PDF"
+                ],
+                "summary": "Convert PowerPoint to PDF",
+                "parameters": [
+                    {
+                        "description": "PowerPoint to PDF request",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.PowerPointToPDFRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "job_id qaytadi",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/ppt-to-pdf/{id}": {
+            "get": {
+                "description": "Konvertatsiya holatini olish",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PowerPoint to PDF"
+                ],
+                "summary": "Get PowerPoint→PDF Job Status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.PowerPointToPDFJob"
                         }
                     },
                     "404": {
@@ -1738,218 +2035,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/pdf/text-search": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Foydalanuvchi yuklagan PDF fayldan matnni chiqarib, bazaga saqlaydi",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-text-search"
-                ],
-                "summary": "PDF fayldan matn chiqarib, qidirish uchun tayyorlaydi",
-                "parameters": [
-                    {
-                        "description": "InputFileID",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.CreatePDFTextSearchRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/pdf/text-search/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Avval yaratilgan PDF matn qidirish ishining holati va chiqarilgan matnni olish",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-text-search"
-                ],
-                "summary": "PDF matn qidirish ishining holatini ko‘rish",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Job ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.PDFTextSearchJob"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/pdf/translate": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Tarjima qilish: PDF fayldagi matnni boshqa tilga o‘girish va yangi PDFga saqlash",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-translate"
-                ],
-                "summary": "Translate PDF file to another language",
-                "parameters": [
-                    {
-                        "description": "Translation parameters",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.TranslatePDFRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/pdf/translate/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "PDF tarjima qilish jarayonining holatini olish",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-translate"
-                ],
-                "summary": "Get translation job status",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Job ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.TranslatePDFJob"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/api/pdf/unlock": {
             "post": {
                 "description": "Qulflangan PDF faylni ochish (parolsiz qilish)",
@@ -2023,6 +2108,96 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.UnlockPDFJob"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/word-to-pdf": {
+            "post": {
+                "description": "Word hujjatni PDF formatga o‘tkazish",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Word to PDF"
+                ],
+                "summary": "Convert Word to PDF",
+                "parameters": [
+                    {
+                        "description": "Word to PDF so‘rovi",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.WordToPDFRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/word-to-pdf/{id}": {
+            "get": {
+                "description": "Konvertatsiya holatini olish",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Word to PDF"
+                ],
+                "summary": "Get Word→PDF Job Status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.WordToPDFJob"
                         }
                     },
                     "404": {
@@ -2708,38 +2883,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.AddBackgroundJob": {
-            "type": "object",
-            "properties": {
-                "background_image_file_id": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "input_file_id": {
-                    "type": "string"
-                },
-                "opacity": {
-                    "type": "number"
-                },
-                "output_file_id": {
-                    "type": "string"
-                },
-                "position": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
         "models.AddHeaderFooterJob": {
             "type": "object",
             "properties": {
@@ -2934,29 +3077,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CreateAddBackgroundRequest": {
-            "type": "object",
-            "required": [
-                "background_image_file_id",
-                "input_file_id"
-            ],
-            "properties": {
-                "background_image_file_id": {
-                    "type": "string"
-                },
-                "input_file_id": {
-                    "type": "string"
-                },
-                "opacity": {
-                    "description": "0.0 - 1.0",
-                    "type": "number"
-                },
-                "position": {
-                    "description": "center, top-left, bottom-right",
-                    "type": "string"
-                }
-            }
-        },
         "models.CreateAddHeaderFooterRequest": {
             "type": "object",
             "required": [
@@ -2982,6 +3102,17 @@ const docTemplate = `{
                 },
                 "position": {
                     "description": "\"left\", \"center\", \"right\" (default \"center\")",
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreateHTMLToPDFRequest": {
+            "type": "object",
+            "required": [
+                "html_content"
+            ],
+            "properties": {
+                "html_content": {
                     "type": "string"
                 }
             }
@@ -3013,17 +3144,6 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "description": "optional (guest user uchun nil bo'lishi mumkin)",
-                    "type": "string"
-                }
-            }
-        },
-        "models.CreatePDFTextSearchRequest": {
-            "type": "object",
-            "required": [
-                "input_file_id"
-            ],
-            "properties": {
-                "input_file_id": {
                     "type": "string"
                 }
             }
@@ -3274,6 +3394,40 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ExcelToPDFJob": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "input_file_id": {
+                    "type": "string"
+                },
+                "output_file_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ExcelToPDFRequest": {
+            "type": "object",
+            "required": [
+                "input_file_id"
+            ],
+            "properties": {
+                "input_file_id": {
+                    "type": "string"
+                }
+            }
+        },
         "models.ExtractJob": {
             "type": "object",
             "properties": {
@@ -3338,6 +3492,29 @@ const docTemplate = `{
                 },
                 "userID": {
                     "description": "NULL bo‘lishi mumkin",
+                    "type": "string"
+                }
+            }
+        },
+        "models.HTMLToPDFJob": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "html_content": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "output_file_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }
@@ -3519,29 +3696,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.PDFTextSearchJob": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "extracted_text": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "input_file_id": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
         "models.PDFToJPGJob": {
             "type": "object",
             "properties": {
@@ -3586,6 +3740,74 @@ const docTemplate = `{
             "properties": {
                 "input_file_id": {
                     "description": "Required input file ID",
+                    "type": "string"
+                }
+            }
+        },
+        "models.PDFToWordJob": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "input_file_id": {
+                    "type": "string"
+                },
+                "output_file_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PDFToWordRequest": {
+            "type": "object",
+            "required": [
+                "input_file_id"
+            ],
+            "properties": {
+                "input_file_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PowerPointToPDFJob": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "input_file_id": {
+                    "type": "string"
+                },
+                "output_file_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PowerPointToPDFRequest": {
+            "type": "object",
+            "required": [
+                "input_file_id"
+            ],
+            "properties": {
+                "input_file_id": {
                     "type": "string"
                 }
             }
@@ -3860,55 +4082,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.TranslatePDFJob": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "input_file_id": {
-                    "type": "string"
-                },
-                "output_file_id": {
-                    "type": "string"
-                },
-                "source_lang": {
-                    "type": "string"
-                },
-                "status": {
-                    "description": "pending, processing, done, failed",
-                    "type": "string"
-                },
-                "target_lang": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.TranslatePDFRequest": {
-            "type": "object",
-            "required": [
-                "input_file_id",
-                "source_lang",
-                "target_lang"
-            ],
-            "properties": {
-                "input_file_id": {
-                    "type": "string"
-                },
-                "source_lang": {
-                    "type": "string"
-                },
-                "target_lang": {
-                    "type": "string"
-                }
-            }
-        },
         "models.UnlockPDFJob": {
             "type": "object",
             "properties": {
@@ -4059,6 +4232,40 @@ const docTemplate = `{
                 "watermarked": {
                     "description": "Suv belgisi qo‘shilganlar",
                     "type": "integer"
+                }
+            }
+        },
+        "models.WordToPDFJob": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "input_file_id": {
+                    "type": "string"
+                },
+                "output_file_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.WordToPDFRequest": {
+            "type": "object",
+            "required": [
+                "input_file_id"
+            ],
+            "properties": {
+                "input_file_id": {
+                    "type": "string"
                 }
             }
         }
