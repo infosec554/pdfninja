@@ -38,69 +38,78 @@ type IServiceManager interface {
 	QRCode() QRCodeService
 	PDFToWord() PDFToWordService
 	WordToPDF() WordToPDFService
+	ExcelToPDF() ExcelToPDFService
+	PowerPointToPDF() PowerPointToPDFService
+	HTMLToPDF() HTMLToPDFService
 }
 
 type service struct {
-	userService            UserService
-	otpService             OtpService
-	roleService            RoleService
-	sysUserService         SysUserService
-	mailer                 MailerService
-	mergeService           MergeService
-	fileService            FileService
-	splitService           SplitService
-	removepageService      RemovePageService
-	extractPageService     ExtractPageService
-	compressService        CompressService
-	pdfToJPGService        PDFToJPGService
-	rotateSrvice           RotateService
-	addPageNumberService   AddPageNumberService
-	cropPDFService         CropPDFService
-	unlockService          UnlockService
-	protectPDFService      ProtectPDFService
-	statsService           StatsService
-	logService             LogService
-	jPGToPDF               JPGToPDFService
-	inspect                InspectService
-	
+	userService          UserService
+	otpService           OtpService
+	roleService          RoleService
+	sysUserService       SysUserService
+	mailer               MailerService
+	mergeService         MergeService
+	fileService          FileService
+	splitService         SplitService
+	removepageService    RemovePageService
+	extractPageService   ExtractPageService
+	compressService      CompressService
+	pdfToJPGService      PDFToJPGService
+	rotateSrvice         RotateService
+	addPageNumberService AddPageNumberService
+	cropPDFService       CropPDFService
+	unlockService        UnlockService
+	protectPDFService    ProtectPDFService
+	statsService         StatsService
+	logService           LogService
+	jPGToPDF             JPGToPDFService
+	inspect              InspectService
+
 	sharedLinkService      SharedLinkService
 	addHeaderFooterService AddHeaderFooterService
 	detectBlankService     DetectBlankService
 	qRCodeService          QRCodeService
 	pdfToWordService       PDFToWordService
 	wordToPDFService       WordToPDFService
+	excelToPDF             ExcelToPDFService
+	powerPointToPDF        PowerPointToPDFService
+	hTMLToPDF              HTMLToPDFService
 }
 
 func New(storage storage.IStorage, log logger.ILogger, mailerCore *mailer.Mailer, redis storage.IRedisStorage, gotClient gotenberg.Client) IServiceManager {
 	return &service{
-		userService:            NewUserService(storage, log),
-		otpService:             NewOtpService(storage, log, mailerCore, redis),
-		roleService:            NewRoleService(storage, log),
-		sysUserService:         NewSysUserService(storage, log),
-		mailer:                 NewMailerService(mailerCore),
-		mergeService:           NewMergeService(storage, log),
-		fileService:            NewFileService(storage, log),
-		splitService:           NewSplitService(storage, log),
-		removepageService:      NewRemoveService(storage, log),
-		extractPageService:     NewExtractService(storage, log),
-		compressService:        NewCompressService(storage, log),
-		pdfToJPGService:        NewPDFToJPGService(storage, log),
-		rotateSrvice:           NewRotateService(storage, log),
-		addPageNumberService:   NewAddPageNumberService(storage, log),
-		cropPDFService:         NewCropPDFService(storage, log),
-		unlockService:          NewUnlockService(storage, log),
-		protectPDFService:      NewProtectPDFService(storage, log),
-		statsService:           NewStatsService(storage, log),
-		logService:             NewLogService(storage, log),
-		jPGToPDF:               NewJPGToPDFService(storage, log),
-		inspect:                NewInspectService(storage, log),
-	
+		userService:          NewUserService(storage, log),
+		otpService:           NewOtpService(storage, log, mailerCore, redis),
+		roleService:          NewRoleService(storage, log),
+		sysUserService:       NewSysUserService(storage, log),
+		mailer:               NewMailerService(mailerCore),
+		mergeService:         NewMergeService(storage, log),
+		fileService:          NewFileService(storage, log),
+		splitService:         NewSplitService(storage, log),
+		removepageService:    NewRemoveService(storage, log),
+		extractPageService:   NewExtractService(storage, log),
+		compressService:      NewCompressService(storage, log),
+		pdfToJPGService:      NewPDFToJPGService(storage, log),
+		rotateSrvice:         NewRotateService(storage, log),
+		addPageNumberService: NewAddPageNumberService(storage, log),
+		cropPDFService:       NewCropPDFService(storage, log),
+		unlockService:        NewUnlockService(storage, log),
+		protectPDFService:    NewProtectPDFService(storage, log),
+		statsService:         NewStatsService(storage, log),
+		logService:           NewLogService(storage, log),
+		jPGToPDF:             NewJPGToPDFService(storage, log),
+		inspect:              NewInspectService(storage, log),
+
 		sharedLinkService:      NewSharedLinkService(storage, log),
 		addHeaderFooterService: NewAddHeaderFooterService(storage, log),
 		detectBlankService:     NewDetectBlankService(storage, log),
 		qRCodeService:          NewQRCodeService(storage, log),
 		pdfToWordService:       NewPDFToWordService(storage, log),
 		wordToPDFService:       NewWordToPDFService(storage, log, gotClient),
+		excelToPDF:             NewExcelToPDFService(storage, log, gotClient),
+		powerPointToPDF:        NewPowerPointToPDFService(storage, log, gotClient),
+		hTMLToPDF:              NewHTMLToPDFService(storage, log, gotClient),
 	}
 }
 
@@ -188,7 +197,6 @@ func (s *service) Inspect() InspectService {
 	return s.inspect
 }
 
-
 func (s *service) SharedLink() SharedLinkService {
 	return s.sharedLinkService
 }
@@ -210,4 +218,16 @@ func (s *service) PDFToWord() PDFToWordService {
 
 func (s *service) WordToPDF() WordToPDFService {
 	return s.wordToPDFService
+}
+
+func (s *service) ExcelToPDF() ExcelToPDFService {
+	return s.excelToPDF
+}
+
+func (s *service) PowerPointToPDF() PowerPointToPDFService {
+	return s.powerPointToPDF
+}
+
+func (s *service) HTMLToPDF() HTMLToPDFService {
+	return s.hTMLToPDF
 }

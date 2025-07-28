@@ -48,8 +48,8 @@ func (h Handler) UploadFile(c *gin.Context) {
 	savePath := fmt.Sprintf("uploads/%s%s", fileID, fileType)
 
 	// 🔒 Fayl hajmi cheklovi
-	const guestMaxSize = 30 * 1024 * 1024      // 30 MB
-	const registeredMaxSize = 50 * 1024 * 1024 // 50 MB
+	const guestMaxSize = 20 * 1024 * 1024      // 30 MB
+	const registeredMaxSize = 30 * 1024 * 1024 // 50 MB
 
 	if ptrUserID == nil && fileSize > guestMaxSize {
 		handleResponse(c, h.log, "Guests can upload files up to 30MB only", http.StatusBadRequest, nil)

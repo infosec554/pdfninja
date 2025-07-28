@@ -139,6 +139,15 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 
 		pdf.POST("/word-to-pdf", h.CreateWordToPDF)
 		pdf.GET("/word-to-pdf/:id", h.GetWordToPDFJob)
+
+		pdf.POST("/excel-to-pdf", h.CreateExcelToPDF)
+		pdf.GET("/excel-to-pdf/:id", h.GetExcelToPDFJob)
+
+		pdf.POST("/ppt-to-pdf", h.CreatePowerPointToPDF)
+		pdf.GET("/ppt-to-pdf/:id", h.GetPowerPointToPDFJob)
+		
+		pdf.POST("/html-to-pdf", h.CreateHTMLToPDF)
+		pdf.GET("/html-to-pdf/:id", h.GetHTMLToPDFJob)
 	}
 
 	return r

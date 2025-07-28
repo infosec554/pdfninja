@@ -471,6 +471,105 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/pdf/excel-to-pdf": {
+            "post": {
+                "description": "Excel faylni PDF formatga o‘tkazish",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Excel to PDF"
+                ],
+                "summary": "Excel → PDF konvertatsiya qilish",
+                "parameters": [
+                    {
+                        "description": "Excel fayl IDsi",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ExcelToPDFRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Yaratilgan job ID",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/excel-to-pdf/{id}": {
+            "get": {
+                "description": "Job statusini ko‘rish",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Excel to PDF"
+                ],
+                "summary": "Excel→PDF Job holatini olish",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ExcelToPDFJob"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/pdf/extract": {
             "post": {
                 "consumes": [
@@ -645,6 +744,105 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.AddHeaderFooterJob"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/html-to-pdf": {
+            "post": {
+                "description": "HTML kontentni PDF formatga o‘tkazish",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "HTML to PDF"
+                ],
+                "summary": "Convert HTML to PDF",
+                "parameters": [
+                    {
+                        "description": "HTML to PDF request",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateHTMLToPDFRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "job_id qaytadi",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/html-to-pdf/{id}": {
+            "get": {
+                "description": "Konvertatsiya holatini olish",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "HTML to PDF"
+                ],
+                "summary": "Get HTML→PDF Job Status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTMLToPDFJob"
                         }
                     },
                     "404": {
@@ -1175,6 +1373,105 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.PDFToWordJob"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/ppt-to-pdf": {
+            "post": {
+                "description": "PowerPoint faylni PDF formatga o‘tkazish",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PowerPoint to PDF"
+                ],
+                "summary": "Convert PowerPoint to PDF",
+                "parameters": [
+                    {
+                        "description": "PowerPoint to PDF request",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.PowerPointToPDFRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "job_id qaytadi",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/ppt-to-pdf/{id}": {
+            "get": {
+                "description": "Konvertatsiya holatini olish",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PowerPoint to PDF"
+                ],
+                "summary": "Get PowerPoint→PDF Job Status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.PowerPointToPDFJob"
                         }
                     },
                     "404": {
@@ -2809,6 +3106,17 @@ const docTemplate = `{
                 }
             }
         },
+        "models.CreateHTMLToPDFRequest": {
+            "type": "object",
+            "required": [
+                "html_content"
+            ],
+            "properties": {
+                "html_content": {
+                    "type": "string"
+                }
+            }
+        },
         "models.CreateJPGToPDFRequest": {
             "type": "object",
             "required": [
@@ -3086,6 +3394,40 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ExcelToPDFJob": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "input_file_id": {
+                    "type": "string"
+                },
+                "output_file_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ExcelToPDFRequest": {
+            "type": "object",
+            "required": [
+                "input_file_id"
+            ],
+            "properties": {
+                "input_file_id": {
+                    "type": "string"
+                }
+            }
+        },
         "models.ExtractJob": {
             "type": "object",
             "properties": {
@@ -3150,6 +3492,29 @@ const docTemplate = `{
                 },
                 "userID": {
                     "description": "NULL bo‘lishi mumkin",
+                    "type": "string"
+                }
+            }
+        },
+        "models.HTMLToPDFJob": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "html_content": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "output_file_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }
@@ -3403,6 +3768,40 @@ const docTemplate = `{
             }
         },
         "models.PDFToWordRequest": {
+            "type": "object",
+            "required": [
+                "input_file_id"
+            ],
+            "properties": {
+                "input_file_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PowerPointToPDFJob": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "input_file_id": {
+                    "type": "string"
+                },
+                "output_file_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PowerPointToPDFRequest": {
             "type": "object",
             "required": [
                 "input_file_id"

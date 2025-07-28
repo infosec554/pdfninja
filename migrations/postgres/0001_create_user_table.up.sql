@@ -313,3 +313,29 @@ CREATE TABLE word_to_pdf_jobs (
     status VARCHAR(50) NOT NULL CHECK (status IN ('pending', 'processing', 'done', 'failed')),
     created_at TIMESTAMP DEFAULT NOW()
 );
+CREATE TABLE excel_to_pdf_jobs (
+    id UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(id),
+    input_file_id UUID NOT NULL REFERENCES files(id),
+    output_file_id UUID REFERENCES files(id),
+    status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'processing', 'done', 'failed')),
+    created_at TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE powerpoint_to_pdf_jobs (
+    id UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(id),
+    input_file_id UUID NOT NULL REFERENCES files(id),
+    output_file_id UUID REFERENCES files(id),
+    status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'processing', 'done', 'failed')),
+    created_at TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE html_to_pdf_jobs (
+    id UUID PRIMARY KEY,
+    user_id UUID,
+    html_content TEXT NOT NULL,
+    output_file_id UUID,
+    status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'processing', 'done', 'failed')),
+    created_at TIMESTAMP DEFAULT NOW()
+);
