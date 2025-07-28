@@ -148,6 +148,13 @@ definitions:
     required:
     - input_file_id
     type: object
+  models.CreateHTMLToPDFRequest:
+    properties:
+      html_content:
+        type: string
+    required:
+    - html_content
+    type: object
   models.CreateJPGToPDFRequest:
     properties:
       input_file_ids:
@@ -340,6 +347,28 @@ definitions:
     required:
     - input_file_id
     type: object
+  models.ExcelToPDFJob:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      input_file_id:
+        type: string
+      output_file_id:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.ExcelToPDFRequest:
+    properties:
+      input_file_id:
+        type: string
+    required:
+    - input_file_id
+    type: object
   models.ExtractJob:
     properties:
       created_at:
@@ -383,6 +412,21 @@ definitions:
         type: string
       userID:
         description: NULL bo‘lishi mumkin
+        type: string
+    type: object
+  models.HTMLToPDFJob:
+    properties:
+      created_at:
+        type: string
+      html_content:
+        type: string
+      id:
+        type: string
+      output_file_id:
+        type: string
+      status:
+        type: string
+      user_id:
         type: string
     type: object
   models.InspectJob:
@@ -557,6 +601,28 @@ definitions:
         type: string
     type: object
   models.PDFToWordRequest:
+    properties:
+      input_file_id:
+        type: string
+    required:
+    - input_file_id
+    type: object
+  models.PowerPointToPDFJob:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      input_file_id:
+        type: string
+      output_file_id:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.PowerPointToPDFRequest:
     properties:
       input_file_id:
         type: string
@@ -1172,6 +1238,68 @@ paths:
       summary: Get Detect Blank Pages Job Status
       tags:
       - pdf-detect-blank
+  /api/pdf/excel-to-pdf:
+    post:
+      consumes:
+      - application/json
+      description: Excel faylni PDF formatga o‘tkazish
+      parameters:
+      - description: Excel fayl IDsi
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ExcelToPDFRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Yaratilgan job ID
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Excel → PDF konvertatsiya qilish
+      tags:
+      - Excel to PDF
+  /api/pdf/excel-to-pdf/{id}:
+    get:
+      description: Job statusini ko‘rish
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ExcelToPDFJob'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Excel→PDF Job holatini olish
+      tags:
+      - Excel to PDF
   /api/pdf/extract:
     post:
       consumes:
@@ -1294,6 +1422,68 @@ paths:
       summary: Get header/footer job status
       tags:
       - pdf-header-footer
+  /api/pdf/html-to-pdf:
+    post:
+      consumes:
+      - application/json
+      description: HTML kontentni PDF formatga o‘tkazish
+      parameters:
+      - description: HTML to PDF request
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateHTMLToPDFRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: job_id qaytadi
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Convert HTML to PDF
+      tags:
+      - HTML to PDF
+  /api/pdf/html-to-pdf/{id}:
+    get:
+      description: Konvertatsiya holatini olish
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.HTMLToPDFJob'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Get HTML→PDF Job Status
+      tags:
+      - HTML to PDF
   /api/pdf/inspect:
     post:
       consumes:
@@ -1634,6 +1824,68 @@ paths:
       summary: Get PDF to Word Job
       tags:
       - PDF to Word
+  /api/pdf/ppt-to-pdf:
+    post:
+      consumes:
+      - application/json
+      description: PowerPoint faylni PDF formatga o‘tkazish
+      parameters:
+      - description: PowerPoint to PDF request
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.PowerPointToPDFRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: job_id qaytadi
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Convert PowerPoint to PDF
+      tags:
+      - PowerPoint to PDF
+  /api/pdf/ppt-to-pdf/{id}:
+    get:
+      description: Konvertatsiya holatini olish
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PowerPointToPDFJob'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Get PowerPoint→PDF Job Status
+      tags:
+      - PowerPoint to PDF
   /api/pdf/protect:
     post:
       consumes:

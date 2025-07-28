@@ -39,6 +39,9 @@ type IStorage interface {
 
 	PDFToWord() IPDFToWordStorage
 	WordToPDF() IWordToPDFStorage
+	ExcelToPDF() IExcelToPDFStorage
+	PowerPointToPDF() IPowerPointToPDFStorage
+	HTMLToPDF() IHTMLToPDFStorage
 }
 
 type IUserStorage interface {
@@ -173,7 +176,6 @@ type IInspectStorage interface {
 	GetByID(ctx context.Context, id string) (*models.InspectJob, error)
 }
 
-
 type ISharedLinkStorage interface {
 	Create(ctx context.Context, req *models.SharedLink) error
 	GetByToken(ctx context.Context, token string) (*models.SharedLink, error)
@@ -197,8 +199,6 @@ type IQRCodeStorage interface {
 	GetByID(ctx context.Context, id string) (*models.QRCodeJob, error)
 }
 
-
-
 type IPDFToWordStorage interface {
 	Create(ctx context.Context, job *models.PDFToWordJob) error
 	GetByID(ctx context.Context, id string) (*models.PDFToWordJob, error)
@@ -208,4 +208,22 @@ type IWordToPDFStorage interface {
 	Create(ctx context.Context, job *models.WordToPDFJob) error
 	GetByID(ctx context.Context, id string) (*models.WordToPDFJob, error)
 	Update(ctx context.Context, job *models.WordToPDFJob) error
+}
+
+type IExcelToPDFStorage interface {
+	Create(ctx context.Context, job *models.ExcelToPDFJob) error
+	GetByID(ctx context.Context, id string) (*models.ExcelToPDFJob, error)
+	Update(ctx context.Context, job *models.ExcelToPDFJob) error
+}
+
+type IPowerPointToPDFStorage interface {
+	Create(ctx context.Context, job *models.PowerPointToPDFJob) error
+	GetByID(ctx context.Context, id string) (*models.PowerPointToPDFJob, error)
+	Update(ctx context.Context, job *models.PowerPointToPDFJob) error
+}
+
+type IHTMLToPDFStorage interface {
+	Create(ctx context.Context, job *models.HTMLToPDFJob) error
+	GetByID(ctx context.Context, id string) (*models.HTMLToPDFJob, error)
+	Update(ctx context.Context, job *models.HTMLToPDFJob) error
 }
