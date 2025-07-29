@@ -1,14 +1,12 @@
 -- TOZALASH (avval drop, so'ng create)
-DROP TABLE IF EXISTS html_to_pdf_jobs
-DROP TABLE IF EXISTS powerpoint_to_pdf_jobs
-DROP TABLE IF EXISTS excel_to_pdf_jobs
-DROP TABLE IF EXISTS word_to_pdf_jobs
+DROP TABLE IF EXISTS powerpoint_to_pdf_jobs;
+DROP TABLE IF EXISTS excel_to_pdf_jobs;
+DROP TABLE IF EXISTS word_to_pdf_jobs;
 DROP TABLE IF EXISTS pdf_to_word_jobs;
 DROP TABLE IF EXISTS shared_links;
 DROP TABLE IF EXISTS translate_jobs;
 DROP TABLE IF EXISTS pdf_inspect_jobs;
 DROP TABLE IF EXISTS logs;
-DROP TABLE IF EXISTS add_background_jobs;
 DROP TABLE IF EXISTS watermark_jobs;
 DROP TABLE IF EXISTS add_page_number_jobs;
 DROP TABLE IF EXISTS crop_pdf_jobs;

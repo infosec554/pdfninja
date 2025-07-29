@@ -34,7 +34,10 @@ services:
       - "3000:3000"
     command:
       - gotenberg
-      - --libreoffice-disable-routes=false
+      - --api-port=3000
+      - --chromium-auto-start
+      - --libreoffice-auto-start
+
 
 volumes:
   postgres_data:

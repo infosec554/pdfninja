@@ -126,6 +126,7 @@ func (h Handler) Login(c *gin.Context) {
 
 	handleResponse(c, h.log, "login successful", http.StatusOK, resp)
 }
+
 // GetMyProfile godoc
 // @Summary      Get my profile
 // @Description  Foydalanuvchining o‘z profilini olish (JWT token orqali)
@@ -151,4 +152,56 @@ func (h *Handler) GetMyProfile(c *gin.Context) {
 	}
 
 	handleResponse(c, h.log, "user profile", http.StatusOK, user)
+}
+
+// RefreshToken godoc
+// @Summary      Refresh access token
+// @Description  Return a new access and refresh token using a valid refresh token
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        refresh body models.RefreshTokenRequest true "Refresh token"
+// @Success      200 {object} models.LoginResponse
+// @Failure      400 {object} models.Response
+// @Failure      401 {object} models.Response
+// @Failure      500 {object} models.Response
+// @Router       /refresh-token [post]
+// @Security     ApiKeyAuth
+func (h Handler) RefreshToken(c *gin.Context) {
+	var req models.RefreshTokenRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		handleResponse(c, h.log, "refresh_token is required", http.StatusBadRequest, err.Error())
+		return
+	}
+
+	claims, err := jwt.ParseToken(req.RefreshToken)
+	if err != nil {
+		handleResponse(c, h.log, "invalid refresh token", http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	userID, ok1 := claims["user_id"].(string)
+	userRole, ok2 := claims["user_role"].(string)
+
+	if !ok1 || !ok2 || userID == "" {
+		handleResponse(c, h.log, "invalid claims in refresh token", http.StatusUnauthorized, nil)
+		return
+	}
+
+	accessToken, newRefreshToken, err := jwt.GenerateJWT(map[string]interface{}{
+		"user_id":   userID,
+		"user_role": userRole,
+	})
+	if err != nil {
+		handleResponse(c, h.log, "failed to generate new tokens", http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	resp := models.LoginResponse{
+		AccessToken:  accessToken,
+		RefreshToken: newRefreshToken,
+	}
+
+	handleResponse(c, h.log, "tokens refreshed", http.StatusOK, resp)
 }

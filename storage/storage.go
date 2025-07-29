@@ -30,18 +30,15 @@ type IStorage interface {
 	Stat() IStatStorage
 	Log() ILogService
 	JPGToPDF() IJPGToPDFStorage
-	Inspect() IInspectStorage
 
 	SharedLink() ISharedLinkStorage
 	AddHeaderFooter() AddHeaderFooterStorage
-	DetectBlankPages() IDetectBlankPagesStorage
-	QRCode() IQRCodeStorage
 
 	PDFToWord() IPDFToWordStorage
 	WordToPDF() IWordToPDFStorage
 	ExcelToPDF() IExcelToPDFStorage
 	PowerPointToPDF() IPowerPointToPDFStorage
-	HTMLToPDF() IHTMLToPDFStorage
+	AddWatermark() IAddWatermarkStorage
 }
 
 type IUserStorage interface {
@@ -171,10 +168,7 @@ type IJPGToPDFStorage interface {
 	UpdateStatusAndOutput(ctx context.Context, id, status, outputFileID string) error
 }
 
-type IInspectStorage interface {
-	Create(ctx context.Context, job *models.InspectJob) error
-	GetByID(ctx context.Context, id string) (*models.InspectJob, error)
-}
+
 
 type ISharedLinkStorage interface {
 	Create(ctx context.Context, req *models.SharedLink) error
@@ -185,18 +179,6 @@ type AddHeaderFooterStorage interface {
 	Create(ctx context.Context, job *models.AddHeaderFooterJob) error
 	Update(ctx context.Context, job *models.AddHeaderFooterJob) error
 	GetByID(ctx context.Context, id string) (*models.AddHeaderFooterJob, error)
-}
-
-type IDetectBlankPagesStorage interface {
-	Create(ctx context.Context, job *models.DetectBlankPagesJob) error
-	Update(ctx context.Context, job *models.DetectBlankPagesJob) error
-	GetByID(ctx context.Context, id string) (*models.DetectBlankPagesJob, error)
-}
-
-type IQRCodeStorage interface {
-	Create(ctx context.Context, job *models.QRCodeJob) error
-	Update(ctx context.Context, job *models.QRCodeJob) error
-	GetByID(ctx context.Context, id string) (*models.QRCodeJob, error)
 }
 
 type IPDFToWordStorage interface {
@@ -222,8 +204,8 @@ type IPowerPointToPDFStorage interface {
 	Update(ctx context.Context, job *models.PowerPointToPDFJob) error
 }
 
-type IHTMLToPDFStorage interface {
-	Create(ctx context.Context, job *models.HTMLToPDFJob) error
-	GetByID(ctx context.Context, id string) (*models.HTMLToPDFJob, error)
-	Update(ctx context.Context, job *models.HTMLToPDFJob) error
+type IAddWatermarkStorage interface {
+	Create(ctx context.Context, job *models.AddWatermarkJob) error
+	GetByID(ctx context.Context, id string) (*models.AddWatermarkJob, error)
+	Update(ctx context.Context, job *models.AddWatermarkJob) error
 }

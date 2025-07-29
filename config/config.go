@@ -19,11 +19,11 @@ type Config struct {
 	ServiceName string
 	LoggerLevel string
 
-	RedisHost     string
-	RedisPort     string
-	RedisPassword string
-	RedisTTL      time.Duration // ✅ YANGI QO‘SHILDI
-
+	RedisHost      string
+	RedisPort      string
+	RedisPassword  string
+	RedisTTL       time.Duration // ✅ YANGI QO‘SHILDI
+	RedisDB        int           // ✅ Qo‘shildi
 	SMTPHost       string
 	SMTPPort       string
 	SMTPUser       string
@@ -31,7 +31,8 @@ type Config struct {
 	SMTPSenderName string
 	JWTSecretKey   string // ✅ YANGI QO‘SHILDI
 
-	GotenbergURL string
+	GotenbergURL     string
+	AsynqConcurrency int
 }
 
 func Load() Config {
@@ -64,6 +65,7 @@ func Load() Config {
 	cfg.SMTPPass = cast.ToString(getOrReturnDefault("SMTP_PASS", "wwvn ehzs qsvs ojcf"))
 	cfg.SMTPSenderName = cast.ToString(getOrReturnDefault("SMTP_SENDER_NAME", "pdfninja"))
 	cfg.GotenbergURL = cast.ToString(getOrReturnDefault("GOTENBERG_URL", "http://localhost:3000"))
+
 
 	return cfg
 }
