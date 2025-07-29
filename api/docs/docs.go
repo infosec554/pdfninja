@@ -371,106 +371,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/pdf/detect-blank": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "PDF fayldagi bo‘sh sahifalarni aniqlaydi",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-detect-blank"
-                ],
-                "summary": "Detect blank pages in PDF",
-                "parameters": [
-                    {
-                        "description": "Input PDF file ID",
-                        "name": "inputFileID",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.DetectBlankPagesRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/pdf/detect-blank/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Detect blank pages job holatini oladi",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-detect-blank"
-                ],
-                "summary": "Get Detect Blank Pages Job Status",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Job ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.DetectBlankPagesJob"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/api/pdf/excel-to-pdf": {
             "post": {
                 "description": "Excel faylni PDF formatga o‘tkazish",
@@ -744,217 +644,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.AddHeaderFooterJob"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/pdf/html-to-pdf": {
-            "post": {
-                "description": "HTML kontentni PDF formatga o‘tkazish",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "HTML to PDF"
-                ],
-                "summary": "Convert HTML to PDF",
-                "parameters": [
-                    {
-                        "description": "HTML to PDF request",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.CreateHTMLToPDFRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "job_id qaytadi",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/models.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/pdf/html-to-pdf/{id}": {
-            "get": {
-                "description": "Konvertatsiya holatini olish",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "HTML to PDF"
-                ],
-                "summary": "Get HTML→PDF Job Status",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Job ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.HTMLToPDFJob"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/pdf/inspect": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "PDF faylning strukturasi, sahifa soni, sarlavha, muallif va boshqa metadata’larni olish",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "inspect"
-                ],
-                "summary": "Inspect PDF metadata",
-                "parameters": [
-                    {
-                        "description": "Inspect request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.InspectRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/pdf/inspect/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Inspect ishining natijasini ko‘rish",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "inspect"
-                ],
-                "summary": "Get Inspect Job",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Inspect Job ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.InspectJob"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
                         }
                     },
                     "404": {
@@ -1573,106 +1262,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/pdf/qr-code": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "PDF faylga QR kod joylashtirish",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-qr-code"
-                ],
-                "summary": "Add QR code to PDF",
-                "parameters": [
-                    {
-                        "description": "QR Code request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.CreateQRCodeRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/pdf/qr-code/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "QR kod joylashtirish ishining holatini olish",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-qr-code"
-                ],
-                "summary": "Get QR code job status",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Job ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.QRCodeJob"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/api/pdf/removepage": {
             "post": {
                 "consumes": [
@@ -2108,6 +1697,105 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.UnlockPDFJob"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/watermark": {
+            "post": {
+                "description": "Add a watermark text to specific pages of a PDF file",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-watermark"
+                ],
+                "summary": "Add text watermark to PDF",
+                "parameters": [
+                    {
+                        "description": "Watermark request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AddWatermarkRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pdf/watermark/{id}": {
+            "get": {
+                "description": "Retrieve watermark job details and status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "pdf-watermark"
+                ],
+                "summary": "Get watermark job by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Watermark Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.AddWatermarkJob"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
                         }
                     },
                     "404": {
@@ -2624,6 +2312,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/refresh-token": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Return a new access and refresh token using a valid refresh token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Refresh access token",
+                "parameters": [
+                    {
+                        "description": "Refresh token",
+                        "name": "refresh",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RefreshTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/role": {
             "post": {
                 "security": [
@@ -2995,6 +2740,106 @@ const docTemplate = `{
                 }
             }
         },
+        "models.AddWatermarkJob": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "fill_color": {
+                    "type": "string"
+                },
+                "font_name": {
+                    "type": "string"
+                },
+                "font_size": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "input_file_id": {
+                    "type": "string"
+                },
+                "opacity": {
+                    "type": "number"
+                },
+                "output_file_id": {
+                    "type": "string"
+                },
+                "pages": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                },
+                "rotation": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.AddWatermarkRequest": {
+            "type": "object",
+            "required": [
+                "fill_color",
+                "font_name",
+                "font_size",
+                "input_file_id",
+                "position",
+                "text"
+            ],
+            "properties": {
+                "fill_color": {
+                    "description": "e.g., \"#FF0000\"",
+                    "type": "string"
+                },
+                "font_name": {
+                    "description": "e.g., Helvetica",
+                    "type": "string"
+                },
+                "font_size": {
+                    "description": "e.g., 24",
+                    "type": "integer",
+                    "maximum": 72,
+                    "minimum": 8
+                },
+                "input_file_id": {
+                    "type": "string"
+                },
+                "opacity": {
+                    "description": "e.g., 0.6",
+                    "type": "number",
+                    "maximum": 1,
+                    "minimum": 0
+                },
+                "pages": {
+                    "description": "optional: \"1-3\"",
+                    "type": "string"
+                },
+                "position": {
+                    "description": "e.g., \"tl\"",
+                    "type": "string"
+                },
+                "rotation": {
+                    "description": "e.g., 0",
+                    "type": "integer",
+                    "maximum": 360,
+                    "minimum": 0
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
         "models.CompressJob": {
             "type": "object",
             "properties": {
@@ -3106,17 +2951,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CreateHTMLToPDFRequest": {
-            "type": "object",
-            "required": [
-                "html_content"
-            ],
-            "properties": {
-                "html_content": {
-                    "type": "string"
-                }
-            }
-        },
         "models.CreateJPGToPDFRequest": {
             "type": "object",
             "required": [
@@ -3145,31 +2979,6 @@ const docTemplate = `{
                 "user_id": {
                     "description": "optional (guest user uchun nil bo'lishi mumkin)",
                     "type": "string"
-                }
-            }
-        },
-        "models.CreateQRCodeRequest": {
-            "type": "object",
-            "required": [
-                "input_file_id",
-                "position",
-                "qr_content",
-                "size"
-            ],
-            "properties": {
-                "input_file_id": {
-                    "type": "string"
-                },
-                "position": {
-                    "description": "Masalan: \"top-left\"",
-                    "type": "string"
-                },
-                "qr_content": {
-                    "type": "string"
-                },
-                "size": {
-                    "description": "pikselda o'lcham",
-                    "type": "integer"
                 }
             }
         },
@@ -3356,44 +3165,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.DetectBlankPagesJob": {
-            "type": "object",
-            "properties": {
-                "blank_pages": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "input_file_id": {
-                    "type": "string"
-                },
-                "status": {
-                    "description": "pending, processing, done, failed",
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.DetectBlankPagesRequest": {
-            "type": "object",
-            "required": [
-                "input_file_id"
-            ],
-            "properties": {
-                "input_file_id": {
-                    "type": "string"
-                }
-            }
-        },
         "models.ExcelToPDFJob": {
             "type": "object",
             "properties": {
@@ -3493,83 +3264,6 @@ const docTemplate = `{
                 "userID": {
                     "description": "NULL bo‘lishi mumkin",
                     "type": "string"
-                }
-            }
-        },
-        "models.HTMLToPDFJob": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "html_content": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "output_file_id": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.InspectJob": {
-            "type": "object",
-            "properties": {
-                "author": {
-                    "type": "string",
-                    "example": "John Doe"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "file_id": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "d4f56987-e123-4567-abcd-7890abcdef12"
-                },
-                "keywords": {
-                    "type": "string",
-                    "example": "report,2025"
-                },
-                "page_count": {
-                    "type": "integer",
-                    "example": 5
-                },
-                "status": {
-                    "type": "string",
-                    "example": "done"
-                },
-                "subject": {
-                    "type": "string",
-                    "example": "Report"
-                },
-                "title": {
-                    "type": "string",
-                    "example": "My PDF Document"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.InspectRequest": {
-            "type": "object",
-            "required": [
-                "file_id"
-            ],
-            "properties": {
-                "file_id": {
-                    "type": "string",
-                    "example": "1e2b3c4d-5f6a-7b89-cd01-23456789abcd"
                 }
             }
         },
@@ -3856,35 +3550,13 @@ const docTemplate = `{
                 }
             }
         },
-        "models.QRCodeJob": {
+        "models.RefreshTokenRequest": {
             "type": "object",
+            "required": [
+                "refresh_token"
+            ],
             "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "input_file_id": {
-                    "type": "string"
-                },
-                "output_file_id": {
-                    "type": "string"
-                },
-                "position": {
-                    "type": "string"
-                },
-                "qr_content": {
-                    "type": "string"
-                },
-                "size": {
-                    "type": "integer"
-                },
-                "status": {
-                    "description": "pending, processing, done, failed",
-                    "type": "string"
-                },
-                "user_id": {
+                "refresh_token": {
                     "type": "string"
                 }
             }

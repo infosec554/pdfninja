@@ -7,10 +7,13 @@ import (
 	"path/filepath"
 	"time"
 
+	// bu path loyihangizga qarab bo'lishi mumkin
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
 	"test/api/models"
+	"test/pkg/faylchek"
 )
 
 // UploadFile godoc
@@ -47,6 +50,16 @@ func (h Handler) UploadFile(c *gin.Context) {
 	fileID := uuid.NewString()
 	savePath := fmt.Sprintf("uploads/%s%s", fileID, fileType)
 
+	// Fayl kengaytmasini tekshirish
+	if faylchek.IsBlacklistedExtension(fileType) {
+		handleResponse(c, h.log, "❌ Fayl turi xavfli va yuklash taqiqlangan", http.StatusBadRequest, nil)
+		return
+	}
+
+	if !faylchek.IsAllowedExtension(fileType) {
+		handleResponse(c, h.log, "❌ Bu turdagi fayllarni yuklash ruxsat etilmagan", http.StatusBadRequest, nil)
+		return
+	}
 	// 🔒 Fayl hajmi cheklovi
 	const guestMaxSize = 20 * 1024 * 1024      // 30 MB
 	const registeredMaxSize = 30 * 1024 * 1024 // 50 MB

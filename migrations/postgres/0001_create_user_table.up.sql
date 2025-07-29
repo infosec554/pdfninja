@@ -194,17 +194,25 @@ CREATE TABLE add_page_number_jobs (
 );
 
 
-
-CREATE TABLE watermark_jobs (
+CREATE TABLE add_watermark_jobs (
     id UUID PRIMARY KEY,
-    user_id UUID REFERENCES users(id),
-    input_file_id UUID NOT NULL REFERENCES files(id),
-    watermark_text TEXT NOT NULL,
-    position VARCHAR(20),
-    output_file_id UUID REFERENCES files(id),
+    user_id UUID,
+    input_file_id UUID NOT NULL,
+    output_file_id UUID,
+    text TEXT NOT NULL,
+    font_name TEXT NOT NULL,
+    font_size INTEGER NOT NULL,
+    position TEXT NOT NULL,
+    rotation INTEGER DEFAULT 0,
+    opacity DOUBLE PRECISION DEFAULT 1.0,
+    fill_color TEXT NOT NULL,
+    pages TEXT DEFAULT 'all',
     status VARCHAR(20) NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP NOT NULL
 );
+
+
+
 
 CREATE TABLE crop_pdf_jobs (
     id UUID PRIMARY KEY,
@@ -240,30 +248,8 @@ CREATE TABLE logs (
 );
 
 -- PDF Inspection
-CREATE TABLE pdf_inspect_jobs (
-    id UUID PRIMARY KEY,
-    user_id UUID REFERENCES users(id),
-    file_id UUID NOT NULL REFERENCES files(id),
-    page_count INT,
-    title TEXT,
-    author TEXT,
-    subject TEXT,
-    keywords TEXT,
-    status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'done', 'failed')),
-    created_at TIMESTAMP DEFAULT NOW()
-);
 
--- Translation Jobs
-CREATE TABLE translate_jobs (
-    id UUID PRIMARY KEY,
-    user_id UUID REFERENCES users(id),
-    input_file_id UUID NOT NULL REFERENCES files(id),
-    source_lang VARCHAR(10) NOT NULL,
-    target_lang VARCHAR(10) NOT NULL,
-    output_file_id UUID REFERENCES files(id),
-    status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'processing', 'done', 'failed')),
-    created_at TIMESTAMP DEFAULT NOW()
-);
+
 
 -- Shared Links
 CREATE TABLE shared_links (
@@ -282,19 +268,6 @@ CREATE TABLE protect_jobs (
     status VARCHAR(20) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
 );
-CREATE TABLE add_background_jobs (
-    id UUID PRIMARY KEY,
-    user_id UUID REFERENCES users(id),
-    input_file_id UUID NOT NULL REFERENCES files(id),
-    background_image_file_id UUID NOT NULL REFERENCES files(id),
-    opacity INTEGER NOT NULL,
-    position VARCHAR(50) NOT NULL,
-    output_file_id UUID REFERENCES files(id),
-    status VARCHAR(20) NOT NULL DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
-
 CREATE TABLE pdf_to_word_jobs (
     id UUID PRIMARY KEY,
     user_id UUID REFERENCES users(id),
@@ -331,11 +304,3 @@ CREATE TABLE powerpoint_to_pdf_jobs (
     created_at TIMESTAMP DEFAULT now()
 );
 
-CREATE TABLE html_to_pdf_jobs (
-    id UUID PRIMARY KEY,
-    user_id UUID,
-    html_content TEXT NOT NULL,
-    output_file_id UUID,
-    status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'processing', 'done', 'failed')),
-    created_at TIMESTAMP DEFAULT NOW()
-);

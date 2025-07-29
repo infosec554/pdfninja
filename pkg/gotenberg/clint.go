@@ -195,7 +195,6 @@ func (g *gotenbergClient) PowerPointToPDF(ctx context.Context, pptPath string) (
 	return io.ReadAll(resp.Body)
 }
 
-// HTML -> PDF
 func (g *gotenbergClient) HTMLToPDF(ctx context.Context, htmlPath string) ([]byte, error) {
 	file, err := os.Open(htmlPath)
 	if err != nil {
@@ -206,7 +205,7 @@ func (g *gotenbergClient) HTMLToPDF(ctx context.Context, htmlPath string) ([]byt
 	var requestBody bytes.Buffer
 	writer := multipart.NewWriter(&requestBody)
 
-	// ✳️ Fayl nomini "index.html" deb yuborish majburiy!
+	// Fayl nomi **faqat** "index.html" bo‘lishi kerak
 	part, err := writer.CreateFormFile("files", "index.html")
 	if err != nil {
 		return nil, fmt.Errorf("cannot create form file: %w", err)
@@ -217,8 +216,8 @@ func (g *gotenbergClient) HTMLToPDF(ctx context.Context, htmlPath string) ([]byt
 
 	writer.Close()
 
-	// ✅ To‘g‘ri endpoint
-	req, err := http.NewRequestWithContext(ctx, "POST", g.baseURL+"/convert/html", &requestBody)
+	// ✅ Gotenberg 7 endpoint
+	req, err := http.NewRequestWithContext(ctx, "POST", g.baseURL+"/forms/html/convert", &requestBody)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create request: %w", err)
 	}

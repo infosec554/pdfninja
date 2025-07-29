@@ -145,9 +145,6 @@ func (s *Store) Log() storage.ILogService {
 func (s *Store) JPGToPDF() storage.IJPGToPDFStorage {
 	return NewJPGToPDFRepo(s.pool, s.log)
 }
-func (s *Store) Inspect() storage.IInspectStorage {
-	return NewInspectRepo(s.pool, s.log)
-}
 
 func (s *Store) SharedLink() storage.ISharedLinkStorage {
 	return NewSharedLinkRepo(s.pool, s.log)
@@ -155,14 +152,6 @@ func (s *Store) SharedLink() storage.ISharedLinkStorage {
 
 func (s *Store) AddHeaderFooter() storage.AddHeaderFooterStorage {
 	return NewAddHeaderFooterRepo(s.pool, s.log)
-}
-
-func (s *Store) DetectBlankPages() storage.IDetectBlankPagesStorage {
-	return NewDetectBlankPagesRepo(s.pool, s.log)
-}
-
-func (s *Store) QRCode() storage.IQRCodeStorage {
-	return NewQRCodeRepo(s.pool, s.log)
 }
 
 func (s *Store) PDFToWord() storage.IPDFToWordStorage {
@@ -180,6 +169,6 @@ func (s *Store) PowerPointToPDF() storage.IPowerPointToPDFStorage {
 	return NewPowerPointToPDFRepo(s.pool, s.log)
 }
 
-func (s *Store) HTMLToPDF() storage.IHTMLToPDFStorage {
-	return NewHTMLToPDFRepo(s.pool, s.log)
+func (s *Store) AddWatermark() storage.IAddWatermarkStorage {
+	return NewAddWatermarkRepo(s.pool, s.log)
 }

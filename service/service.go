@@ -30,17 +30,14 @@ type IServiceManager interface {
 	Stat() StatsService
 	Log() LogService
 	JPGToPDF() JPGToPDFService
-	Inspect() InspectService
 
 	SharedLink() SharedLinkService
 	AddHeaderFooter() AddHeaderFooterService
-	DetectBlank() DetectBlankService
-	QRCode() QRCodeService
 	PDFToWord() PDFToWordService
 	WordToPDF() WordToPDFService
 	ExcelToPDF() ExcelToPDFService
 	PowerPointToPDF() PowerPointToPDFService
-	HTMLToPDF() HTMLToPDFService
+	AddWatermark() AddWatermarkService
 }
 
 type service struct {
@@ -64,17 +61,15 @@ type service struct {
 	statsService         StatsService
 	logService           LogService
 	jPGToPDF             JPGToPDFService
-	inspect              InspectService
 
 	sharedLinkService      SharedLinkService
 	addHeaderFooterService AddHeaderFooterService
-	detectBlankService     DetectBlankService
-	qRCodeService          QRCodeService
-	pdfToWordService       PDFToWordService
-	wordToPDFService       WordToPDFService
-	excelToPDF             ExcelToPDFService
-	powerPointToPDF        PowerPointToPDFService
-	hTMLToPDF              HTMLToPDFService
+
+	pdfToWordService PDFToWordService
+	wordToPDFService WordToPDFService
+	excelToPDF       ExcelToPDFService
+	powerPointToPDF  PowerPointToPDFService
+	addWatermark     AddWatermarkService
 }
 
 func New(storage storage.IStorage, log logger.ILogger, mailerCore *mailer.Mailer, redis storage.IRedisStorage, gotClient gotenberg.Client) IServiceManager {
@@ -99,17 +94,14 @@ func New(storage storage.IStorage, log logger.ILogger, mailerCore *mailer.Mailer
 		statsService:         NewStatsService(storage, log),
 		logService:           NewLogService(storage, log),
 		jPGToPDF:             NewJPGToPDFService(storage, log),
-		inspect:              NewInspectService(storage, log),
 
 		sharedLinkService:      NewSharedLinkService(storage, log),
 		addHeaderFooterService: NewAddHeaderFooterService(storage, log),
-		detectBlankService:     NewDetectBlankService(storage, log),
-		qRCodeService:          NewQRCodeService(storage, log),
 		pdfToWordService:       NewPDFToWordService(storage, log),
 		wordToPDFService:       NewWordToPDFService(storage, log, gotClient),
 		excelToPDF:             NewExcelToPDFService(storage, log, gotClient),
 		powerPointToPDF:        NewPowerPointToPDFService(storage, log, gotClient),
-		hTMLToPDF:              NewHTMLToPDFService(storage, log, gotClient),
+		addWatermark:           NewAddWatermarkService(storage, log),
 	}
 }
 
@@ -193,23 +185,11 @@ func (s *service) JPGToPDF() JPGToPDFService {
 	return s.jPGToPDF
 }
 
-func (s *service) Inspect() InspectService {
-	return s.inspect
-}
-
 func (s *service) SharedLink() SharedLinkService {
 	return s.sharedLinkService
 }
 func (s *service) AddHeaderFooter() AddHeaderFooterService {
 	return s.addHeaderFooterService
-}
-
-func (s *service) DetectBlank() DetectBlankService {
-	return s.detectBlankService
-}
-
-func (s *service) QRCode() QRCodeService {
-	return s.qRCodeService
 }
 
 func (s *service) PDFToWord() PDFToWordService {
@@ -228,6 +208,6 @@ func (s *service) PowerPointToPDF() PowerPointToPDFService {
 	return s.powerPointToPDF
 }
 
-func (s *service) HTMLToPDF() HTMLToPDFService {
-	return s.hTMLToPDF
+func (s *service) AddWatermark() AddWatermarkService {
+	return s.addWatermark
 }
