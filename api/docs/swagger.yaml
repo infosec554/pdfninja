@@ -76,6 +76,78 @@ definitions:
     - page_range
     - position
     type: object
+  models.AddWatermarkJob:
+    properties:
+      created_at:
+        type: string
+      fill_color:
+        type: string
+      font_name:
+        type: string
+      font_size:
+        type: integer
+      id:
+        type: string
+      input_file_id:
+        type: string
+      opacity:
+        type: number
+      output_file_id:
+        type: string
+      pages:
+        type: string
+      position:
+        type: string
+      rotation:
+        type: integer
+      status:
+        type: string
+      text:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.AddWatermarkRequest:
+    properties:
+      fill_color:
+        description: e.g., "#FF0000"
+        type: string
+      font_name:
+        description: e.g., Helvetica
+        type: string
+      font_size:
+        description: e.g., 24
+        maximum: 72
+        minimum: 8
+        type: integer
+      input_file_id:
+        type: string
+      opacity:
+        description: e.g., 0.6
+        maximum: 1
+        minimum: 0
+        type: number
+      pages:
+        description: 'optional: "1-3"'
+        type: string
+      position:
+        description: e.g., "tl"
+        type: string
+      rotation:
+        description: e.g., 0
+        maximum: 360
+        minimum: 0
+        type: integer
+      text:
+        type: string
+    required:
+    - fill_color
+    - font_name
+    - font_size
+    - input_file_id
+    - position
+    - text
+    type: object
   models.CompressJob:
     properties:
       compression:
@@ -148,13 +220,6 @@ definitions:
     required:
     - input_file_id
     type: object
-  models.CreateHTMLToPDFRequest:
-    properties:
-      html_content:
-        type: string
-    required:
-    - html_content
-    type: object
   models.CreateJPGToPDFRequest:
     properties:
       input_file_ids:
@@ -175,24 +240,6 @@ definitions:
       user_id:
         description: optional (guest user uchun nil bo'lishi mumkin)
         type: string
-    type: object
-  models.CreateQRCodeRequest:
-    properties:
-      input_file_id:
-        type: string
-      position:
-        description: 'Masalan: "top-left"'
-        type: string
-      qr_content:
-        type: string
-      size:
-        description: pikselda o'lcham
-        type: integer
-    required:
-    - input_file_id
-    - position
-    - qr_content
-    - size
     type: object
   models.CreateRole:
     properties:
@@ -322,31 +369,6 @@ definitions:
     required:
     - input_file_id
     type: object
-  models.DetectBlankPagesJob:
-    properties:
-      blank_pages:
-        items:
-          type: integer
-        type: array
-      created_at:
-        type: string
-      id:
-        type: string
-      input_file_id:
-        type: string
-      status:
-        description: pending, processing, done, failed
-        type: string
-      user_id:
-        type: string
-    type: object
-  models.DetectBlankPagesRequest:
-    properties:
-      input_file_id:
-        type: string
-    required:
-    - input_file_id
-    type: object
   models.ExcelToPDFJob:
     properties:
       created_at:
@@ -413,59 +435,6 @@ definitions:
       userID:
         description: NULL bo‘lishi mumkin
         type: string
-    type: object
-  models.HTMLToPDFJob:
-    properties:
-      created_at:
-        type: string
-      html_content:
-        type: string
-      id:
-        type: string
-      output_file_id:
-        type: string
-      status:
-        type: string
-      user_id:
-        type: string
-    type: object
-  models.InspectJob:
-    properties:
-      author:
-        example: John Doe
-        type: string
-      created_at:
-        type: string
-      file_id:
-        type: string
-      id:
-        example: d4f56987-e123-4567-abcd-7890abcdef12
-        type: string
-      keywords:
-        example: report,2025
-        type: string
-      page_count:
-        example: 5
-        type: integer
-      status:
-        example: done
-        type: string
-      subject:
-        example: Report
-        type: string
-      title:
-        example: My PDF Document
-        type: string
-      user_id:
-        type: string
-    type: object
-  models.InspectRequest:
-    properties:
-      file_id:
-        example: 1e2b3c4d-5f6a-7b89-cd01-23456789abcd
-        type: string
-    required:
-    - file_id
     type: object
   models.JPGToPDFJob:
     properties:
@@ -659,27 +628,12 @@ definitions:
     - input_file_id
     - password
     type: object
-  models.QRCodeJob:
+  models.RefreshTokenRequest:
     properties:
-      created_at:
+      refresh_token:
         type: string
-      id:
-        type: string
-      input_file_id:
-        type: string
-      output_file_id:
-        type: string
-      position:
-        type: string
-      qr_content:
-        type: string
-      size:
-        type: integer
-      status:
-        description: pending, processing, done, failed
-        type: string
-      user_id:
-        type: string
+    required:
+    - refresh_token
     type: object
   models.RemoveJob:
     properties:
@@ -1175,69 +1129,6 @@ paths:
       summary: Get Crop Job info
       tags:
       - PDF Edit
-  /api/pdf/detect-blank:
-    post:
-      consumes:
-      - application/json
-      description: PDF fayldagi bo‘sh sahifalarni aniqlaydi
-      parameters:
-      - description: Input PDF file ID
-        in: body
-        name: inputFileID
-        required: true
-        schema:
-          $ref: '#/definitions/models.DetectBlankPagesRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Detect blank pages in PDF
-      tags:
-      - pdf-detect-blank
-  /api/pdf/detect-blank/{id}:
-    get:
-      description: Detect blank pages job holatini oladi
-      parameters:
-      - description: Job ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.DetectBlankPagesJob'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Get Detect Blank Pages Job Status
-      tags:
-      - pdf-detect-blank
   /api/pdf/excel-to-pdf:
     post:
       consumes:
@@ -1422,140 +1313,6 @@ paths:
       summary: Get header/footer job status
       tags:
       - pdf-header-footer
-  /api/pdf/html-to-pdf:
-    post:
-      consumes:
-      - application/json
-      description: HTML kontentni PDF formatga o‘tkazish
-      parameters:
-      - description: HTML to PDF request
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.CreateHTMLToPDFRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: job_id qaytadi
-          schema:
-            allOf:
-            - $ref: '#/definitions/models.Response'
-            - properties:
-                data:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      summary: Convert HTML to PDF
-      tags:
-      - HTML to PDF
-  /api/pdf/html-to-pdf/{id}:
-    get:
-      description: Konvertatsiya holatini olish
-      parameters:
-      - description: Job ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.HTMLToPDFJob'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      summary: Get HTML→PDF Job Status
-      tags:
-      - HTML to PDF
-  /api/pdf/inspect:
-    post:
-      consumes:
-      - application/json
-      description: PDF faylning strukturasi, sahifa soni, sarlavha, muallif va boshqa
-        metadata’larni olish
-      parameters:
-      - description: Inspect request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.InspectRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Inspect PDF metadata
-      tags:
-      - inspect
-  /api/pdf/inspect/{id}:
-    get:
-      description: Inspect ishining natijasini ko‘rish
-      parameters:
-      - description: Inspect Job ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.InspectJob'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Get Inspect Job
-      tags:
-      - inspect
   /api/pdf/jpg-to-pdf:
     post:
       consumes:
@@ -1942,69 +1699,6 @@ paths:
       summary: Get protected PDF job by ID
       tags:
       - PDF Security
-  /api/pdf/qr-code:
-    post:
-      consumes:
-      - application/json
-      description: PDF faylga QR kod joylashtirish
-      parameters:
-      - description: QR Code request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.CreateQRCodeRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Add QR code to PDF
-      tags:
-      - pdf-qr-code
-  /api/pdf/qr-code/{id}:
-    get:
-      description: QR kod joylashtirish ishining holatini olish
-      parameters:
-      - description: Job ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.QRCodeJob'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Get QR code job status
-      tags:
-      - pdf-qr-code
   /api/pdf/removepage:
     post:
       consumes:
@@ -2300,6 +1994,71 @@ paths:
       summary: Get Unlock Job status
       tags:
       - PDF Unlock
+  /api/pdf/watermark:
+    post:
+      consumes:
+      - application/json
+      description: Add a watermark text to specific pages of a PDF file
+      parameters:
+      - description: Watermark request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddWatermarkRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Add text watermark to PDF
+      tags:
+      - pdf-watermark
+  /api/pdf/watermark/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve watermark job details and status
+      parameters:
+      - description: Watermark Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AddWatermarkJob'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Get watermark job by ID
+      tags:
+      - pdf-watermark
   /api/pdf/word-to-pdf:
     post:
       consumes:
@@ -2615,6 +2374,42 @@ paths:
       summary: Send OTP to email
       tags:
       - otp
+  /refresh-token:
+    post:
+      consumes:
+      - application/json
+      description: Return a new access and refresh token using a valid refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: refresh
+        required: true
+        schema:
+          $ref: '#/definitions/models.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Refresh access token
+      tags:
+      - auth
   /role:
     post:
       consumes:

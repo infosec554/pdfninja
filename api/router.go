@@ -56,6 +56,7 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 	{
 		stats.GET("/user", h.GetUserStats)
 	}
+	r.POST("/refresh-token", h.RefreshToken)
 
 	// === SysUser (admin uchun) ===
 	sysuser := r.Group("/sysuser")
@@ -119,17 +120,8 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 		pdf.POST("/add-page-numbers", h.CreateAddPageNumbersJob)
 		pdf.GET("/add-page-numbers/:id", h.GetAddPageNumbersJob)
 
-		pdf.POST("/inspect", h.CreateInspectJob)
-		pdf.GET("/inspect/:id", h.GetInspectJob)
-
 		pdf.POST("/header-footer", h.AddHeaderFooter)
 		pdf.GET("/header-footer/:id", h.GetHeaderFooterJob)
-
-		pdf.POST("/detect-blank", h.CreateDetectBlankPagesJob)
-		pdf.GET("/detect-blank/:id", h.GetDetectBlankPagesJob)
-
-		pdf.POST("/qr-code", h.CreateQRCodeJob)
-		pdf.GET("/qr-code/:id", h.GetQRCodeJob)
 
 		pdf.POST("/share", h.CreateSharedLink)
 		pdf.GET("/share/:token", h.GetSharedLink)
@@ -145,9 +137,10 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 
 		pdf.POST("/ppt-to-pdf", h.CreatePowerPointToPDF)
 		pdf.GET("/ppt-to-pdf/:id", h.GetPowerPointToPDFJob)
-		
-		pdf.POST("/html-to-pdf", h.CreateHTMLToPDF)
-		pdf.GET("/html-to-pdf/:id", h.GetHTMLToPDFJob)
+
+		pdf.POST("/watermark", h.AddTextWatermark)
+		pdf.GET("/watermark/:id", h.GetWatermarkJob)
+
 	}
 
 	return r
