@@ -5,11 +5,11 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-	_ "test/api/docs"
-	"test/api/handler"
-	"test/pkg/logger"
-	"test/pkg/middleware"
-	"test/service"
+	_ "convertpdfgo/api/docs"
+	"convertpdfgo/api/handler"
+	"convertpdfgo/pkg/logger"
+	"convertpdfgo/pkg/middleware"
+	"convertpdfgo/service"
 )
 
 // @title           Auth API
@@ -26,13 +26,13 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.Use(middleware.RateLimiterMiddleware())
 
-	// === OTP ===
-	r.POST("/otp/send", h.SendOTP)
-	r.POST("/otp/confirm", h.ConfirmOTP)
-
-	// === Auth ===
 	r.POST("/signup", h.SignUp)
 	r.POST("/login", h.Login)
+	r.POST("/change-password", h.AuthorizerMiddleware, h.ChangePassword)
+	r.POST("/auth/google", h.GoogleAuth)
+	r.POST("/auth/github", h.GithubAuth)
+	r.POST("/auth/facebook", h.GithubAuth)
+
 	r.GET("/me", h.AuthorizerMiddleware, h.GetMyProfile)
 
 	// === Logs (adminlar uchun) ===
@@ -42,27 +42,10 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 		admin.GET("/logs/:id", h.GetLogsByJobID)
 	}
 
-	// === Role (adminlar uchun) ===
-	role := r.Group("/role")
-	role.Use(h.AuthorizerMiddleware, h.AdminMiddleware)
-	{
-		role.POST("/", h.CreateRole)
-		role.PUT("/:id", h.UpdateRole)
-		role.GET("/", h.ListRoles)
-	}
-
 	stats := r.Group("/stats")
 	stats.Use(h.AuthorizerMiddleware)
 	{
 		stats.GET("/user", h.GetUserStats)
-	}
-	r.POST("/refresh-token", h.RefreshToken)
-
-	// === SysUser (admin uchun) ===
-	sysuser := r.Group("/sysuser")
-	sysuser.Use(h.AuthorizerMiddleware, h.AdminMiddleware)
-	{
-		sysuser.POST("/", h.CreateSysUser)
 	}
 
 	// === Fayllar (token kerak, chunki user_id kerak) ===
@@ -119,9 +102,6 @@ func New(services service.IServiceManager, log logger.ILogger) *gin.Engine {
 
 		pdf.POST("/add-page-numbers", h.CreateAddPageNumbersJob)
 		pdf.GET("/add-page-numbers/:id", h.GetAddPageNumbersJob)
-
-		pdf.POST("/header-footer", h.AddHeaderFooter)
-		pdf.GET("/header-footer/:id", h.GetHeaderFooterJob)
 
 		pdf.POST("/share", h.CreateSharedLink)
 		pdf.GET("/share/:token", h.GetSharedLink)

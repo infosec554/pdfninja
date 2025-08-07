@@ -561,106 +561,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/pdf/header-footer": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "PDF faylga yuqori yoki quyi matn qo‘shish",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-header-footer"
-                ],
-                "summary": "Add header and/or footer to PDF",
-                "parameters": [
-                    {
-                        "description": "Header/Footer parametrlari",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.CreateAddHeaderFooterRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/pdf/header-footer/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "PDF faylga header/footer qo‘shish jarayonining holatini olish",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "pdf-header-footer"
-                ],
-                "summary": "Get header/footer job status",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Job ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.AddHeaderFooterJob"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/api/pdf/jpg-to-pdf": {
             "post": {
                 "security": [
@@ -1943,6 +1843,219 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/facebook": {
+            "post": {
+                "description": "Facebook OAuth code orqali login yoki ro‘yxatdan o‘tish (JWT tokenlar qaytaradi)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Facebook orqali login yoki registratsiya",
+                "parameters": [
+                    {
+                        "description": "Facebook authorization code",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.FacebookAuthRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/github": {
+            "post": {
+                "description": "GitHub OAuth code orqali login yoki ro‘yxatdan o‘tish (JWT tokenlar qaytaradi)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "GitHub orqali login yoki registratsiya",
+                "parameters": [
+                    {
+                        "description": "GitHub authorization code",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.GithubAuthRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/google": {
+            "post": {
+                "description": "Google OAuth code orqali login yoki ro‘yxatdan o‘tish (JWT tokenlar qaytaradi)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Google orqali login yoki registratsiya",
+                "parameters": [
+                    {
+                        "description": "Google authorization code",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.GoogleAuthRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/change-password": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Change password (user must send old and new password)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Change user password",
+                "parameters": [
+                    {
+                        "description": "Change password",
+                        "name": "change_password",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ChangePasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/file/list": {
             "get": {
                 "security": [
@@ -2105,11 +2218,6 @@ const docTemplate = `{
         },
         "/login": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "User login with email and password",
                 "consumes": [
                     "application/json"
@@ -2120,7 +2228,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Login user",
+                "summary": "User login",
                 "parameters": [
                     {
                         "description": "Login credentials",
@@ -2160,6 +2268,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/logout": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "JWT tokenlarni va sessionni bekor qiladi",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Logout (chiqish)",
+                "parameters": [
+                    {
+                        "description": "Logout request (refresh_token optional)",
+                        "name": "data",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/models.LogoutRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/me": {
             "get": {
                 "security": [
@@ -2167,7 +2319,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Foydalanuvchining o‘z profilini olish (JWT token orqali)",
+                "description": "Get user profile (JWT token required)",
                 "consumes": [
                     "application/json"
                 ],
@@ -2200,125 +2352,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/otp/confirm": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "otp"
-                ],
-                "summary": "Confirm OTP code",
-                "parameters": [
-                    {
-                        "description": "otp info",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.ConfirmOtpRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/otp/send": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "otp"
-                ],
-                "summary": "Send OTP to email",
-                "parameters": [
-                    {
-                        "description": "email info",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.SendOtpRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/refresh-token": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Return a new access and refresh token using a valid refresh token",
                 "consumes": [
                     "application/json"
@@ -2369,157 +2404,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/role": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "role"
-                ],
-                "summary": "Create role",
-                "parameters": [
-                    {
-                        "description": "role",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.CreateRole"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/role/{id}": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "role"
-                ],
-                "summary": "Update role",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "role_id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "update info",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.UpdateRole"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/roles": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "role"
-                ],
-                "summary": "List all roles",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.RoleListResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/signup": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Register a new user after OTP confirmation",
+                "description": "Register a new user (name, email, password)",
                 "consumes": [
                     "application/json"
                 ],
@@ -2529,7 +2416,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Create new user",
+                "summary": "Register a new user",
                 "parameters": [
                     {
                         "description": "Signup data",
@@ -2537,7 +2424,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateUser"
+                            "$ref": "#/definitions/models.SignupRequest"
                         }
                     }
                 ],
@@ -2545,70 +2432,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/sysuser": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Superadmin tomonidan tizim user (admin, buxgalter) yaratish",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "sysuser"
-                ],
-                "summary": "Create system user",
-                "parameters": [
-                    {
-                        "description": "sysuser info",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.CreateSysUser"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.SignupResponse"
                         }
                     },
                     "400": {
@@ -2628,45 +2452,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.AddHeaderFooterJob": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "font_color": {
-                    "type": "string"
-                },
-                "font_size": {
-                    "type": "integer"
-                },
-                "footer_text": {
-                    "type": "string"
-                },
-                "header_text": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "input_file_id": {
-                    "type": "string"
-                },
-                "output_file_id": {
-                    "type": "string"
-                },
-                "position": {
-                    "type": "string"
-                },
-                "status": {
-                    "description": "pending, done, failed",
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
         "models.AddPageNumberJob": {
             "type": "object",
             "properties": {
@@ -2840,6 +2625,17 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ChangePasswordRequest": {
+            "type": "object",
+            "properties": {
+                "new_password": {
+                    "type": "string"
+                },
+                "old_password": {
+                    "type": "string"
+                }
+            }
+        },
         "models.CompressJob": {
             "type": "object",
             "properties": {
@@ -2911,46 +2707,6 @@ const docTemplate = `{
                 "High"
             ]
         },
-        "models.ConfirmOtpRequest": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "otp_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.CreateAddHeaderFooterRequest": {
-            "type": "object",
-            "required": [
-                "input_file_id"
-            ],
-            "properties": {
-                "font_color": {
-                    "description": "Agar bo‘lmasa, \"black\" deb olinadi",
-                    "type": "string"
-                },
-                "font_size": {
-                    "description": "Agar 0 bo‘lsa, default 12 deb qaraladi",
-                    "type": "integer"
-                },
-                "footer_text": {
-                    "type": "string"
-                },
-                "header_text": {
-                    "type": "string"
-                },
-                "input_file_id": {
-                    "type": "string"
-                },
-                "position": {
-                    "description": "\"left\", \"center\", \"right\" (default \"center\")",
-                    "type": "string"
-                }
-            }
-        },
         "models.CreateJPGToPDFRequest": {
             "type": "object",
             "required": [
@@ -2978,17 +2734,6 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "description": "optional (guest user uchun nil bo'lishi mumkin)",
-                    "type": "string"
-                }
-            }
-        },
-        "models.CreateRole": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "name": {
                     "type": "string"
                 }
             }
@@ -3021,55 +2766,6 @@ const docTemplate = `{
                 },
                 "split_ranges": {
                     "description": "Masalan: \"1-3,4-5\"",
-                    "type": "string"
-                }
-            }
-        },
-        "models.CreateSysUser": {
-            "type": "object",
-            "required": [
-                "name",
-                "password",
-                "phone",
-                "roles"
-            ],
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "roles": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "models.CreateUser": {
-            "type": "object",
-            "required": [
-                "email",
-                "name",
-                "otp_confirmation_token",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "otp_confirmation_token": {
-                    "type": "string"
-                },
-                "password": {
                     "type": "string"
                 }
             }
@@ -3240,6 +2936,19 @@ const docTemplate = `{
                 }
             }
         },
+        "models.FacebookAuthRequest": {
+            "type": "object",
+            "required": [
+                "code"
+            ],
+            "properties": {
+                "code": {
+                    "description": "Facebookdan kelgan code",
+                    "type": "string",
+                    "example": "AQDt1n..."
+                }
+            }
+        },
         "models.File": {
             "type": "object",
             "properties": {
@@ -3264,6 +2973,31 @@ const docTemplate = `{
                 "userID": {
                     "description": "NULL bo‘lishi mumkin",
                     "type": "string"
+                }
+            }
+        },
+        "models.GithubAuthRequest": {
+            "type": "object",
+            "required": [
+                "code"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "AQDt1n..."
+                }
+            }
+        },
+        "models.GoogleAuthRequest": {
+            "type": "object",
+            "required": [
+                "code"
+            ],
+            "properties": {
+                "code": {
+                    "description": "Google authorization code",
+                    "type": "string",
+                    "example": "4/0AX4XfW..."
                 }
             }
         },
@@ -3343,9 +3077,6 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
-                },
-                "user_type": {
-                    "type": "string"
                 }
             }
         },
@@ -3355,6 +3086,20 @@ const docTemplate = `{
                 "access_token": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.LogoutRequest": {
+            "type": "object",
+            "properties": {
                 "refresh_token": {
                     "type": "string"
                 }
@@ -3613,31 +3358,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Role": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.RoleListResponse": {
-            "type": "object",
-            "properties": {
-                "roles": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Role"
-                    }
-                }
-            }
-        },
         "models.RotateJob": {
             "type": "object",
             "properties": {
@@ -3693,17 +3413,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.SendOtpRequest": {
-            "type": "object",
-            "required": [
-                "email"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                }
-            }
-        },
         "models.SharedLink": {
             "type": "object",
             "properties": {
@@ -3720,6 +3429,34 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "shared_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SignupRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SignupResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "Foydalanuvchi ID si",
                     "type": "string"
                 }
             }
@@ -3800,24 +3537,10 @@ const docTemplate = `{
                 }
             }
         },
-        "models.UpdateRole": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
         "models.User": {
             "type": "object",
             "properties": {
                 "created_at": {
-                    "type": "string"
-                },
-                "created_by": {
                     "type": "string"
                 },
                 "email": {
@@ -3827,6 +3550,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "role": {
                     "type": "string"
                 },
                 "status": {

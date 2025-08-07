@@ -13,10 +13,10 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 
-	"test/api/models"
-	"test/pkg/logger"
-	pkg "test/pkg/string_to_int"
-	"test/storage"
+	"convertpdfgo/api/models"
+	"convertpdfgo/pkg/logger"
+	pkg "convertpdfgo/pkg/string_to_int"
+	"convertpdfgo/storage"
 )
 
 type RemovePageService interface {

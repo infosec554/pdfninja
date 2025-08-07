@@ -8,10 +8,10 @@ import (
 
 	"github.com/google/uuid"
 
-	"test/api/models"
-	"test/pkg/gotenberg"
-	"test/pkg/logger"
-	"test/storage"
+	"convertpdfgo/api/models"
+	"convertpdfgo/pkg/gotenberg"
+	"convertpdfgo/pkg/logger"
+	"convertpdfgo/storage"
 )
 
 type PowerPointToPDFService interface {

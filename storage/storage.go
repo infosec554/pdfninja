@@ -4,14 +4,12 @@ import (
 	"context"
 	"time"
 
-	"test/api/models"
+	"convertpdfgo/api/models"
 )
 
 type IStorage interface {
 	User() IUserStorage
-	OTP() IOTPStorage
-	Role() IRoleStorage
-	Sysuser() ISysuserStorage
+
 	Redis() IRedisStorage
 	Close()
 	Merge() IMergeStorage
@@ -32,7 +30,6 @@ type IStorage interface {
 	JPGToPDF() IJPGToPDFStorage
 
 	SharedLink() ISharedLinkStorage
-	AddHeaderFooter() AddHeaderFooterStorage
 
 	PDFToWord() IPDFToWordStorage
 	WordToPDF() IWordToPDFStorage
@@ -42,34 +39,19 @@ type IStorage interface {
 }
 
 type IUserStorage interface {
-	Create(ctx context.Context, req models.CreateUser) (string, error)
+	Create(ctx context.Context, req models.SignupRequest) (string, error)
 	GetForLoginByEmail(ctx context.Context, email string) (models.LoginUser, error)
 	GetByID(ctx context.Context, id string) (*models.User, error)
-}
 
-type IOTPStorage interface {
-	Create(ctx context.Context, email string, code string, expiresAt time.Time) (string, error)
-	GetUnconfirmedByID(ctx context.Context, id string) (email string, code string, expiresAt time.Time, err error)
-	UpdateStatusToConfirmed(ctx context.Context, id string) error
-	GetByIDAndEmail(ctx context.Context, id string, email string) (bool, error)
-}
-
-type IRoleStorage interface {
-	Create(ctx context.Context, name string, createdBy string) (string, error)
-	Update(ctx context.Context, id, name string) error
-	GetAll(ctx context.Context) ([]models.Role, error)
-	Exists(ctx context.Context, id string) (bool, error)
-}
-
-type ISysuserStorage interface {
-	GetByPhone(ctx context.Context, phone string) (id, hashedPassword string, status string, err error)
-	Create(ctx context.Context, name, phone, hashedPassword, createdBy string) (string, error)
-	AssignRoles(ctx context.Context, sysuserID string, roleIDs []string) error
+	UpdatePassword(ctx context.Context, userID, newPassword string) error
+	GetPasswordByID(ctx context.Context, userID string) (string, error)
 }
 
 type IRedisStorage interface {
 	SetX(ctx context.Context, key string, value interface{}, duration time.Duration) error
 	Get(ctx context.Context, key string) (string, error)
+	Delete(ctx context.Context, key string) error // ⬅️ YANGI
+
 }
 
 type IFileStorage interface {
@@ -168,17 +150,9 @@ type IJPGToPDFStorage interface {
 	UpdateStatusAndOutput(ctx context.Context, id, status, outputFileID string) error
 }
 
-
-
 type ISharedLinkStorage interface {
 	Create(ctx context.Context, req *models.SharedLink) error
 	GetByToken(ctx context.Context, token string) (*models.SharedLink, error)
-}
-
-type AddHeaderFooterStorage interface {
-	Create(ctx context.Context, job *models.AddHeaderFooterJob) error
-	Update(ctx context.Context, job *models.AddHeaderFooterJob) error
-	GetByID(ctx context.Context, id string) (*models.AddHeaderFooterJob, error)
 }
 
 type IPDFToWordStorage interface {

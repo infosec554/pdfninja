@@ -1,29 +1,43 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type User struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
-	Status    string    `json:"status"`    
+	Status    string    `json:"status"`
+	Role      string    `json:"role"`
 	CreatedAt time.Time `json:"created_at"`
-	CreatedBy string    `json:"created_by"`
 }
 
-type GetUserByEmailRequest struct {
-	Email string `json:"email"`
-}
-
-type GetUserByEmailResponse struct {
-	ID       string `json:"id"`
-	Password string `json:"password"`
-	Status   string `json:"status"`
-}
-
-type CreateUser struct {
+type SignupRequest struct {
 	Name     string `json:"name" binding:"required"`
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
-	OtpToken string `json:"otp_confirmation_token" binding:"required"`
+}
+
+type LoginRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
+}
+
+type LoginUser struct { // Faqat login uchun DBdan o‘qiladigan struct
+	ID       string
+	Password string
+	Status   string
+	Role     string
+}
+
+type LoginResponse struct {
+	ID           string `json:"id"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	Role         string `json:"role"`
+}
+
+type SignupResponse struct {
+	ID string `json:"id"` // Foydalanuvchi ID si
 }

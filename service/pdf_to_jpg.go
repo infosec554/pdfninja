@@ -10,10 +10,10 @@ import (
 
 	"github.com/google/uuid"
 
-	"test/api/models"
-	createzipfromfiles "test/pkg/createZipFromFiles"
-	"test/pkg/logger"
-	"test/storage"
+	"convertpdfgo/api/models"
+	createzipfromfiles "convertpdfgo/pkg/createZipFromFiles"
+	"convertpdfgo/pkg/logger"
+	"convertpdfgo/storage"
 )
 
 type PDFToJPGService interface {

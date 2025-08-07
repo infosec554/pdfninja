@@ -6,8 +6,8 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"test/config"
-	"test/storage"
+	"convertpdfgo/config"
+	"convertpdfgo/storage"
 )
 
 type redisRepo struct {
@@ -18,12 +18,9 @@ func New(cfg config.Config) storage.IRedisStorage {
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     cfg.RedisHost + ":" + cfg.RedisPort,
 		Password: cfg.RedisPassword,
-		DB:       0, 
+		DB:       0,
 	})
-
-	return &redisRepo{
-		db: redisClient,
-	}
+	return &redisRepo{db: redisClient}
 }
 
 func (r *redisRepo) SetX(ctx context.Context, key string, value interface{}, duration time.Duration) error {
@@ -36,4 +33,8 @@ func (r *redisRepo) Get(ctx context.Context, key string) (string, error) {
 		return "", err
 	}
 	return result, nil
+}
+
+func (r *redisRepo) Delete(ctx context.Context, key string) error {
+	return r.db.Del(ctx, key).Err()
 }

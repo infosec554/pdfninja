@@ -9,6 +9,12 @@ import (
 	"github.com/spf13/cast"
 )
 
+type OAuthProviderConfig struct {
+	ClientID     string
+	ClientSecret string
+	RedirectURL  string
+}
+
 type Config struct {
 	PostgresHost     string
 	PostgresPort     string
@@ -33,6 +39,13 @@ type Config struct {
 
 	GotenbergURL     string
 	AsynqConcurrency int
+
+	BotToken string
+	BotDebug bool
+
+	Google OAuthProviderConfig
+	Github   OAuthProviderConfig
+	Facebook OAuthProviderConfig
 }
 
 func Load() Config {
@@ -66,6 +79,25 @@ func Load() Config {
 	cfg.SMTPSenderName = cast.ToString(getOrReturnDefault("SMTP_SENDER_NAME", "pdfninja"))
 	cfg.GotenbergURL = cast.ToString(getOrReturnDefault("GOTENBERG_URL", "http://localhost:3000"))
 
+	// ✅ Telegram bot config
+	cfg.BotToken = cast.ToString(getOrReturnDefault("BOT_TOKEN", ""))
+	cfg.BotDebug = cast.ToBool(getOrReturnDefault("BOT_DEBUG", false))
+
+	cfg.Google = OAuthProviderConfig{
+		ClientID:     cast.ToString(getOrReturnDefault("GOOGLE_CLIENT_ID", "")),
+		ClientSecret: cast.ToString(getOrReturnDefault("GOOGLE_CLIENT_SECRET", "")),
+		RedirectURL:  cast.ToString(getOrReturnDefault("GOOGLE_REDIRECT_URL", "")),
+	}
+	cfg.Github = OAuthProviderConfig{
+		ClientID:     cast.ToString(getOrReturnDefault("GITHUB_CLIENT_ID", "")),
+		ClientSecret: cast.ToString(getOrReturnDefault("GITHUB_CLIENT_SECRET", "")),
+		RedirectURL:  cast.ToString(getOrReturnDefault("GITHUB_REDIRECT_URL", "")),
+	}
+	cfg.Facebook = OAuthProviderConfig{
+		ClientID:     cast.ToString(getOrReturnDefault("FACEBOOK_CLIENT_ID", "")),
+		ClientSecret: cast.ToString(getOrReturnDefault("FACEBOOK_CLIENT_SECRET", "")),
+		RedirectURL:  cast.ToString(getOrReturnDefault("FACEBOOK_REDIRECT_URL", "")),
+	}
 
 	return cfg
 }

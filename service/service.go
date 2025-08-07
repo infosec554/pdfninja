@@ -1,25 +1,27 @@
 package service
 
 import (
-	"test/pkg/gotenberg"
-	"test/pkg/logger"
-	"test/pkg/mailer"
-	"test/storage"
+	// tgbotapi import qilinmoqda
+
+	"convertpdfgo/config"
+	"convertpdfgo/pkg/gotenberg"
+	"convertpdfgo/pkg/logger"
+	"convertpdfgo/pkg/mailer"
+	"convertpdfgo/storage"
 )
 
 type IServiceManager interface {
 	User() UserService
-	Otp() OtpService
-	Role() RoleService
-	SysUser() SysUserService
 	Mailer() MailerService
-
+	Redis() RedisService // 🆕 Qo‘shing
+	Stat() StatsService
+	Log() LogService
 	File() FileService
+
 	Merge() MergeService
 	Split() SplitService // ✅ QO‘SH!
 	RemovePage() RemovePageService
 	ExtractPage() ExtractPageService
-
 	Compress() CompressService
 	PDFToJPG() PDFToJPGService
 	Rotate() RotateService
@@ -27,24 +29,21 @@ type IServiceManager interface {
 	Crop() CropPDFService
 	Unlock() UnlockService
 	Protect() ProtectPDFService
-	Stat() StatsService
-	Log() LogService
 	JPGToPDF() JPGToPDFService
-
 	SharedLink() SharedLinkService
-	AddHeaderFooter() AddHeaderFooterService
 	PDFToWord() PDFToWordService
 	WordToPDF() WordToPDFService
 	ExcelToPDF() ExcelToPDFService
 	PowerPointToPDF() PowerPointToPDFService
 	AddWatermark() AddWatermarkService
+
+	Google() GoogleService
+	Github() GithubService
+	Facebook() FacebookService
 }
 
 type service struct {
 	userService          UserService
-	otpService           OtpService
-	roleService          RoleService
-	sysUserService       SysUserService
 	mailer               MailerService
 	mergeService         MergeService
 	fileService          FileService
@@ -61,23 +60,21 @@ type service struct {
 	statsService         StatsService
 	logService           LogService
 	jPGToPDF             JPGToPDFService
-
-	sharedLinkService      SharedLinkService
-	addHeaderFooterService AddHeaderFooterService
-
-	pdfToWordService PDFToWordService
-	wordToPDFService WordToPDFService
-	excelToPDF       ExcelToPDFService
-	powerPointToPDF  PowerPointToPDFService
-	addWatermark     AddWatermarkService
+	sharedLinkService    SharedLinkService
+	pdfToWordService     PDFToWordService
+	wordToPDFService     WordToPDFService
+	excelToPDF           ExcelToPDFService
+	powerPointToPDF      PowerPointToPDFService
+	addWatermark         AddWatermarkService
+	redisService         RedisService
+	googleService        GoogleService
+	githubService        GithubService
+	facebookService      FacebookService
 }
 
-func New(storage storage.IStorage, log logger.ILogger, mailerCore *mailer.Mailer, redis storage.IRedisStorage, gotClient gotenberg.Client) IServiceManager {
+func New(storage storage.IStorage, log logger.ILogger, mailerCore *mailer.Mailer, redis storage.IRedisStorage, gotClient gotenberg.Client, googleCfg config.OAuthProviderConfig) IServiceManager {
 	return &service{
 		userService:          NewUserService(storage, log),
-		otpService:           NewOtpService(storage, log, mailerCore, redis),
-		roleService:          NewRoleService(storage, log),
-		sysUserService:       NewSysUserService(storage, log),
 		mailer:               NewMailerService(mailerCore),
 		mergeService:         NewMergeService(storage, log),
 		fileService:          NewFileService(storage, log),
@@ -94,31 +91,21 @@ func New(storage storage.IStorage, log logger.ILogger, mailerCore *mailer.Mailer
 		statsService:         NewStatsService(storage, log),
 		logService:           NewLogService(storage, log),
 		jPGToPDF:             NewJPGToPDFService(storage, log),
-
-		sharedLinkService:      NewSharedLinkService(storage, log),
-		addHeaderFooterService: NewAddHeaderFooterService(storage, log),
-		pdfToWordService:       NewPDFToWordService(storage, log),
-		wordToPDFService:       NewWordToPDFService(storage, log, gotClient),
-		excelToPDF:             NewExcelToPDFService(storage, log, gotClient),
-		powerPointToPDF:        NewPowerPointToPDFService(storage, log, gotClient),
-		addWatermark:           NewAddWatermarkService(storage, log),
+		sharedLinkService:    NewSharedLinkService(storage, log),
+		pdfToWordService:     NewPDFToWordService(storage, log),
+		wordToPDFService:     NewWordToPDFService(storage, log, gotClient),
+		excelToPDF:           NewExcelToPDFService(storage, log, gotClient),
+		powerPointToPDF:      NewPowerPointToPDFService(storage, log, gotClient),
+		addWatermark:         NewAddWatermarkService(storage, log),
+		redisService:         NewRedisService( redis,log),
+		googleService:        NewGoogleService(GoogleOAuthConfig(googleCfg)), // <-- config ni uzatish!
+		githubService:        NewGithubService(GithubOAuthConfig(googleCfg)),
+		facebookService:      NewFacebookService(FacebookOAuthConfig(googleCfg)),
 	}
 }
 
 func (s *service) User() UserService {
 	return s.userService
-}
-
-func (s *service) Otp() OtpService {
-	return s.otpService
-}
-
-func (s *service) Role() RoleService {
-	return s.roleService
-}
-
-func (s *service) SysUser() SysUserService {
-	return s.sysUserService
 }
 
 func (s *service) Mailer() MailerService {
@@ -188,9 +175,6 @@ func (s *service) JPGToPDF() JPGToPDFService {
 func (s *service) SharedLink() SharedLinkService {
 	return s.sharedLinkService
 }
-func (s *service) AddHeaderFooter() AddHeaderFooterService {
-	return s.addHeaderFooterService
-}
 
 func (s *service) PDFToWord() PDFToWordService {
 	return s.pdfToWordService
@@ -210,4 +194,19 @@ func (s *service) PowerPointToPDF() PowerPointToPDFService {
 
 func (s *service) AddWatermark() AddWatermarkService {
 	return s.addWatermark
+}
+func (s *service) Redis() RedisService {
+	return s.redisService
+}
+
+func (s *service) Google() GoogleService {
+	return s.googleService
+}
+
+func (s *service) Github() GithubService {
+	return s.githubService
+}
+
+func (s *service) Facebook() FacebookService {
+	return s.facebookService
 }

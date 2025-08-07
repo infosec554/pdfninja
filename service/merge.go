@@ -11,9 +11,9 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 
-	"test/api/models"
-	"test/pkg/logger"
-	"test/storage"
+	"convertpdfgo/api/models"
+	"convertpdfgo/pkg/logger"
+	"convertpdfgo/storage"
 )
 
 type MergeService interface {

@@ -10,9 +10,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/jung-kurt/gofpdf"
 
-	"test/api/models"
-	"test/pkg/logger"
-	"test/storage"
+	"convertpdfgo/api/models"
+	"convertpdfgo/pkg/logger"
+	"convertpdfgo/storage"
 )
 
 type JPGToPDFService interface {

@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 
-	"test/api/models"
-	"test/pkg/logger"
-	"test/storage"
+	"convertpdfgo/api/models"
+	"convertpdfgo/pkg/logger"
+	"convertpdfgo/storage"
 )
 
 type StatsService interface {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"test/pkg/jwt"
+	"convertpdfgo/pkg/jwt"
 )
 
 // AuthorizerMiddleware tekshiradi JWT tokenni va contextga user_id va user_role qo‘shadi

@@ -1,4 +1,3 @@
--- ENUM Types
 DO $$ BEGIN
     CREATE TYPE user_status_enum AS ENUM ('active', 'deleted', 'blocked');
 EXCEPTION
@@ -6,62 +5,28 @@ EXCEPTION
 END $$;
 
 DO $$ BEGIN
-    CREATE TYPE otp_status_enum AS ENUM ('unconfirmed', 'confirmed');
+    CREATE TYPE user_role_enum AS ENUM ('user', 'admin');
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
--- 2. Table: users
 CREATE TABLE users (
-    id UUID PRIMARY KEY,
-    status user_status_enum NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    status user_status_enum NOT NULL DEFAULT 'active',
+    role user_role_enum NOT NULL DEFAULT 'user', -- "admin" yoki "user"
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW(),
-    created_by UUID
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
--- 3. Table: otp
-CREATE TABLE otp (
-    id UUID PRIMARY KEY,
-    email VARCHAR(255) NOT NULL,
-    status otp_status_enum NOT NULL,
-    code VARCHAR(6) NOT NULL,
-    expires_at TIMESTAMP
-);
 
--- 4. Table: sysusers
-CREATE TABLE sysusers (
-    id UUID PRIMARY KEY,
-    status user_status_enum NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    phone VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW(),
-    created_by UUID
-);
 
--- 5. Table: roles
-CREATE TABLE roles (
-    id UUID PRIMARY KEY,
-    status user_status_enum NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW(),
-    created_by UUID
-);
 
--- 6. Table: sysuser_roles (many-to-many)
-CREATE TABLE sysuser_roles (
-    id UUID PRIMARY KEY,
-    sysuser_id UUID NOT NULL REFERENCES sysusers(id) ON DELETE CASCADE,
-    role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE
-);
 
---************************************************ FILE STORAGE
 CREATE TABLE files (
     id UUID PRIMARY KEY,
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE, -- ❗️ NOT NULL olib tashlandi
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE, 
     file_name VARCHAR(255) NOT NULL,
     file_path TEXT NOT NULL,
     file_type VARCHAR(20) NOT NULL,
@@ -146,14 +111,7 @@ CREATE TABLE jpg_to_pdf_jobs (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE word_to_pdf_jobs (
-    id UUID PRIMARY KEY,
-    user_id UUID REFERENCES users(id),
-    input_file_id UUID NOT NULL REFERENCES files(id), -- Bitta Word fayl
-    output_file_id UUID REFERENCES files(id),
-    status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'processing', 'done', 'failed')),
-    created_at TIMESTAMP DEFAULT NOW()
-);
+
 
 CREATE TABLE pdf_to_jpg_jobs (
     id UUID PRIMARY KEY,
@@ -196,7 +154,7 @@ CREATE TABLE add_page_number_jobs (
 
 CREATE TABLE add_watermark_jobs (
     id UUID PRIMARY KEY,
-    user_id UUID,
+  user_id UUID REFERENCES users(id),
     input_file_id UUID NOT NULL,
     output_file_id UUID,
     text TEXT NOT NULL,
@@ -246,8 +204,6 @@ CREATE TABLE logs (
     level VARCHAR(10),
     created_at TIMESTAMP DEFAULT NOW()
 );
-
--- PDF Inspection
 
 
 

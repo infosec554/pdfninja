@@ -1,30 +1,4 @@
 definitions:
-  models.AddHeaderFooterJob:
-    properties:
-      created_at:
-        type: string
-      font_color:
-        type: string
-      font_size:
-        type: integer
-      footer_text:
-        type: string
-      header_text:
-        type: string
-      id:
-        type: string
-      input_file_id:
-        type: string
-      output_file_id:
-        type: string
-      position:
-        type: string
-      status:
-        description: pending, done, failed
-        type: string
-      user_id:
-        type: string
-    type: object
   models.AddPageNumberJob:
     properties:
       color:
@@ -148,6 +122,13 @@ definitions:
     - position
     - text
     type: object
+  models.ChangePasswordRequest:
+    properties:
+      new_password:
+        type: string
+      old_password:
+        type: string
+    type: object
   models.CompressJob:
     properties:
       compression:
@@ -193,33 +174,6 @@ definitions:
     - Low
     - Medium
     - High
-  models.ConfirmOtpRequest:
-    properties:
-      code:
-        type: string
-      otp_id:
-        type: string
-    type: object
-  models.CreateAddHeaderFooterRequest:
-    properties:
-      font_color:
-        description: Agar bo‘lmasa, "black" deb olinadi
-        type: string
-      font_size:
-        description: Agar 0 bo‘lsa, default 12 deb qaraladi
-        type: integer
-      footer_text:
-        type: string
-      header_text:
-        type: string
-      input_file_id:
-        type: string
-      position:
-        description: '"left", "center", "right" (default "center")'
-        type: string
-    required:
-    - input_file_id
-    type: object
   models.CreateJPGToPDFRequest:
     properties:
       input_file_ids:
@@ -240,13 +194,6 @@ definitions:
       user_id:
         description: optional (guest user uchun nil bo'lishi mumkin)
         type: string
-    type: object
-  models.CreateRole:
-    properties:
-      name:
-        type: string
-    required:
-    - name
     type: object
   models.CreateSharedLinkRequest:
     properties:
@@ -269,40 +216,6 @@ definitions:
     required:
     - input_file_id
     - split_ranges
-    type: object
-  models.CreateSysUser:
-    properties:
-      name:
-        type: string
-      password:
-        type: string
-      phone:
-        type: string
-      roles:
-        items:
-          type: string
-        type: array
-    required:
-    - name
-    - password
-    - phone
-    - roles
-    type: object
-  models.CreateUser:
-    properties:
-      email:
-        type: string
-      name:
-        type: string
-      otp_confirmation_token:
-        type: string
-      password:
-        type: string
-    required:
-    - email
-    - name
-    - otp_confirmation_token
-    - password
     type: object
   models.CropPDFJob:
     properties:
@@ -418,6 +331,15 @@ definitions:
     - input_file_id
     - page_ranges
     type: object
+  models.FacebookAuthRequest:
+    properties:
+      code:
+        description: Facebookdan kelgan code
+        example: AQDt1n...
+        type: string
+    required:
+    - code
+    type: object
   models.File:
     properties:
       fileName:
@@ -435,6 +357,23 @@ definitions:
       userID:
         description: NULL bo‘lishi mumkin
         type: string
+    type: object
+  models.GithubAuthRequest:
+    properties:
+      code:
+        example: AQDt1n...
+        type: string
+    required:
+    - code
+    type: object
+  models.GoogleAuthRequest:
+    properties:
+      code:
+        description: Google authorization code
+        example: 4/0AX4XfW...
+        type: string
+    required:
+    - code
     type: object
   models.JPGToPDFJob:
     properties:
@@ -486,8 +425,6 @@ definitions:
         type: string
       password:
         type: string
-      user_type:
-        type: string
     required:
     - email
     - password
@@ -496,6 +433,15 @@ definitions:
     properties:
       access_token:
         type: string
+      id:
+        type: string
+      refresh_token:
+        type: string
+      role:
+        type: string
+    type: object
+  models.LogoutRequest:
+    properties:
       refresh_token:
         type: string
     type: object
@@ -670,22 +616,6 @@ definitions:
       statusCode:
         type: integer
     type: object
-  models.Role:
-    properties:
-      created_at:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-    type: object
-  models.RoleListResponse:
-    properties:
-      roles:
-        items:
-          $ref: '#/definitions/models.Role'
-        type: array
-    type: object
   models.RotateJob:
     properties:
       angle:
@@ -724,13 +654,6 @@ definitions:
     - input_file_id
     - pages
     type: object
-  models.SendOtpRequest:
-    properties:
-      email:
-        type: string
-    required:
-    - email
-    type: object
   models.SharedLink:
     properties:
       created_at:
@@ -742,6 +665,25 @@ definitions:
       id:
         type: string
       shared_token:
+        type: string
+    type: object
+  models.SignupRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  models.SignupResponse:
+    properties:
+      id:
+        description: Foydalanuvchi ID si
         type: string
     type: object
   models.SplitJob:
@@ -797,24 +739,17 @@ definitions:
     - input_file_id
     - password
     type: object
-  models.UpdateRole:
-    properties:
-      id:
-        type: string
-      name:
-        type: string
-    type: object
   models.User:
     properties:
       created_at:
-        type: string
-      created_by:
         type: string
       email:
         type: string
       id:
         type: string
       name:
+        type: string
+      role:
         type: string
       status:
         type: string
@@ -1250,69 +1185,6 @@ paths:
       summary: Get extract job by ID
       tags:
       - pdf-extract
-  /api/pdf/header-footer:
-    post:
-      consumes:
-      - application/json
-      description: PDF faylga yuqori yoki quyi matn qo‘shish
-      parameters:
-      - description: Header/Footer parametrlari
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.CreateAddHeaderFooterRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Add header and/or footer to PDF
-      tags:
-      - pdf-header-footer
-  /api/pdf/header-footer/{id}:
-    get:
-      description: PDF faylga header/footer qo‘shish jarayonining holatini olish
-      parameters:
-      - description: Job ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.AddHeaderFooterJob'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Get header/footer job status
-      tags:
-      - pdf-header-footer
   /api/pdf/jpg-to-pdf:
     post:
       consumes:
@@ -2144,6 +2016,147 @@ paths:
       summary: Foydalanuvchi statistikasi
       tags:
       - stats
+  /auth/facebook:
+    post:
+      consumes:
+      - application/json
+      description: Facebook OAuth code orqali login yoki ro‘yxatdan o‘tish (JWT tokenlar
+        qaytaradi)
+      parameters:
+      - description: Facebook authorization code
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.FacebookAuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Facebook orqali login yoki registratsiya
+      tags:
+      - auth
+  /auth/github:
+    post:
+      consumes:
+      - application/json
+      description: GitHub OAuth code orqali login yoki ro‘yxatdan o‘tish (JWT tokenlar
+        qaytaradi)
+      parameters:
+      - description: GitHub authorization code
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.GithubAuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: GitHub orqali login yoki registratsiya
+      tags:
+      - auth
+  /auth/google:
+    post:
+      consumes:
+      - application/json
+      description: Google OAuth code orqali login yoki ro‘yxatdan o‘tish (JWT tokenlar
+        qaytaradi)
+      parameters:
+      - description: Google authorization code
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.GoogleAuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Google orqali login yoki registratsiya
+      tags:
+      - auth
+  /change-password:
+    post:
+      consumes:
+      - application/json
+      description: Change password (user must send old and new password)
+      parameters:
+      - description: Change password
+        in: body
+        name: change_password
+        required: true
+        schema:
+          $ref: '#/definitions/models.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Change user password
+      tags:
+      - user
   /file/{id}:
     delete:
       parameters:
@@ -2274,16 +2287,41 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
+      summary: User login
+      tags:
+      - auth
+  /logout:
+    post:
+      consumes:
+      - application/json
+      description: JWT tokenlarni va sessionni bekor qiladi
+      parameters:
+      - description: Logout request (refresh_token optional)
+        in: body
+        name: data
+        schema:
+          $ref: '#/definitions/models.LogoutRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.Response'
       security:
       - ApiKeyAuth: []
-      summary: Login user
+      summary: Logout (chiqish)
       tags:
       - auth
   /me:
     get:
       consumes:
       - application/json
-      description: Foydalanuvchining o‘z profilini olish (JWT token orqali)
+      description: Get user profile (JWT token required)
       produces:
       - application/json
       responses:
@@ -2304,76 +2342,6 @@ paths:
       summary: Get my profile
       tags:
       - user
-  /otp/confirm:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: otp info
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.ConfirmOtpRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Confirm OTP code
-      tags:
-      - otp
-  /otp/send:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: email info
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.SendOtpRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Send OTP to email
-      tags:
-      - otp
   /refresh-token:
     post:
       consumes:
@@ -2405,172 +2373,39 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Refresh access token
       tags:
       - auth
-  /role:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: role
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.CreateRole'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Create role
-      tags:
-      - role
-  /role/{id}:
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: role_id
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: update info
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.UpdateRole'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Update role
-      tags:
-      - role
-  /roles:
-    get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.RoleListResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: List all roles
-      tags:
-      - role
   /signup:
     post:
       consumes:
       - application/json
-      description: Register a new user after OTP confirmation
+      description: Register a new user (name, email, password)
       parameters:
       - description: Signup data
         in: body
         name: user
         required: true
         schema:
-          $ref: '#/definitions/models.CreateUser'
+          $ref: '#/definitions/models.SignupRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.SignupResponse'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "401":
-          description: Unauthorized
           schema:
             $ref: '#/definitions/models.Response'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Create new user
+      summary: Register a new user
       tags:
       - auth
-  /sysuser:
-    post:
-      consumes:
-      - application/json
-      description: Superadmin tomonidan tizim user (admin, buxgalter) yaratish
-      parameters:
-      - description: sysuser info
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.CreateSysUser'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Create system user
-      tags:
-      - sysuser
 securityDefinitions:
   ApiKeyAuth:
     in: header

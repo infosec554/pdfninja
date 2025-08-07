@@ -5,9 +5,9 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"test/api/models"
-	"test/pkg/logger"
-	"test/storage"
+	"convertpdfgo/api/models"
+	"convertpdfgo/pkg/logger"
+	"convertpdfgo/storage"
 )
 
 type fileRepo struct {
@@ -95,7 +95,6 @@ func (f *fileRepo) ListByUser(ctx context.Context, userID string) ([]models.File
 	}
 	return files, nil
 }
-
 
 func (r *fileRepo) GetOldFiles(ctx context.Context, olderThanDays int) ([]models.OldFile, error) {
 	query := `

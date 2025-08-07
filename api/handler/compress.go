@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"test/api/models"
+	"convertpdfgo/api/models"
 )
 
 // CreateCompressJob godoc

@@ -12,8 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
-	"test/api/models"
-	"test/pkg/faylchek"
+	"convertpdfgo/api/models"
+	"convertpdfgo/pkg/faylchek"
 )
 
 // UploadFile godoc

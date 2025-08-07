@@ -1,6 +1,6 @@
 package service
 
-import "test/pkg/mailer"
+import "convertpdfgo/pkg/mailer"
 
 type MailerService interface {
 	Send(to, subject, body string) error

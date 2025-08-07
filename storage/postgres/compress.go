@@ -7,8 +7,8 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"test/api/models"
-	"test/pkg/logger"
+	"convertpdfgo/api/models"
+	"convertpdfgo/pkg/logger"
 )
 
 type compressRepo struct {

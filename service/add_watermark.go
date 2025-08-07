@@ -11,9 +11,9 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 
-	"test/api/models"
-	"test/pkg/logger"
-	"test/storage"
+	"convertpdfgo/api/models"
+	"convertpdfgo/pkg/logger"
+	"convertpdfgo/storage"
 )
 
 type AddWatermarkService interface {

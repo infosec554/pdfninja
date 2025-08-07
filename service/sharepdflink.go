@@ -6,10 +6,10 @@ import (
 
 	"github.com/google/uuid"
 
-	"test/api/models"
-	"test/pkg/logger"
-	"test/pkg/utils" // Base62 util kutubxonasini qo'shish
-	"test/storage"
+	"convertpdfgo/api/models"
+	"convertpdfgo/pkg/logger"
+	"convertpdfgo/pkg/utils" // Base62 util kutubxonasini qo'shish
+	"convertpdfgo/storage"
 )
 
 type SharedLinkService interface {

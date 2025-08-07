@@ -8,10 +8,10 @@ import (
 
 	"github.com/google/uuid"
 
-	"test/api/models"
-	"test/pkg/gotenberg" // ⬅️ Gotenberg client paketini import qilasiz
-	"test/pkg/logger"
-	"test/storage"
+	"convertpdfgo/api/models"
+	"convertpdfgo/pkg/gotenberg" // ⬅️ Gotenberg client paketini import qilasiz
+	"convertpdfgo/pkg/logger"
+	"convertpdfgo/storage"
 )
 
 type WordToPDFService interface {

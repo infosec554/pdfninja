@@ -11,9 +11,9 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"test/config"
-	"test/pkg/logger"
-	"test/storage"
+	"convertpdfgo/config"
+	"convertpdfgo/pkg/logger"
+	"convertpdfgo/storage"
 )
 
 type Store struct {
@@ -74,28 +74,26 @@ func (s *Store) User() storage.IUserStorage {
 	return NewUserRepo(s.pool, s.log)
 }
 
-func (s *Store) OTP() storage.IOTPStorage {
-	return NewOTPRepo(s.pool, s.log)
-}
 
-func (s *Store) Role() storage.IRoleStorage {
-	return NewRoleRepo(s.pool, s.log)
-}
 
-func (s *Store) Sysuser() storage.ISysuserStorage {
-	return NewSysuserRepo(s.pool, s.log)
-}
+
 
 func (s *Store) Redis() storage.IRedisStorage {
 	return s.redis
 }
-
-func (s *Store) Merge() storage.IMergeStorage {
-	return NewMergeRepo(s.pool, s.log)
+func (s *Store) Stat() storage.IStatStorage {
+	return NewStatsRepo(s.pool, s.log)
+}
+func (s *Store) Log() storage.ILogService {
+	return NewLogRepo(s.pool, s.log)
 }
 
 func (s *Store) File() storage.IFileStorage {
 	return NewFileRepo(s.pool, s.log)
+}
+
+func (s *Store) Merge() storage.IMergeStorage {
+	return NewMergeRepo(s.pool, s.log)
 }
 
 func (s *Store) Split() storage.ISplitStorage {
@@ -136,22 +134,12 @@ func (s *Store) Protect() storage.IProtectStorage {
 	return NewProtectRepo(s.pool, s.log)
 }
 
-func (s *Store) Stat() storage.IStatStorage {
-	return NewStatsRepo(s.pool, s.log)
-}
-func (s *Store) Log() storage.ILogService {
-	return NewLogRepo(s.pool, s.log)
-}
 func (s *Store) JPGToPDF() storage.IJPGToPDFStorage {
 	return NewJPGToPDFRepo(s.pool, s.log)
 }
 
 func (s *Store) SharedLink() storage.ISharedLinkStorage {
 	return NewSharedLinkRepo(s.pool, s.log)
-}
-
-func (s *Store) AddHeaderFooter() storage.AddHeaderFooterStorage {
-	return NewAddHeaderFooterRepo(s.pool, s.log)
 }
 
 func (s *Store) PDFToWord() storage.IPDFToWordStorage {

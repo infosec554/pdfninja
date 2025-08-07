@@ -2,9 +2,10 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"test/api/models"
-	"test/pkg/logger"
-	"test/service"
+
+	"convertpdfgo/api/models"
+	"convertpdfgo/pkg/logger"
+	"convertpdfgo/service"
 )
 
 type Handler struct {

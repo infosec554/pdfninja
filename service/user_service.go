@@ -2,16 +2,23 @@ package service
 
 import (
 	"context"
+	"errors"
 
-	"test/api/models"
-	"test/pkg/logger"
-	"test/storage"
+	"convertpdfgo/api/models"
+	"convertpdfgo/pkg/logger"
+	"convertpdfgo/pkg/security"
+	"convertpdfgo/storage"
 )
 
 type UserService interface {
-	Create(ctx context.Context, req models.CreateUser) (string, error)
-	GetForLoginByEmail(context.Context, string) (models.LoginUser, error) // ✅ yangi nom
-	GetByID(ctx context.Context, id string) (*models.User, error) 
+	Create(ctx context.Context, req models.SignupRequest) (string, error)
+	GetForLoginByEmail(context.Context, string) (models.LoginUser, error) 
+	GetByID(ctx context.Context, id string) (*models.User, error)
+
+	ChangePassword(ctx context.Context, userID, oldPassword, newPassword string) error
+	GoogleAuth(ctx context.Context, email, name, googleID string) (string, error)
+	GithubAuth(ctx context.Context, email, name, githubID string) (string, error)
+	FacebookAuth(ctx context.Context, email, name, facebookID string) (string, error)
 }
 
 type userService struct {
@@ -26,7 +33,7 @@ func NewUserService(stg storage.IStorage, log logger.ILogger) UserService {
 	}
 }
 
-func (s *userService) Create(ctx context.Context, req models.CreateUser) (string, error) {
+func (s *userService) Create(ctx context.Context, req models.SignupRequest) (string, error) {
 	s.log.Info("UserService.Create called", logger.String("email", req.Email))
 
 	id, err := s.stg.Create(ctx, req)
@@ -52,8 +59,65 @@ func (s *userService) GetForLoginByEmail(ctx context.Context, email string) (mod
 	return user, nil
 }
 
-
 func (s *userService) GetByID(ctx context.Context, id string) (*models.User, error) {
 	s.log.Info("userService.GetByID called")
 	return s.stg.GetByID(ctx, id)
+}
+func (s *userService) ChangePassword(ctx context.Context, userID, oldPassword, newPassword string) error {
+	hashedOldPassword, err := s.stg.GetPasswordByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	if err := security.CompareHashAndPassword(hashedOldPassword, oldPassword); err != nil {
+		return errors.New("old password is incorrect")
+	}
+
+	hashedNewPassword, err := security.HashPassword(newPassword)
+	if err != nil {
+		return errors.New("failed to hash new password")
+	}
+
+	return s.stg.UpdatePassword(ctx, userID, hashedNewPassword)
+}
+
+func (s *userService) GoogleAuth(ctx context.Context, email, name, googleID string) (string, error) {
+	user, err := s.stg.GetForLoginByEmail(ctx, email)
+	if err == nil {
+		return user.ID, nil
+	}
+	req := models.SignupRequest{
+		Name:     name,
+		Email:    email,
+		Password: "",
+	}
+	return s.stg.Create(ctx, req)
+}
+
+func (s *userService) GithubAuth(ctx context.Context, email, name, githubID string) (string, error) {
+	user, err := s.stg.GetForLoginByEmail(ctx, email)
+	if err == nil {
+		return user.ID, nil // Login
+	}
+	req := models.SignupRequest{
+		Name:     name,
+		Email:    email,
+		Password: "", 
+	}
+	return s.stg.Create(ctx, req)
+}
+
+
+func (s *userService) FacebookAuth(ctx context.Context, email, name, facebookID string) (string, error) {
+	user, err := s.stg.GetForLoginByEmail(ctx, email)
+	if err == nil {
+		return user.ID, nil // Login
+	}
+	req := models.SignupRequest{
+		Name:     name,
+		Email:    email,
+		Password: "",          // Facebook login uchun password kerakmas
+		// FacebookID: facebookID, // Agar modeli va storage-da field bo‘lsa
+	}
+	return s.stg.Create(ctx, req)
 }

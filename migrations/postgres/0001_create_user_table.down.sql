@@ -1,4 +1,5 @@
 -- TOZALASH (avval drop, so'ng create)
+
 DROP TABLE IF EXISTS powerpoint_to_pdf_jobs;
 DROP TABLE IF EXISTS excel_to_pdf_jobs;
 DROP TABLE IF EXISTS word_to_pdf_jobs;
@@ -24,11 +25,6 @@ DROP TABLE IF EXISTS merge_job_input_files;
 DROP TABLE IF EXISTS merge_jobs;
 DROP TABLE IF EXISTS organize_jobs;
 DROP TABLE IF EXISTS files;
-DROP TABLE IF EXISTS sysuser_roles;
-DROP TABLE IF EXISTS sysusers;
-DROP TABLE IF EXISTS roles;
-DROP TABLE IF EXISTS otp;
 DROP TABLE IF EXISTS users;
 
 DROP TYPE IF EXISTS user_status_enum;
-DROP TYPE IF EXISTS otp_status_enum;
