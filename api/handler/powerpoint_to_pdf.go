@@ -20,7 +20,7 @@ import (
 // @Success      201 {object} models.Response{data=string} "job_id qaytadi"
 // @Failure      400 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/pdf/ppt-to-pdf [post]
+// @Router       /pdf/ppt-to-pdf [post]
 func (h *Handler) CreatePowerPointToPDF(c *gin.Context) {
 	var req models.PowerPointToPDFRequest
 
@@ -64,7 +64,7 @@ func (h *Handler) CreatePowerPointToPDF(c *gin.Context) {
 // @Success      200 {object} models.PowerPointToPDFJob
 // @Failure      404 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/pdf/ppt-to-pdf/{id} [get]
+// @Router       /pdf/ppt-to-pdf/{id} [get]
 func (h *Handler) GetPowerPointToPDFJob(c *gin.Context) {
 	jobID := c.Param("id")
 

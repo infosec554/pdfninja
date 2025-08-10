@@ -20,7 +20,7 @@ import (
 // @Success      201 {object} map[string]string
 // @Failure      400 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/pdf/pdf-to-jpg [post]
+// @Router       /pdf/pdf-to-jpg [post]
 func (h *Handler) CreatePDFToJPG(c *gin.Context) {
 	var req models.PDFToJPGRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -56,7 +56,7 @@ func (h *Handler) CreatePDFToJPG(c *gin.Context) {
 // @Success      200 {object} models.PDFToJPGJob
 // @Failure      404 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/pdf/pdf-to-jpg/{id} [get]
+// @Router       /pdf/pdf-to-jpg/{id} [get]
 func (h *Handler) GetPDFToJPG(c *gin.Context) {
 	jobID := c.Param("id")
 

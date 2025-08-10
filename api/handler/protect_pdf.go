@@ -20,7 +20,7 @@ import (
 // @Success      201 {object} map[string]string
 // @Failure      400 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/pdf/protect [post]
+// @Router       /pdf/protect [post]
 func (h *Handler) CreateProtectJob(c *gin.Context) {
 	var req models.ProtectPDFRequest
 
@@ -61,7 +61,7 @@ func (h *Handler) CreateProtectJob(c *gin.Context) {
 // @Param        id path string true "Job ID"
 // @Success      200 {object} models.ProtectPDFJob
 // @Failure      404 {object} models.Response
-// @Router       /api/pdf/protect/{id} [get]
+// @Router       /pdf/protect/{id} [get]
 func (h *Handler) GetProtectJob(c *gin.Context) {
 	jobID := c.Param("id")
 

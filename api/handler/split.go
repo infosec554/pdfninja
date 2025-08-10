@@ -11,7 +11,7 @@ import (
 )
 
 // CreateSplitJob godoc
-// @Router       /api/pdf/split [post]
+// @Router       /pdf/split [post]
 // @Summary      Create split job
 // @Tags         pdf-split
 // @Accept       json
@@ -48,7 +48,7 @@ func (h Handler) CreateSplitJob(c *gin.Context) {
 }
 
 // GetSplitJob godoc
-// @Router /api/pdf/split/{id} [get] ✅
+// @Router /pdf/split/{id} [get] ✅
 // @Summary      Get split job by ID
 // @Tags         pdf-split
 // @Accept       json

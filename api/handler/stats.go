@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetUserStats godoc
+// @Router       /stats/user [get]        // ✅ "/api" yoki "/v1" yo'q
 // @Summary      Foydalanuvchi statistikasi
 // @Description  Foydalanuvchining PDF bo‘yicha statistikasi (birlashtirish, bo‘lish va h.k.)
 // @Tags         stats
@@ -17,7 +17,6 @@ import (
 // @Success      200 {object} models.UserStats
 // @Failure      401 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/stats/user [get]
 // @Security     ApiKeyAuth
 func (h Handler) GetUserStats(c *gin.Context) {
 	userID := c.GetString("user_id") // JWT middleware orqali olingan

@@ -20,7 +20,7 @@ import (
 // @Success      201 {object} models.Response{data=string} "Yaratilgan job ID"
 // @Failure      400 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/pdf/excel-to-pdf [post]
+// @Router       /pdf/excel-to-pdf [post]
 func (h *Handler) CreateExcelToPDF(c *gin.Context) {
 	var req models.ExcelToPDFRequest
 
@@ -62,7 +62,7 @@ func (h *Handler) CreateExcelToPDF(c *gin.Context) {
 // @Success      200 {object} models.ExcelToPDFJob
 // @Failure      404 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/pdf/excel-to-pdf/{id} [get]
+// @Router       /pdf/excel-to-pdf/{id} [get]
 func (h *Handler) GetExcelToPDFJob(c *gin.Context) {
 	jobID := c.Param("id")
 

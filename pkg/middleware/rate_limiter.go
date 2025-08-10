@@ -13,7 +13,7 @@ var (
 	visitors  = make(map[string]*rate.Limiter)
 	mu        sync.Mutex
 	rateLimit = rate.Every(1 * time.Second) // 1 request per second
-	burst     = 3
+	burst     = 100
 )
 
 func getVisitor(key string) *rate.Limiter {

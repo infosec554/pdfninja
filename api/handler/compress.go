@@ -11,8 +11,7 @@ import (
 )
 
 // CreateCompressJob godoc
-// @Router       /api/pdf/compress [POST]
-// @Security     ApiKeyAuth
+// @Router       /pdf/compress [POST]
 // @Summary      Create compress job
 // @Tags         pdf-compress
 // @Accept       json
@@ -62,8 +61,7 @@ func (h *Handler) CreateCompressJob(c *gin.Context) {
 }
 
 // GetCompressJob godoc
-// @Router       /api/pdf/compress/{id} [GET]
-// @Security     ApiKeyAuth
+// @Router       /pdf/compress/{id} [GET]
 // @Summary      Get compress job by ID
 // @Tags         pdf-compress
 // @Accept       json
@@ -72,7 +70,6 @@ func (h *Handler) CreateCompressJob(c *gin.Context) {
 // @Success      200 {object} models.CompressJob
 // @Failure      404 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/pdf/compress/{id} [get]
 func (h *Handler) GetCompressJob(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt"
 )
 
 func ParseToken(tokenString string) (map[string]interface{}, error) {

@@ -11,8 +11,6 @@ import (
 )
 
 // CreateJPGToPDF godoc
-// @Router       /api/pdf/jpg-to-pdf [POST]
-// @Security     ApiKeyAuth
 // @Summary      Convert JPG to PDF
 // @Description  Convert a JPG to PDF
 // @Tags         jpg-to-pdf
@@ -22,7 +20,7 @@ import (
 // @Success      201 {object} map[string]string
 // @Failure      400 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/pdf/jpg-to-pdf [post]
+// @Router       /pdf/jpg-to-pdf [post]
 func (h Handler) CreateJPGToPDF(c *gin.Context) {
 	var req models.CreateJPGToPDFRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -60,8 +58,7 @@ func (h Handler) CreateJPGToPDF(c *gin.Context) {
 }
 
 // GetJPGToPDFJob godoc
-// @Router       /api/pdf/jpg-to-pdf/{id} [GET]
-// @Security     ApiKeyAuth
+// @Router       /pdf/jpg-to-pdf/{id} [GET]
 // @Summary      Get JPG to PDF job
 // @Description  JPG to PDF konversiya ishining holatini olish
 // @Tags         jpg-to-pdf
@@ -70,7 +67,6 @@ func (h Handler) CreateJPGToPDF(c *gin.Context) {
 // @Success      200 {object} models.JPGToPDFJob
 // @Failure      404 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/pdf/jpg-to-pdf/{id} [get]
 func (h Handler) GetJPGToPDFJob(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {

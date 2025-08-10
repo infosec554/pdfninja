@@ -18,10 +18,32 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
+   updated_at TIMESTAMP DEFAULT NOW()
+
+);
+
+ALTER TABLE users 
+ADD COLUMN language VARCHAR(50) DEFAULT 'en',   -- Foydalanuvchi tilini saqlash
+ADD COLUMN notifications BOOLEAN DEFAULT TRUE;   -- Bildirishnomalarni olishni xohlayaptimi
+
+CREATE TABLE user_preferences (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,  -- Foydalanuvchi ID
+    language VARCHAR(50) DEFAULT 'en',  -- Foydalanuvchi tilini saqlash (default: 'en')
+    notifications BOOLEAN DEFAULT TRUE,  -- Foydalanuvchi bildirishnomalarni olishni xohlayaptimi
+    created_at TIMESTAMP DEFAULT NOW(), 
+    updated_at TIMESTAMP DEFAULT NOW()
 );
 
 
 
+CREATE TABLE password_reset_tokens (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    token VARCHAR(255) UNIQUE NOT NULL,  -- Parolni tiklash uchun token
+    created_at TIMESTAMP DEFAULT NOW(), 
+    expires_at TIMESTAMP                -- Tokenning amal qilish muddati
+);
 
 
 CREATE TABLE files (
@@ -29,7 +51,7 @@ CREATE TABLE files (
     user_id UUID REFERENCES users(id) ON DELETE CASCADE, 
     file_name VARCHAR(255) NOT NULL,
     file_path TEXT NOT NULL,
-    file_type VARCHAR(20) NOT NULL,
+    file_type VARCHAR(255) NOT NULL,
     file_size INTEGER NOT NULL,
     uploaded_at TIMESTAMP DEFAULT NOW()
 );
@@ -154,7 +176,7 @@ CREATE TABLE add_page_number_jobs (
 
 CREATE TABLE add_watermark_jobs (
     id UUID PRIMARY KEY,
-  user_id UUID REFERENCES users(id),
+     user_id UUID REFERENCES users(id),
     input_file_id UUID NOT NULL,
     output_file_id UUID,
     text TEXT NOT NULL,
@@ -260,3 +282,34 @@ CREATE TABLE powerpoint_to_pdf_jobs (
     created_at TIMESTAMP DEFAULT now()
 );
 
+CREATE TABLE files_deletion_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    file_id UUID NOT NULL,
+    user_id UUID NULL,           -- fayl egasi, agar ma’lum bo‘lsa
+    deleted_by UUID NOT NULL,    -- o‘chirgan foydalanuvchi yoki sistema
+    deleted_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    reason TEXT NULL             -- o‘chirish sababi (ixtiyoriy)
+);
+CREATE TABLE contact_messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+CREATE TABLE  contact_messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name        VARCHAR(255) NOT NULL,
+    email       VARCHAR(255) NOT NULL,
+    subject     VARCHAR(200) NOT NULL,
+    message     TEXT         NOT NULL,
+    terms_accepted BOOLEAN   NOT NULL DEFAULT false,
+    created_at  TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_contact_messages_created_at
+ON contact_messages(created_at DESC);
+
+ALTER TABLE contact_messages
+    ADD COLUMN IF NOT EXISTS is_read   BOOLEAN   NOT NULL DEFAULT false,
+    ADD COLUMN IF NOT EXISTS replied_at TIMESTAMP NULL;

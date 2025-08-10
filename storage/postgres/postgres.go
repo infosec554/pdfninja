@@ -74,10 +74,6 @@ func (s *Store) User() storage.IUserStorage {
 	return NewUserRepo(s.pool, s.log)
 }
 
-
-
-
-
 func (s *Store) Redis() storage.IRedisStorage {
 	return s.redis
 }
@@ -159,4 +155,20 @@ func (s *Store) PowerPointToPDF() storage.IPowerPointToPDFStorage {
 
 func (s *Store) AddWatermark() storage.IAddWatermarkStorage {
 	return NewAddWatermarkRepo(s.pool, s.log)
+}
+
+func (s *Store) FileDeletionLog() storage.IFileDeletionLogStorage {
+	return NewFileDeletionLogRepo(s.pool, s.log)
+}
+
+func (s *Store) AdminJob() storage.IAdminJobStorage {
+	return NewAdminJobRepo(s.pool, s.log)
+}
+
+func (s *Store) JobDownload() storage.JobDownloadStorage {
+	return NewJobDownloadStorage(s.pool, s.log)
+}
+
+func (s *Store) Contact() storage.IContactStorage {
+	return NewContactRepo(s.pool, s.log)
 }

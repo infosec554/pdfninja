@@ -10,7 +10,7 @@ import (
 	"convertpdfgo/api/models"
 )
 
-// @Router       /api/pdf/share [POST]
+// @Router       /pdf/share [POST]
 // @Summary      Faylga ulashish havolasi yaratish
 // @Description  PDF faylni boshqalar bilan ulashish uchun link yaratish
 // @Tags         share
@@ -51,7 +51,7 @@ func (h *Handler) CreateSharedLink(c *gin.Context) {
 	handleResponse(c, h.log, "shared link created", http.StatusCreated, gin.H{"token": token})
 }
 
-// @Router       /api/pdf/share/{token} [GET]
+// @Router       /pdf/share/{token} [GET]
 // @Summary      Ulashilgan faylni olish
 // @Description  Token orqali faylga kirish
 // @Tags         share

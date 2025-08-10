@@ -11,7 +11,8 @@ var AllowedExtensions = map[string]bool{
 	".docx": true,
 	".xlsx": true,
 	".txt":  true,
-	".pttx":  true,
+	".pttx": true,
+	".pptx":      true,
 }
 
 // Bloklangan kengaytmalar ro‘yxati (aniq rad qilinadi, xavfli fayllar)

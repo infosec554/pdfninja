@@ -9,61 +9,106 @@ import (
 	"convertpdfgo/pkg/jwt"
 )
 
-// AuthorizerMiddleware tekshiradi JWT tokenni va contextga user_id va user_role qo‘shadi
-func (h Handler) AuthorizerMiddleware(c *gin.Context) {
-	// 1. Headerdan "Authorization"ni olish
-	authHeader := c.GetHeader("Authorization")
-	if authHeader == "" {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header missing"})
-		return
+const (
+	ctxUserIDKey = "user_id"
+	ctxRoleKey   = "role"
+)
+
+// ===== Helper: tokenni bir nechta joydan olish (Authorization, query, cookie) =====
+func extractBearerToken(c *gin.Context) string {
+	// 1) Authorization: Bearer <token>
+	if ah := c.GetHeader("Authorization"); ah != "" {
+		parts := strings.Fields(ah)
+		if len(parts) == 2 && strings.EqualFold(parts[0], "Bearer") && parts[1] != "" {
+			return parts[1]
+		}
 	}
-
-	// 2. "Bearer TOKEN" formatini tekshirish
-	parts := strings.Split(authHeader, " ")
-	if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid Authorization format. Use 'Bearer {token}'"})
-		return
+	// 2) Swagger qulayligi uchun: ?token=<jwt>
+	if t := c.Query("token"); t != "" {
+		return t
 	}
+	// 3) Cookie (agar ishlatsang)
+	if cookie, err := c.Cookie("access_token"); err == nil && cookie != "" {
+		return cookie
+	}
+	return ""
+}
 
-	tokenStr := parts[1]
-
-	// 3. Tokenni JWT orqali parse qilish
-	claims, err := jwt.ExtractClaims(tokenStr)
+// ===== Helper: claimsdan user_id va role ni olish, contextga qo‘yish =====
+func setAuthContextFromToken(c *gin.Context, token string) error {
+	claims, err := jwt.ExtractClaims(token)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
-		return
+		return err
 	}
 
-	// 4. user_id mavjudligini tekshirish
-	userID, ok := claims["user_id"].(string)
-	if !ok || userID == "" {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user_id not found in token"})
-		return
+	uid, _ := claims["user_id"].(string)
+	if uid == "" {
+		return &authErr{msg: "user_id not found in token"}
+	}
+	// role nomi: `role` yoki legacy `user_role`
+	role, _ := claims["role"].(string)
+	if role == "" {
+		role, _ = claims["user_role"].(string)
 	}
 
-	// 5. Contextga user_id qo‘shamiz
-	c.Set("user_id", userID)
-
-	// 6. Agar user_role mavjud bo‘lsa, uni ham qo‘shamiz (ixtiyoriy)
-	if role, ok := claims["user_role"].(string); ok {
-		c.Set("user_role", role)
+	c.Set(ctxUserIDKey, uid)
+	if role != "" {
+		c.Set(ctxRoleKey, role)
 	}
+	return nil
+}
 
-	// 7. Davom ettiramiz
+type authErr struct{ msg string }
+
+func (e *authErr) Error() string { return e.msg }
+
+// ====== 1) AuthOptional: token bo‘lsa o‘qiydi, bo‘lmasa guest ======
+func (h Handler) AuthOptional(c *gin.Context) {
+	if tok := extractBearerToken(c); tok != "" {
+		_ = setAuthContextFromToken(c, tok) // xato bo‘lsa ham guest sifatida davom
+	}
 	c.Next()
 }
-func (h Handler) AdminMiddleware(c *gin.Context) {
-	roleVal, exists := c.Get("user_role")
-	if !exists {
-		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "user_role missing"})
+
+// ====== 2) AuthRequired: token majburiy ======
+func (h Handler) AuthRequired(c *gin.Context) {
+	tok := extractBearerToken(c)
+	if tok == "" {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing token"})
 		return
 	}
-
-	role, ok := roleVal.(string)
-	if !ok || role != "admin" {
-		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "only admin access"})
+	if err := setAuthContextFromToken(c, tok); err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired token"})
 		return
 	}
-
 	c.Next()
+}
+
+// ====== 3) RoleGuard: ruxsat etilgan rollar ro‘yxati ======
+func (h Handler) RoleGuard(allowed ...string) gin.HandlerFunc {
+	allowedSet := map[string]struct{}{}
+	for _, r := range allowed {
+		allowedSet[strings.ToLower(strings.TrimSpace(r))] = struct{}{}
+	}
+	return func(c *gin.Context) {
+		roleVal, ok := c.Get(ctxRoleKey)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "role missing"})
+			return
+		}
+		role, _ := roleVal.(string)
+		if _, ok := allowedSet[strings.ToLower(role)]; !ok {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "forbidden"})
+			return
+		}
+		c.Next()
+	}
+}
+
+// ===== Qo‘shimcha helperlar (kerak bo‘lsa) =====
+func GetUserID(c *gin.Context) string {
+	return c.GetString(ctxUserIDKey)
+}
+func GetRole(c *gin.Context) string {
+	return c.GetString(ctxRoleKey)
 }

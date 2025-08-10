@@ -20,7 +20,7 @@ import (
 // @Success      201 {object} map[string]string
 // @Failure      400 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/pdf/crop [post]
+// @Router       /pdf/crop [post]
 func (h *Handler) CreateCropJob(c *gin.Context) {
 	var req models.CropPDFRequest
 
@@ -67,7 +67,7 @@ func (h *Handler) CreateCropJob(c *gin.Context) {
 // @Param        id path string true "Job ID"
 // @Success      200 {object} models.CropPDFJob
 // @Failure      404 {object} models.Response
-// @Router       /api/pdf/crop/{id} [get]
+// @Router       /pdf/crop/{id} [get]
 func (h *Handler) GetCropJob(c *gin.Context) {
 	jobID := c.Param("id")
 

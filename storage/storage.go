@@ -12,6 +12,7 @@ type IStorage interface {
 
 	Redis() IRedisStorage
 	Close()
+
 	Merge() IMergeStorage
 	File() IFileStorage
 	Split() ISplitStorage
@@ -36,15 +37,36 @@ type IStorage interface {
 	ExcelToPDF() IExcelToPDFStorage
 	PowerPointToPDF() IPowerPointToPDFStorage
 	AddWatermark() IAddWatermarkStorage
+	FileDeletionLog() IFileDeletionLogStorage
+
+	AdminJob() IAdminJobStorage
+
+	JobDownload() JobDownloadStorage
+	Contact() IContactStorage
 }
 
 type IUserStorage interface {
 	Create(ctx context.Context, req models.SignupRequest) (string, error)
+	
 	GetForLoginByEmail(ctx context.Context, email string) (models.LoginUser, error)
+
 	GetByID(ctx context.Context, id string) (*models.User, error)
 
 	UpdatePassword(ctx context.Context, userID, newPassword string) error
+
 	GetPasswordByID(ctx context.Context, userID string) (string, error)
+
+	UpdateRole(ctx context.Context, userID, role string) error
+
+	UpdateAvatar(ctx context.Context, userID string, avatar string) error
+
+	UpdateUserPreferences(ctx context.Context, userID, language string, notifications bool) error
+
+	GetUserPreferences(ctx context.Context, userID string) (*models.UserPreferences, error)
+
+	CreatePasswordResetToken(ctx context.Context, userID string) (string, error)
+
+	ValidatePasswordResetToken(ctx context.Context, token string) (string, error)
 }
 
 type IRedisStorage interface {
@@ -62,14 +84,20 @@ type IFileStorage interface {
 
 	GetOldFiles(ctx context.Context, olderThanDays int) ([]models.OldFile, error)
 	DeleteByID(ctx context.Context, id string) error
+
+	GetPendingDeletionFiles(ctx context.Context, expirationMinutes int) ([]models.File, error)
+
+	AdminListFiles(ctx context.Context, f models.AdminFileFilter) ([]models.FileRow, error)
+	AdminCountFiles(ctx context.Context, f models.AdminFileFilter) (int64, error)
 }
 type IMergeStorage interface {
 	Create(ctx context.Context, job *models.MergeJob) error
 	GetByID(ctx context.Context, id string) (*models.MergeJob, error)
 	AddInputFiles(ctx context.Context, jobID string, fileIDs []string) error
 	GetInputFiles(ctx context.Context, jobID string) ([]string, error)
-	Update(ctx context.Context, job *models.MergeJob) error // 👉 YANGI QATOR
+	Update(ctx context.Context, job *models.MergeJob) error
 
+	TransitionStatus(ctx context.Context, id, fromStatus, toStatus string) (bool, error)
 }
 
 type ISplitStorage interface {
@@ -182,4 +210,23 @@ type IAddWatermarkStorage interface {
 	Create(ctx context.Context, job *models.AddWatermarkJob) error
 	GetByID(ctx context.Context, id string) (*models.AddWatermarkJob, error)
 	Update(ctx context.Context, job *models.AddWatermarkJob) error
+}
+
+type IFileDeletionLogStorage interface {
+	LogDeletion(ctx context.Context, log models.FileDeletionLog) error
+	GetDeletionLogs(ctx context.Context, limit, offset int) ([]models.FileDeletionLog, error)
+}
+type IAdminJobStorage interface {
+	ListJobs(ctx context.Context, f models.AdminJobFilter) ([]models.JobSummary, error)
+}
+
+type JobDownloadStorage interface {
+	GetJobFiles(ctx context.Context, jobType, jobID string) (models.JobFilesResult, error)
+}
+type IContactStorage interface {
+	Create(ctx context.Context, req models.ContactCreateRequest, id string) error
+	GetByID(ctx context.Context, id string) (*models.ContactMessage, error)
+	List(ctx context.Context, onlyUnread bool, limit, offset int) ([]models.ContactMessage, error)
+	MarkRead(ctx context.Context, id string) error
+	Delete(ctx context.Context, id string) error
 }

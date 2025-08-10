@@ -20,7 +20,7 @@ import (
 // @Success      201 {object} map[string]string
 // @Failure      400 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/pdf/rotate [post]
+// @Router       /pdf/rotate [post]
 func (h *Handler) CreateRotateJob(c *gin.Context) {
 	var req models.RotatePDFRequest
 
@@ -66,7 +66,7 @@ func (h *Handler) CreateRotateJob(c *gin.Context) {
 // @Param        id path string true "Job ID"
 // @Success      200 {object} models.RotateJob
 // @Failure      404 {object} models.Response
-// @Router       /api/pdf/rotate/{id} [get]
+// @Router       /pdf/rotate/{id} [get]
 func (h *Handler) GetRotateJob(c *gin.Context) {
 	jobID := c.Param("id")
 

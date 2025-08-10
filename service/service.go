@@ -13,13 +13,13 @@ import (
 type IServiceManager interface {
 	User() UserService
 	Mailer() MailerService
-	Redis() RedisService // 🆕 Qo‘shing
+	Redis() RedisService
 	Stat() StatsService
 	Log() LogService
 	File() FileService
 
 	Merge() MergeService
-	Split() SplitService // ✅ QO‘SH!
+	Split() SplitService
 	RemovePage() RemovePageService
 	ExtractPage() ExtractPageService
 	Compress() CompressService
@@ -40,6 +40,11 @@ type IServiceManager interface {
 	Google() GoogleService
 	Github() GithubService
 	Facebook() FacebookService
+
+	FileDeletionLog() FileDeletionLogService
+	AdminJob() AdminJobService
+	Download() DownloadService
+	Contact() ContactService
 }
 
 type service struct {
@@ -70,11 +75,15 @@ type service struct {
 	googleService        GoogleService
 	githubService        GithubService
 	facebookService      FacebookService
+	fileDeletionLog      FileDeletionLogService
+	adminJobService      AdminJobService
+	downloadService      DownloadService
+	contact              ContactService
 }
 
 func New(storage storage.IStorage, log logger.ILogger, mailerCore *mailer.Mailer, redis storage.IRedisStorage, gotClient gotenberg.Client, googleCfg config.OAuthProviderConfig) IServiceManager {
 	return &service{
-		userService:          NewUserService(storage, log),
+		userService:          NewUserService(storage, log,mailerCore),
 		mailer:               NewMailerService(mailerCore),
 		mergeService:         NewMergeService(storage, log),
 		fileService:          NewFileService(storage, log),
@@ -97,10 +106,14 @@ func New(storage storage.IStorage, log logger.ILogger, mailerCore *mailer.Mailer
 		excelToPDF:           NewExcelToPDFService(storage, log, gotClient),
 		powerPointToPDF:      NewPowerPointToPDFService(storage, log, gotClient),
 		addWatermark:         NewAddWatermarkService(storage, log),
-		redisService:         NewRedisService( redis,log),
+		redisService:         NewRedisService(redis, log),
 		googleService:        NewGoogleService(GoogleOAuthConfig(googleCfg)), // <-- config ni uzatish!
 		githubService:        NewGithubService(GithubOAuthConfig(googleCfg)),
 		facebookService:      NewFacebookService(FacebookOAuthConfig(googleCfg)),
+		fileDeletionLog:      NewFileDeletionLogService(storage, log),
+		adminJobService:      NewAdminJobService(storage, log),
+		downloadService:      NewDownloadService(storage, log),
+		contact:              NewContactService(storage, log),
 	}
 }
 
@@ -209,4 +222,18 @@ func (s *service) Github() GithubService {
 
 func (s *service) Facebook() FacebookService {
 	return s.facebookService
+}
+
+func (s *service) FileDeletionLog() FileDeletionLogService {
+	return s.fileDeletionLog
+}
+
+func (s *service) AdminJob() AdminJobService {
+	return s.adminJobService
+}
+func (s *service) Download() DownloadService {
+	return s.downloadService
+}
+func (s *service) Contact() ContactService {
+	return s.contact
 }

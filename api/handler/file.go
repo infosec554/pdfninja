@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	// bu path loyihangizga qarab bo'lishi mumkin
@@ -17,9 +18,8 @@ import (
 )
 
 // UploadFile godoc
-// @Router       /file/upload [POST]
-// @Security     ApiKeyAuth
 // @Summary      Upload file
+// @Description  Guest ham, ro‘yxatdan o‘tgan user ham yuklay oladi. (optional auth)
 // @Tags         file
 // @Accept       multipart/form-data
 // @Produce      json
@@ -27,6 +27,7 @@ import (
 // @Success      201  {object}  map[string]string
 // @Failure      400  {object}  models.Response
 // @Failure      500  {object}  models.Response
+// @Router       /file [post]
 func (h Handler) UploadFile(c *gin.Context) {
 	// Auth optional: user_id bo'lishi shart emas
 	var ptrUserID *string
@@ -103,14 +104,14 @@ func (h Handler) UploadFile(c *gin.Context) {
 }
 
 // GetFile godoc
-// @Router       /file/{id} [GET]
-// @Security     ApiKeyAuth
 // @Summary      Get file by ID
 // @Tags         file
+// @Security     ApiKeyAuth
 // @Param        id path string true "File ID"
 // @Produce      json
 // @Success      200  {object}  models.File
 // @Failure      404  {object}  models.Response
+// @Router       /file/{id} [get]
 func (h Handler) GetFile(c *gin.Context) {
 	id := c.Param("id")
 
@@ -127,13 +128,14 @@ func (h Handler) GetFile(c *gin.Context) {
 }
 
 // DeleteFile godoc
-// @Router       /file/{id} [DELETE]
-// @Security     ApiKeyAuth
 // @Summary      Delete file by ID
 // @Tags         file
+// @Security     ApiKeyAuth
 // @Param        id path string true "File ID"
+// @Produce      json
 // @Success      200  {object}  map[string]string
 // @Failure      500  {object}  models.Response
+// @Router       /file/{id} [delete]
 func (h Handler) DeleteFile(c *gin.Context) {
 	id := c.Param("id")
 
@@ -150,16 +152,21 @@ func (h Handler) DeleteFile(c *gin.Context) {
 }
 
 // ListUserFiles godoc
-// @Router       /file/list [GET]
-// @Security     ApiKeyAuth
 // @Summary      List all user's files
 // @Tags         file
+// @Security     ApiKeyAuth
 // @Produce      json
+// @Param        limit query int false "Limit" default(20)
+// @Param        page  query int false "Page"  default(1)
 // @Success      200  {array}  models.File
 // @Failure      500  {object}  models.Response
+// @Router       /file [get]
 func (h Handler) ListUserFiles(c *gin.Context) {
 	userID := c.GetString("user_id")
-
+	if userID == "" {
+		handleResponse(c, h.log, "missing user_id in context", http.StatusUnauthorized, nil)
+		return
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -175,12 +182,12 @@ func (h Handler) ListUserFiles(c *gin.Context) {
 // CleanupOldFiles godoc
 // @Summary      Cleanup old files
 // @Description  Admin-only endpoint to delete files older than N days
-// @Tags         file
+// @Tags         admin, files
 // @Security     ApiKeyAuth
 // @Produce      json
 // @Success      200 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/files/cleanup [get]
+// @Router       /admin/files/cleanup [post]
 func (h *Handler) CleanupOldFiles(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -194,4 +201,101 @@ func (h *Handler) CleanupOldFiles(c *gin.Context) {
 	}
 
 	handleResponse(c, h.log, "old files cleaned up", http.StatusOK, gin.H{"deleted_files": count})
+}
+
+// AdminListPendingDeletionFiles godoc
+// @Summary      List files pending deletion
+// @Description  List files that are older than expirationMinutes minutes (pending deletion)
+// @Tags         admin, files
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        expirationMinutes query int false "Expiration time in minutes" default(5)
+// @Success      200 {array} models.File
+// @Failure      400 {object} models.Response
+// @Failure      500 {object} models.Response
+// @Router       /admin/files/pending-deletion [get]
+func (h *Handler) AdminListPendingDeletionFiles(c *gin.Context) {
+	expMinutesStr := c.DefaultQuery("expirationMinutes", "5")
+	expMinutes, err := strconv.Atoi(expMinutesStr)
+	if err != nil || expMinutes <= 0 {
+		handleResponse(c, h.log, "invalid expirationMinutes param", http.StatusBadRequest, nil)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
+	defer cancel()
+
+	files, err := h.services.File().ListPendingDeletionFiles(ctx, expMinutes)
+	if err != nil {
+		handleResponse(c, h.log, "failed to fetch pending deletion files", http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	handleResponse(c, h.log, "pending deletion files retrieved", http.StatusOK, files)
+}
+
+// AdminListFiles godoc
+// @Summary      Admin: list files
+// @Description  Foydalanuvchi bo'yicha, qidiruv, sana va guest filterlari bilan fayllar ro'yxati
+// @Tags         admin, files
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        user_id         query string  false "Filter by user_id"
+// @Param        include_guests  query bool    false "Include files with NULL user_id" default(false)
+// @Param        q               query string  false "Search in file_name (ILIKE)"
+// @Param        from            query string  false "From date (RFC3339)"
+// @Param        to              query string  false "To date (RFC3339)"
+// @Param        limit           query int     false "Limit"  default(20)
+// @Param        offset          query int     false "Offset" default(0)
+// @Success      200  {array}    models.FileRow
+// @Failure      400  {object}   models.Response
+// @Failure      500  {object}   models.Response
+// @Router       /admin/files [get]
+func (h Handler) AdminListFiles(c *gin.Context) {
+	var f models.AdminFileFilter
+
+	if uid := c.Query("user_id"); uid != "" {
+		f.UserID = &uid
+	}
+	f.IncludeGuests = c.DefaultQuery("include_guests", "false") == "true"
+
+	if q := c.Query("q"); q != "" {
+		f.Q = &q
+	}
+
+	if s := c.Query("from"); s != "" {
+		if t, err := time.Parse(time.RFC3339, s); err == nil {
+			f.DateFrom = &t
+		} else {
+			handleResponse(c, h.log, "invalid 'from' date (RFC3339)", http.StatusBadRequest, err.Error())
+			return
+		}
+	}
+	if s := c.Query("to"); s != "" {
+		if t, err := time.Parse(time.RFC3339, s); err == nil {
+			f.DateTo = &t
+		} else {
+			handleResponse(c, h.log, "invalid 'to' date (RFC3339)", http.StatusBadRequest, err.Error())
+			return
+		}
+	}
+
+	if limStr := c.DefaultQuery("limit", "20"); limStr != "" {
+		if lim, err := strconv.Atoi(limStr); err == nil {
+			f.Limit = lim
+		}
+	}
+	if offStr := c.DefaultQuery("offset", "0"); offStr != "" {
+		if off, err := strconv.Atoi(offStr); err == nil {
+			f.Offset = off
+		}
+	}
+
+	rows, err := h.services.File().AdminListFiles(c.Request.Context(), f)
+	if err != nil {
+		handleResponse(c, h.log, "failed to list files", http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	handleResponse(c, h.log, "ok", http.StatusOK, rows)
 }

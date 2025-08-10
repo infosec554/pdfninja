@@ -20,7 +20,7 @@ import (
 // @Success      200 {object} map[string]string
 // @Failure      400 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/pdf/watermark [post]
+// @Router       /pdf/watermark [post]
 func (h Handler) AddTextWatermark(c *gin.Context) {
 	var req models.AddWatermarkRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -66,7 +66,7 @@ func (h Handler) AddTextWatermark(c *gin.Context) {
 // @Failure      400 {object} models.Response
 // @Failure      404 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/pdf/watermark/{id} [get]
+// @Router       /pdf/watermark/{id} [get]
 func (h Handler) GetWatermarkJob(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {

@@ -11,15 +11,16 @@ import (
 )
 
 // CreateAddPageNumbersJob godoc
-// @Router       /api/pdf/add-page-numbers [POST]
-// @Summary      Add page numbers to PDF
-// @Tags         PDF
+// @Summary      Add page numbers to a PDF
+// @Description  Adds page numbers to selected pages with font/position settings (auth optional).
+// @Tags         pdf
 // @Accept       json
 // @Produce      json
 // @Param        data body models.AddPageNumbersRequest true "PDF ID and font settings"
-// @Success      201 {object} map[string]string
+// @Success      201 {object} map[string]string "job_id"
 // @Failure      400 {object} models.Response
 // @Failure      500 {object} models.Response
+// @Router       /pdf/add-page-numbers [post]
 func (h *Handler) CreateAddPageNumbersJob(c *gin.Context) {
 	var req models.AddPageNumbersRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -54,13 +55,13 @@ func (h *Handler) CreateAddPageNumbersJob(c *gin.Context) {
 }
 
 // GetAddPageNumbersJob godoc
-// @Router       /api/pdf/add-page-numbers/{id} [GET]
-// @Summary      Get add page numbers job by ID
-// @Tags         PDF
+// @Summary      Get add-page-numbers job by ID
+// @Tags         pdf
 // @Param        id path string true "Job ID"
 // @Produce      json
 // @Success      200 {object} models.AddPageNumberJob
 // @Failure      404 {object} models.Response
+// @Router       /pdf/add-page-numbers/{id} [get]
 func (h *Handler) GetAddPageNumbersJob(c *gin.Context) {
 	id := c.Param("id")
 

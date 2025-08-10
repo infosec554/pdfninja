@@ -20,7 +20,7 @@ import (
 // @Success      201 {object} map[string]string
 // @Failure      400 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/pdf/word-to-pdf [post]
+// @Router       /pdf/word-to-pdf [post]
 func (h *Handler) CreateWordToPDF(c *gin.Context) {
 	var req models.WordToPDFRequest
 
@@ -61,7 +61,7 @@ func (h *Handler) CreateWordToPDF(c *gin.Context) {
 // @Success      200 {object} models.WordToPDFJob
 // @Failure      404 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/pdf/word-to-pdf/{id} [get]
+// @Router       /pdf/word-to-pdf/{id} [get]
 func (h *Handler) GetWordToPDFJob(c *gin.Context) {
 	jobID := c.Param("id")
 

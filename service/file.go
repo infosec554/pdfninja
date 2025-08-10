@@ -18,6 +18,11 @@ type FileService interface {
 	Delete(ctx context.Context, id string) error
 	List(ctx context.Context, userID string) ([]models.File, error)
 	CleanupOldFiles(ctx context.Context, olderThanDays int) (int, error)
+
+	ListPendingDeletionFiles(ctx context.Context, expirationMinutes int) ([]models.File, error)
+
+	AdminListFiles(ctx context.Context, f models.AdminFileFilter) ([]models.FileRow, error)
+	AdminCountFiles(ctx context.Context, f models.AdminFileFilter) (int64, error)
 }
 
 type fileService struct {
@@ -61,8 +66,9 @@ func (s *fileService) Delete(ctx context.Context, id string) error {
 func (s *fileService) List(ctx context.Context, userID string) ([]models.File, error) {
 	return s.stg.ListByUser(ctx, userID)
 }
+
 func (s *fileService) CleanupOldFiles(ctx context.Context, olderThanDays int) (int, error) {
-	s.log.Info("Cleaning up old files...")
+	s.log.Info("Cleaning up old files...", logger.Int("older_than_days", olderThanDays))
 
 	oldFiles, err := s.stg.GetOldFiles(ctx, olderThanDays)
 	if err != nil {
@@ -72,6 +78,13 @@ func (s *fileService) CleanupOldFiles(ctx context.Context, olderThanDays int) (i
 
 	count := 0
 	for _, file := range oldFiles {
+		select {
+		case <-ctx.Done():
+			s.log.Info("CleanupOldFiles canceled by context")
+			return count, ctx.Err()
+		default:
+		}
+
 		if err := os.Remove(file.FilePath); err != nil {
 			s.log.Error("failed to delete file from disk", logger.Error(err), logger.String("path", file.FilePath))
 			continue
@@ -83,5 +96,17 @@ func (s *fileService) CleanupOldFiles(ctx context.Context, olderThanDays int) (i
 		count++
 	}
 
+	s.log.Info("CleanupOldFiles finished", logger.Int("files_deleted", count))
 	return count, nil
 }
+func (s *fileService) ListPendingDeletionFiles(ctx context.Context, expirationMinutes int) ([]models.File, error) {
+	s.log.Info("FileService.ListPendingDeletionFiles called", logger.Int("expiration_minutes", expirationMinutes))
+	return s.stg.GetPendingDeletionFiles(ctx, expirationMinutes)
+}
+func (s *fileService) AdminListFiles(ctx context.Context, f models.AdminFileFilter) ([]models.FileRow, error) {
+	return s.stg.AdminListFiles(ctx, f)
+}
+func (s *fileService) AdminCountFiles(ctx context.Context, f models.AdminFileFilter) (int64, error) {
+	return s.stg.AdminCountFiles(ctx, f)
+}
+

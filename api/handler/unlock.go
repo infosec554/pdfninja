@@ -20,7 +20,7 @@ import (
 // @Success      201 {object} map[string]string
 // @Failure      400 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/pdf/unlock [post]
+// @Router       /pdf/unlock [post]
 func (h *Handler) CreateUnlockJob(c *gin.Context) {
 	var req models.UnlockPDFRequest
 
@@ -65,7 +65,7 @@ func (h *Handler) CreateUnlockJob(c *gin.Context) {
 // @Success      200 {object} models.UnlockPDFJob
 // @Failure      404 {object} models.Response
 // @Failure      500 {object} models.Response
-// @Router       /api/pdf/unlock/{id} [get]
+// @Router       /pdf/unlock/{id} [get]
 func (h *Handler) GetUnlockJob(c *gin.Context) {
 	jobID := c.Param("id")
 
